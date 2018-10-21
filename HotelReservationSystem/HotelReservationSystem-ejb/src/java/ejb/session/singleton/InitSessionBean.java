@@ -6,12 +6,11 @@
 package ejb.session.singleton;
 
 import ejb.session.stateless.RoomSessionBeanLocal;
-import entity.Room;
-import javax.annotation.PostConstruct;
+//import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
 import javax.ejb.Singleton;
 import javax.ejb.LocalBean;
-import javax.ejb.Startup;
+//import javax.ejb.Startup;
 
 /**
  *
@@ -19,15 +18,14 @@ import javax.ejb.Startup;
  */
 @Singleton
 @LocalBean
-@Startup
-
+//@Startup
 public class InitSessionBean {
 
     @EJB
     private RoomSessionBeanLocal roomSessionBeanLocal;
     
-    @PostConstruct
-    public void PostConstruct() {
-        roomSessionBeanLocal.createRoom(new Room("Room 1"));
-    }
+//    @PostConstruct
+//    public void PostConstruct() {
+//        roomSessionBeanLocal.createRoom(new Room("Room 1"));
+//    }
 }

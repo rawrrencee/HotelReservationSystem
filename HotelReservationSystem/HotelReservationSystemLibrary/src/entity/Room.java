@@ -10,6 +10,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import util.enumeration.RoomStatus;
 
 /**
  *
@@ -22,13 +23,15 @@ public class Room implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long roomId;
-    private String roomName;
+    private Integer roomNumber;
+    private RoomStatus roomStatus;
     
     public Room() {
     }
 
-    public Room(String roomName) {
-        this.roomName = roomName;
+    public Room(Integer roomNumber, RoomStatus roomStatus) {
+        this.roomNumber = roomNumber;
+        this.roomStatus = roomStatus;
     }
 
     public Long getRoomId() {
@@ -65,17 +68,31 @@ public class Room implements Serializable {
     }
 
     /**
-     * @return the roomName
+     * @return the roomNumber
      */
-    public String getRoomName() {
-        return roomName;
+    public Integer getRoomNumber() {
+        return roomNumber;
     }
 
     /**
-     * @param roomName the roomName to set
+     * @param roomNumber the roomNumber to set
      */
-    public void setRoomName(String roomName) {
-        this.roomName = roomName;
+    public void setRoomNumber(Integer roomNumber) {
+        this.roomNumber = roomNumber;
+    }
+
+    /**
+     * @return the roomStatus
+     */
+    public RoomStatus getRoomStatus() {
+        return roomStatus;
+    }
+
+    /**
+     * @param roomStatus the roomStatus to set
+     */
+    public void setRoomStatus(RoomStatus roomStatus) {
+        this.roomStatus = roomStatus;
     }
     
 }
