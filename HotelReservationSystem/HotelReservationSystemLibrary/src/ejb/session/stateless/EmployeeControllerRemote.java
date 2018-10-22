@@ -11,6 +11,8 @@ import util.exception.EmployeeNotFoundException;
 import util.exception.InvalidLoginCredentialException;
 
 public interface EmployeeControllerRemote {
+    
+    public Employee createNewEmployee(Employee newEmployee);
 
     public List<Employee> retrieveAllEmployees();
 

@@ -5,17 +5,26 @@
  */
 package horsmanagementclient;
 
+import ejb.session.stateless.EmployeeControllerRemote;
+import ejb.session.stateless.PartnerControllerRemote;
+import javax.ejb.EJB;
+
 /**
  *
  * @author Lawrence
  */
 public class Main {
 
-    /**
-     * @param args the command line arguments
-     */
+    @EJB
+    private static EmployeeControllerRemote employeeControllerRemote;
+    @EJB
+    private static PartnerControllerRemote partnerControllerRemote;
+
+
     public static void main(String[] args) {
-        // TODO code application logic here
+       
+        MainApp mainApp = new MainApp(employeeControllerRemote, partnerControllerRemote);
+        mainApp.runApp();
     }
     
 }

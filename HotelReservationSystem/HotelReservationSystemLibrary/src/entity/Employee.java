@@ -6,6 +6,7 @@
 package entity;
 
 import java.io.Serializable;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -24,14 +25,23 @@ public class Employee implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long employeeId;
     
+    @Column(unique = true, nullable = false, length = 255)
     private String username;
+    @Column(nullable = false, length = 255)
     private String password;
+    @Column(nullable = false, length = 255)
     private String firstName;
+    @Column(nullable = false, length = 255)
     private String lastName;
+    @Column(nullable = false, length = 9)
     private String identificationNum;
+    @Column(nullable = false, length = 8)
     private String contactNum;
+    @Column(nullable = false)
     private String addressLine1;
+    @Column(nullable = false)
     private String addressLine2;
+    @Column(nullable = false, length = 6)
     private String postalCode;
     private EmployeeAccessRightEnum accessRight;
 

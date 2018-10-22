@@ -6,6 +6,7 @@
 package entity;
 
 import java.io.Serializable;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -23,12 +24,19 @@ public class Partner implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long partnerId;
     
+    @Column(unique = true, nullable = false, length = 255)
     private String username;
+    @Column(nullable = false, length = 255)
     private String password;
+    @Column(nullable = false, length = 255)
     private String orgName;
+    @Column(nullable = false, length = 8)
     private String contactNum;
+    @Column(nullable = false)
     private String addressLine1;
+    @Column(nullable = false)
     private String addressLine2;
+    @Column(nullable = false, length = 6)
     private String postalCode;
 
     public Partner() {
