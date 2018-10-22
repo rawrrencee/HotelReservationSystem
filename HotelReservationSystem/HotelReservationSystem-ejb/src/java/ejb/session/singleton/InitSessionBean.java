@@ -5,12 +5,15 @@
  */
 package ejb.session.singleton;
 
-import ejb.session.stateless.RoomSessionBeanLocal;
-//import javax.annotation.PostConstruct;
+import ejb.session.stateless.EmployeeControllerLocal;
+import entity.Employee;
+import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
 import javax.ejb.Singleton;
 import javax.ejb.LocalBean;
-//import javax.ejb.Startup;
+import javax.ejb.Startup;
+import util.enumeration.EmployeeAccessRightEnum;
+import util.exception.EmployeeNotFoundException;
 
 /**
  *
@@ -18,14 +21,27 @@ import javax.ejb.LocalBean;
  */
 @Singleton
 @LocalBean
-//@Startup
+@Startup
 public class InitSessionBean {
 
     @EJB
-    private RoomSessionBeanLocal roomSessionBeanLocal;
+    private EmployeeControllerLocal employeeControllerLocal;
     
-//    @PostConstruct
-//    public void PostConstruct() {
-//        roomSessionBeanLocal.createRoom(new Room("Room 1"));
-//    }
+    @PostConstruct
+    public void PostConstruct() {
+        
+        try {
+            employeeControllerLocal.retrieveEmployeeByUsername("sysadmin");
+        } catch (EmployeeNotFoundException ex) {
+            initialiseData();
+        }
+    }
+    
+    private void initialiseData() {
+        try {
+            employeeControllerLocal.createNewEmployee(new Employee("sysadmin", "password", "Default", "System Administrator", "S0000001A", "90123456", "Singapore Address Line 1", "Singapore Address Line 2", "600001", EmployeeAccessRightEnum.SYSADMIN));
+        } catch (Exception ex) {
+            System.err.println("********** DataInitializationSessionBean.initializeData(): An error has occurred while loading initial test data: " + ex.getMessage());
+        }
+    }
 }

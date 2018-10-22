@@ -7,7 +7,7 @@ package entity;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.util.Date;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -27,8 +27,8 @@ public class RoomRate implements Serializable {
     private Long roomRateId;
     
     private String roomRateName;
-    private LocalDateTime rateStartDate;
-    private LocalDateTime rateEndDate;
+    private Date rateStartDate;
+    private Date rateEndDate;
     private RoomRateEnum roomRateEnum;
     private BigDecimal ratePerNight;
     private Boolean isDisabled;
@@ -36,7 +36,7 @@ public class RoomRate implements Serializable {
     public RoomRate() {
     }
 
-    public RoomRate(String roomRateName, LocalDateTime rateStartDate, LocalDateTime rateEndDate, RoomRateEnum roomRateEnum, BigDecimal ratePerNight, Boolean isDisabled) {
+    public RoomRate(String roomRateName, Date rateStartDate, Date rateEndDate, RoomRateEnum roomRateEnum, BigDecimal ratePerNight, Boolean isDisabled) {
         this.roomRateName = roomRateName;
         this.rateStartDate = rateStartDate;
         this.rateEndDate = rateEndDate;
@@ -95,28 +95,28 @@ public class RoomRate implements Serializable {
     /**
      * @return the rateStartDate
      */
-    public LocalDateTime getRateStartDate() {
+    public Date getRateStartDate() {
         return rateStartDate;
     }
 
     /**
      * @param rateStartDate the rateStartDate to set
      */
-    public void setRateStartDate(LocalDateTime rateStartDate) {
+    public void setRateStartDate(Date rateStartDate) {
         this.rateStartDate = rateStartDate;
     }
 
     /**
      * @return the rateEndDate
      */
-    public LocalDateTime getRateEndDate() {
+    public Date getRateEndDate() {
         return rateEndDate;
     }
 
     /**
      * @param rateEndDate the rateEndDate to set
      */
-    public void setRateEndDate(LocalDateTime rateEndDate) {
+    public void setRateEndDate(Date rateEndDate) {
         this.rateEndDate = rateEndDate;
     }
 

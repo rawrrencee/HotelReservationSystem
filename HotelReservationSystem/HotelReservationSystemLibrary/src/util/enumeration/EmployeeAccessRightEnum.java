@@ -9,7 +9,7 @@ package util.enumeration;
  *
  * @author Lawrence
  */
-public enum EmployeeAccessRight {
+public enum EmployeeAccessRightEnum {
     SYSADMIN,
     OPMANAGER,
     SAMANAGER,

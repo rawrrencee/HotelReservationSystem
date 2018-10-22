@@ -3,16 +3,18 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package horsreservationclient;
+package util.exception;
 
 /**
  *
  * @author Lawrence
  */
-public class Main {
-    
-    public static void main(String[] args) {
+public class InvalidLoginCredentialException extends Exception {
 
+    public InvalidLoginCredentialException() {
     }
-    
+
+    public InvalidLoginCredentialException(String msg) {
+        super(msg);
+    }
 }

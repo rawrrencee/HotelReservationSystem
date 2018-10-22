@@ -3,18 +3,18 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package ejb.session.stateless;
-
-import entity.Room;
-import java.util.List;
+package util.exception;
 
 /**
  *
  * @author Lawrence
  */
-public interface RoomSessionBeanLocal {
+public class EmployeeNotFoundException extends Exception {
+
+    public EmployeeNotFoundException() {
+    }
     
-    public Long createRoom(Room newRoom);
-    
-    public List<Room> retrieveAllRooms();
+    public EmployeeNotFoundException(String msg) {
+        super(msg);
+    }
 }

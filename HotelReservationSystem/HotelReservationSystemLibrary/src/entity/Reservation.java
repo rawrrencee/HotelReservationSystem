@@ -7,7 +7,7 @@ package entity;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.util.Date;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -26,25 +26,25 @@ public class Reservation implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long reservationId;
     
-    private LocalDateTime checkInDate;
-    private LocalDateTime checkOutDate;
+    private Date checkInDate;
+    private Date checkOutDate;
     private ReservationType reservationType;
     private BigDecimal reservationAmt;
     private Integer numGuests;
-    private String reservedTo;
-    private LocalDateTime creationDate;
+    private String reservedBy;
+    private Date createdDate;
 
     public Reservation() {
     }
 
-    public Reservation(LocalDateTime checkInDate, LocalDateTime checkOutDate, ReservationType reservationType, BigDecimal reservationAmt, Integer numGuests, String reservedTo, LocalDateTime creationDate) {
+    public Reservation(Date checkInDate, Date checkOutDate, ReservationType reservationType, BigDecimal reservationAmt, Integer numGuests, String reservedTo, Date creationDate) {
         this.checkInDate = checkInDate;
         this.checkOutDate = checkOutDate;
         this.reservationType = reservationType;
         this.reservationAmt = reservationAmt;
         this.numGuests = numGuests;
-        this.reservedTo = reservedTo;
-        this.creationDate = creationDate;
+        this.reservedBy = reservedTo;
+        this.createdDate = creationDate;
     }
 
     public Long getReservationId() {
@@ -83,28 +83,28 @@ public class Reservation implements Serializable {
     /**
      * @return the checkInDate
      */
-    public LocalDateTime getCheckInDate() {
+    public Date getCheckInDate() {
         return checkInDate;
     }
 
     /**
      * @param checkInDate the checkInDate to set
      */
-    public void setCheckInDate(LocalDateTime checkInDate) {
+    public void setCheckInDate(Date checkInDate) {
         this.checkInDate = checkInDate;
     }
 
     /**
      * @return the checkOutDate
      */
-    public LocalDateTime getCheckOutDate() {
+    public Date getCheckOutDate() {
         return checkOutDate;
     }
 
     /**
      * @param checkOutDate the checkOutDate to set
      */
-    public void setCheckOutDate(LocalDateTime checkOutDate) {
+    public void setCheckOutDate(Date checkOutDate) {
         this.checkOutDate = checkOutDate;
     }
 
@@ -151,31 +151,31 @@ public class Reservation implements Serializable {
     }
 
     /**
-     * @return the reservedTo
+     * @return the reservedBy
      */
-    public String getReservedTo() {
-        return reservedTo;
+    public String getReservedBy() {
+        return reservedBy;
     }
 
     /**
-     * @param reservedTo the reservedTo to set
+     * @param reservedBy the reservedBy to set
      */
-    public void setReservedTo(String reservedTo) {
-        this.reservedTo = reservedTo;
+    public void setReservedBy(String reservedBy) {
+        this.reservedBy = reservedBy;
     }
 
     /**
-     * @return the creationDate
+     * @return the createdDate
      */
-    public LocalDateTime getCreationDate() {
-        return creationDate;
+    public Date getCreatedDate() {
+        return createdDate;
     }
 
     /**
-     * @param creationDate the creationDate to set
+     * @param createdDate the createdDate to set
      */
-    public void setCreationDate(LocalDateTime creationDate) {
-        this.creationDate = creationDate;
+    public void setCreatedDate(Date createdDate) {
+        this.createdDate = createdDate;
     }
     
 }

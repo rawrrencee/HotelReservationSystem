@@ -10,7 +10,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import util.enumeration.EmployeeAccessRight;
+import util.enumeration.EmployeeAccessRightEnum;
 
 /**
  *
@@ -33,12 +33,12 @@ public class Employee implements Serializable {
     private String addressLine1;
     private String addressLine2;
     private String postalCode;
-    private EmployeeAccessRight accessRight;
+    private EmployeeAccessRightEnum accessRight;
 
     public Employee() {
     }
 
-    public Employee(String username, String password, String firstName, String lastName, String identificationNum, String contactNum, String addressLine1, String addressLine2, String postalCode, EmployeeAccessRight accessRight) {
+    public Employee(String username, String password, String firstName, String lastName, String identificationNum, String contactNum, String addressLine1, String addressLine2, String postalCode, EmployeeAccessRightEnum accessRight) {
         this.username = username;
         this.password = password;
         this.firstName = firstName;
@@ -213,14 +213,14 @@ public class Employee implements Serializable {
     /**
      * @return the accessRight
      */
-    public EmployeeAccessRight getAccessRight() {
+    public EmployeeAccessRightEnum getAccessRight() {
         return accessRight;
     }
 
     /**
      * @param accessRight the accessRight to set
      */
-    public void setAccessRight(EmployeeAccessRight accessRight) {
+    public void setAccessRight(EmployeeAccessRightEnum accessRight) {
         this.accessRight = accessRight;
     }
     
