@@ -91,7 +91,7 @@ public class SystemAdministrationModule {
             System.out.print("Enter Username> ");
             String inUsername = sc.nextLine().trim();
             try {
-                Employee getEmployee = employeeControllerRemote.retrieveEmployeeByUsername(inUsername);
+                Employee getEmployee = employeeControllerRemote.retrieveEmployeeByUsername(inUsername); //don't return employee object
                 if (getEmployee != null) {
                     System.out.println("Username already taken, please choose another one!");
                 }
