@@ -20,4 +20,6 @@ public interface RoomTypeControllerLocal {
     public RoomType createNewRoomType(RoomType roomType) throws RoomTypeExistException, GeneralException;
     
     public Boolean checkRoomTypeExists(String roomTypeName) throws RoomTypeNotFoundException;
+    
+    public void updateRoomType(RoomType roomType);
 }

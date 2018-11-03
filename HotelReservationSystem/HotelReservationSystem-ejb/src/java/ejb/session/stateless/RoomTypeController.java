@@ -80,4 +80,9 @@ public class RoomTypeController implements RoomTypeControllerLocal, RoomTypeCont
         }
     }
     
+    @Override
+    public void updateRoomType(RoomType roomType) {
+        em.merge(roomType);
+    }
+    
 }

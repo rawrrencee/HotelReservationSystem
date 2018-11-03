@@ -27,6 +27,7 @@ public class HotelOperationModule {
     private RoomTypeControllerRemote roomTypeControllerRemote;
     
     private Employee currentEmployee;
+    private RoomType currentRoomType;
 
     public HotelOperationModule() {
     }
@@ -213,6 +214,8 @@ public class HotelOperationModule {
         Boolean conditionChecker = true;
         List<RoomType> roomTypes = roomTypeControllerRemote.retrieveAllRoomTypes();
         
+        System.out.println("*** Hotel Reservation System :: Hotel Operations :: View Room Type Details ***\n");
+        
         System.out.println("*** List of Room Types ***");
         for (RoomType roomType : roomTypes) {
             System.out.println(roomType.getRoomTypeId() + ": " + roomType.getRoomTypeName());
@@ -225,7 +228,8 @@ public class HotelOperationModule {
             if (response >= 1 && response <= roomTypes.size()) {
                 try {
                     RoomType roomType = roomTypeControllerRemote.retrieveRoomTypeByRoomTypeId(Long.valueOf(response));
-                    System.out.println("Room Type Details: ");
+                    System.out.println();
+                    System.out.println("---------------Room Type Details---------------");
                     System.out.println("Room Type Name | " + roomType.getRoomTypeName());
                     System.out.println("Description: " + roomType.getRoomTypeDescription());
                     System.out.println("Room Size: " + roomType.getRoomSize() + "sq m");
@@ -250,7 +254,118 @@ public class HotelOperationModule {
     }
     
     private void updateRoomType() {
+        Scanner sc = new Scanner(System.in);
+        String input;
+        List<RoomType> roomTypes = roomTypeControllerRemote.retrieveAllRoomTypes();
+
+        System.out.println("*** Hotel Reservation System :: Hotel Operations :: Update Room Type ***\n");
+
+        System.out.println("*** List of Room Types ***");
+        for (RoomType roomType : roomTypes) {
+            System.out.println(roomType.getRoomTypeId() + ": " + roomType.getRoomTypeName());
+        }
+        System.out.println("-------------------------");
+
+        while (true) {
+            System.out.print("Enter Room Type ID to update> ");
+            int response = sc.nextInt();
+            if (response >= 1 && response <= roomTypes.size()) {
+                try {
+                    currentRoomType = roomTypeControllerRemote.retrieveRoomTypeByRoomTypeId(Long.valueOf(response));
+                    break;
+                } catch (RoomTypeNotFoundException ex) {
+                    System.out.println("Invalid option!\n");
+                }
+            }
+        }
+        //Consume empty line
+        sc.nextLine();
+        System.out.println("Input accepted! Now updating: " + currentRoomType.getRoomTypeId() + ": " + currentRoomType.getRoomTypeName());
+        System.out.print("Enter Room Type Name (blank if no change)> ");
+        input = sc.nextLine().trim();
+        if (input.length() > 0) {
+            currentRoomType.setRoomTypeName(input);
+        }
+
+        System.out.print("Enter Room Type Description (blank if no change)> ");
+        input = sc.nextLine().trim();
+        if (input.length() > 0) {
+            currentRoomType.setRoomTypeDescription(input);
+        }
         
+        while (true) {
+            System.out.print("Enter Room Size in sq m (blank if no change)> ");
+            input = sc.nextLine();
+            if (input.length() > 0) {
+                try {
+                    currentRoomType.setRoomSize(Integer.parseInt(input));
+                    break;
+                } catch (NumberFormatException ex) {
+                    System.out.println("Please enter numeric values.");
+                }
+            } else {
+                break;
+            }
+        }
+        
+        System.out.print("Enter Bed Info (blank if no change)> ");
+        input = sc.nextLine().trim();
+        if (input.length() > 0) {
+            currentRoomType.setBedInfo(input);
+        }
+
+        while (true) {
+            System.out.print("Enter Capacity (blank if no change)> ");
+            input = sc.nextLine();
+            if (input.length() > 0) {
+                try {
+                    currentRoomType.setCapacity(Integer.parseInt(input));
+                    break;
+                } catch (NumberFormatException ex) {
+                    System.out.println("Please enter numeric values.");
+                }
+            } else {
+                break;
+            }
+        }
+        
+        System.out.print("Enter Amenities (blank if no change)> ");
+        input = sc.nextLine().trim();
+        if (input.length() > 0) {
+            currentRoomType.setAmenities(input);
+        }
+        
+        while (true) {
+            System.out.print("Enter Number of Rooms in total (blank if no change)> ");
+            input = sc.nextLine();
+            if (input.length() > 0) {
+                try {
+                    currentRoomType.setNumRooms(Integer.parseInt(input));
+                    break;
+                } catch (NumberFormatException ex) {
+                    System.out.println("Please enter numeric values.");
+                }
+            } else {
+                break;
+            }
+        }
+        
+        while (true) {
+            System.out.print("Enable Room Type? Y/N> ");
+            input = sc.nextLine().trim();
+            if (input.toLowerCase().equals("y")) {
+                currentRoomType.setIsEnabled(true);
+                break;
+            }
+            if (input.toLowerCase().equals("n")) {
+                currentRoomType.setIsEnabled(false);
+                break;
+            }
+        }
+        
+        roomTypeControllerRemote.updateRoomType(currentRoomType);
+        System.out.println("-------------------------");
+        System.out.println("Room Type updated!\n");
     }
     
     private void deleteRoomType() {
