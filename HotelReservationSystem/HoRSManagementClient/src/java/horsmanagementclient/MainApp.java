@@ -7,6 +7,7 @@ package horsmanagementclient;
 
 import ejb.session.stateless.EmployeeControllerRemote;
 import ejb.session.stateless.PartnerControllerRemote;
+import ejb.session.stateless.RoomControllerRemote;
 import ejb.session.stateless.RoomTypeControllerRemote;
 import entity.Employee;
 import java.util.Scanner;
@@ -22,6 +23,7 @@ public class MainApp {
     private EmployeeControllerRemote employeeControllerRemote;
     private PartnerControllerRemote partnerControllerRemote;
     private RoomTypeControllerRemote roomTypeControllerRemote;
+    private RoomControllerRemote roomControllerRemote;
     
     private SystemAdministrationModule systemAdministrationModule;
     private HotelOperationModule hotelOperationModule;
@@ -31,10 +33,11 @@ public class MainApp {
     public MainApp(){
     }
 
-    public MainApp(EmployeeControllerRemote employeeControllerRemote, PartnerControllerRemote partnerControllerRemote, RoomTypeControllerRemote roomTypeControllerRemote) {
+    public MainApp(EmployeeControllerRemote employeeControllerRemote, PartnerControllerRemote partnerControllerRemote, RoomTypeControllerRemote roomTypeControllerRemote, RoomControllerRemote roomControllerRemote) {
         this.employeeControllerRemote = employeeControllerRemote;
         this.partnerControllerRemote = partnerControllerRemote;
         this.roomTypeControllerRemote = roomTypeControllerRemote;
+        this.roomControllerRemote = roomControllerRemote;
     }
     
     
@@ -58,7 +61,7 @@ public class MainApp {
                             doLogin();
                             System.out.println("Login successful!\n");
                             systemAdministrationModule = new SystemAdministrationModule(employeeControllerRemote, partnerControllerRemote, currentEmployee);
-                            hotelOperationModule = new HotelOperationModule(employeeControllerRemote, roomTypeControllerRemote, currentEmployee);
+                            hotelOperationModule = new HotelOperationModule(employeeControllerRemote, roomControllerRemote, roomTypeControllerRemote, currentEmployee);
                             menuMain();
                         } catch (InvalidLoginCredentialException ex) {
                             System.out.println("Invalid login credentials: " + ex.getMessage() + "\n");

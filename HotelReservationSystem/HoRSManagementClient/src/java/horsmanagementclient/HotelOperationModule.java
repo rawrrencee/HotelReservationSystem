@@ -6,6 +6,7 @@
 package horsmanagementclient;
 
 import ejb.session.stateless.EmployeeControllerRemote;
+import ejb.session.stateless.RoomControllerRemote;
 import ejb.session.stateless.RoomTypeControllerRemote;
 import entity.Employee;
 import entity.RoomType;
@@ -25,6 +26,7 @@ public class HotelOperationModule {
     
     private EmployeeControllerRemote employeeControllerRemote;
     private RoomTypeControllerRemote roomTypeControllerRemote;
+    private RoomControllerRemote roomControllerRemote;
     
     private Employee currentEmployee;
     private RoomType currentRoomType;
@@ -32,8 +34,9 @@ public class HotelOperationModule {
     public HotelOperationModule() {
     }
 
-    public HotelOperationModule(EmployeeControllerRemote employeeControllerRemote, RoomTypeControllerRemote roomTypeControllerRemote, Employee currentEmployee) {
+    public HotelOperationModule(EmployeeControllerRemote employeeControllerRemote, RoomControllerRemote roomControllerRemote, RoomTypeControllerRemote roomTypeControllerRemote, Employee currentEmployee) {
         this.employeeControllerRemote = employeeControllerRemote;
+        this.roomControllerRemote = roomControllerRemote;
         this.roomTypeControllerRemote = roomTypeControllerRemote;
         this.currentEmployee = currentEmployee;
     }
@@ -216,12 +219,6 @@ public class HotelOperationModule {
         
         System.out.println("*** Hotel Reservation System :: Hotel Operations :: View Room Type Details ***\n");
         
-        System.out.println("*** List of Room Types ***");
-        for (RoomType roomType : roomTypes) {
-            System.out.println(roomType.getRoomTypeId() + ": " + roomType.getRoomTypeName());
-        }
-        System.out.println("-------------------------");
-        
         while (conditionChecker) {
             System.out.print("Enter Room Type ID to query> ");
             int response = sc.nextInt();
@@ -230,7 +227,8 @@ public class HotelOperationModule {
                     RoomType roomType = roomTypeControllerRemote.retrieveRoomTypeByRoomTypeId(Long.valueOf(response));
                     System.out.println();
                     System.out.println("---------------Room Type Details---------------");
-                    System.out.println("Room Type Name | " + roomType.getRoomTypeName());
+                    System.out.println("Room Type ID | " + roomType.getRoomTypeId() + " |");
+                    System.out.println("Room Type Name | " + roomType.getRoomTypeName() + " |");
                     System.out.println("Description: " + roomType.getRoomTypeDescription());
                     System.out.println("Room Size: " + roomType.getRoomSize() + "sq m");
                     System.out.println("Bed Info: " + roomType.getBedInfo());
@@ -260,11 +258,7 @@ public class HotelOperationModule {
 
         System.out.println("*** Hotel Reservation System :: Hotel Operations :: Update Room Type ***\n");
 
-        System.out.println("*** List of Room Types ***");
-        for (RoomType roomType : roomTypes) {
-            System.out.println(roomType.getRoomTypeId() + ": " + roomType.getRoomTypeName());
-        }
-        System.out.println("-------------------------");
+        viewRoomTypeDetails();
 
         while (true) {
             System.out.print("Enter Room Type ID to update> ");
@@ -373,10 +367,21 @@ public class HotelOperationModule {
     }
     
     private void viewAllRoomTypes() {
+        Scanner sc = new Scanner(System.in);
+        List<RoomType> roomTypes = roomTypeControllerRemote.retrieveAllRoomTypes();
         
+        System.out.println("*** List of Room Types ***");
+        for (RoomType roomType : roomTypes) {
+            System.out.println(roomType.getRoomTypeId() + ": " + roomType.getRoomTypeName());
+        }
+        System.out.println("-------------------------");
+        System.out.print("Press any key to continue...");
+        sc.nextLine();
+        System.out.println();
     }
     
     private void createNewRoom() {
+        Scanner sc = new Scanner(System.in);
         
     }
     

@@ -37,7 +37,7 @@ public class RoomTypeController implements RoomTypeControllerLocal, RoomTypeCont
     
     @Override
     public List<RoomType> retrieveAllRoomTypes() {
-        Query query = em.createQuery("SELECT rt from RoomType rt");
+        Query query = em.createQuery("SELECT rt FROM RoomType rt");
         
         return query.getResultList();
     }
