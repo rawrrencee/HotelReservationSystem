@@ -7,10 +7,14 @@ package horsmanagementclient;
 
 import ejb.session.stateless.EmployeeControllerRemote;
 import ejb.session.stateless.RoomControllerRemote;
+import ejb.session.stateless.RoomRateControllerRemote;
 import ejb.session.stateless.RoomTypeControllerRemote;
 import entity.Employee;
+import entity.PublishedRoomRate;
 import entity.Room;
+import entity.RoomRate;
 import entity.RoomType;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Scanner;
 import util.enumeration.EmployeeAccessRightEnum;
@@ -31,6 +35,7 @@ public class HotelOperationModule {
     private EmployeeControllerRemote employeeControllerRemote;
     private RoomTypeControllerRemote roomTypeControllerRemote;
     private RoomControllerRemote roomControllerRemote;
+    private RoomRateControllerRemote roomRateControllerRemote;
     
     private Employee currentEmployee;
     private RoomType currentRoomType;
@@ -39,11 +44,12 @@ public class HotelOperationModule {
     public HotelOperationModule() {
     }
 
-    public HotelOperationModule(EmployeeControllerRemote employeeControllerRemote, RoomControllerRemote roomControllerRemote, RoomTypeControllerRemote roomTypeControllerRemote, Employee currentEmployee) {
+    public HotelOperationModule(EmployeeControllerRemote employeeControllerRemote, RoomControllerRemote roomControllerRemote, RoomTypeControllerRemote roomTypeControllerRemote, Employee currentEmployee, RoomRateControllerRemote roomRateControllerRemote) {
         this.employeeControllerRemote = employeeControllerRemote;
         this.roomControllerRemote = roomControllerRemote;
         this.roomTypeControllerRemote = roomTypeControllerRemote;
         this.currentEmployee = currentEmployee;
+        this.roomRateControllerRemote = roomRateControllerRemote;
     }
     
     public void menuMain() throws InvalidAccessRightException {
@@ -368,7 +374,28 @@ public class HotelOperationModule {
     }
     
     private void deleteRoomType() {
-        
+        Scanner sc = new Scanner(System.in);
+        String input;
+        viewAllRoomTypes();
+        while (true) {
+            System.out.print("Enter Room Type ID to remove> ");
+            input = sc.nextLine().trim();
+            try {
+                Long roomTypeIdToRemove = Long.parseLong(input);
+                try {
+                    if (!roomTypeControllerRemote.deleteRoomType(roomTypeIdToRemove)) {
+                        System.out.println("Room Type is currently associated with other entities. Set to DISABLED instead.");
+                    }
+                } catch (RoomTypeNotFoundException ex) {
+                    System.out.println("An error occurred: " + ex.getMessage());
+                }
+                break;
+            } catch (NumberFormatException ex) {
+                System.out.println("Please enter numeric values.");
+                continue;
+            }
+        }
+
     }
     
     private void viewAllRoomTypes() {
@@ -414,7 +441,7 @@ public class HotelOperationModule {
                 }
             }
 
-            System.out.println("Please set the status of the room (1: AVAILABLE, 2: CLEANING, 3: ALLOCATED, 4: DISABLED)> ");
+            System.out.print("Please set the status of the room (1: AVAILABLE, 2: CLEANING, 3: ALLOCATED, 4: DISABLED)> ");
             input = sc.nextLine().trim();
             while (true) {
                 if (input.equals("1")) {
@@ -438,8 +465,16 @@ public class HotelOperationModule {
                 System.out.println(roomType.getRoomTypeId() + ": " + roomType.getRoomTypeName());
             }
             System.out.println("-------------------------");
-            System.out.print("Please enter Room Type ID of the Room> ");
-            roomTypeId = sc.nextLong();
+            while (true) {
+                System.out.print("Please enter Room Type ID of the Room> ");
+                roomTypeId = sc.nextLong();
+                if (!roomTypeControllerRemote.retrieveRoomTypeByRoomTypeId(roomTypeId).getIsEnabled()) {
+                    System.out.println("Room Type is currently DISABLED. Please select another Room Type.");
+                    continue;
+                } else {
+                    break;
+                }
+            }
             roomControllerRemote.createNewRoom(newRoom, roomTypeId);
             System.out.println("Room Number: " + newRoom.getRoomNumber()  + " with Room Type " + roomTypeControllerRemote.retrieveRoomTypeByRoomTypeId(roomTypeId).getRoomTypeName() + " created!\n");
         } catch (RoomTypeNotFoundException | RoomExistException | GeneralException ex) {
@@ -555,7 +590,23 @@ public class HotelOperationModule {
     }
     
     private void createNewRoomRate() {
-        
+        Scanner sc = new Scanner(System.in);
+        RoomRate newRoomRate;
+        BigDecimal rate;
+        Long roomTypeId;
+        String input;
+        Integer response = 0;
+        List<RoomType> roomTypes = roomTypeControllerRemote.retrieveAllRoomTypes();
+
+        System.out.println("*** Hotel Reservation System :: Hotel Operations :: Create New Room Rate ***\n");
+        System.out.println("1: Published Room Rate");
+        System.out.println("2: Normal Room Rate");
+        System.out.println("3: Peak Room Rate");
+        System.out.println("4: Promo Room Rate");
+        System.out.println("Please select type of Room Rate to create> ");
+        response = sc.nextInt();
+        //consume empty line
+        sc.nextLine();
     }
     
     private void viewRoomRateDetails() {

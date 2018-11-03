@@ -85,4 +85,17 @@ public class RoomTypeController implements RoomTypeControllerLocal, RoomTypeCont
         em.merge(roomType);
     }
     
+    @Override
+    public Boolean deleteRoomType(Long roomTypeId) throws RoomTypeNotFoundException {
+        RoomType roomTypeToRemove = retrieveRoomTypeByRoomTypeId(roomTypeId);
+        
+        if (roomTypeToRemove.getRooms().isEmpty() && roomTypeToRemove.getRoomInventories().isEmpty()) {
+            em.remove(roomTypeToRemove);
+            return true;
+        } else {
+            roomTypeToRemove.setIsEnabled(Boolean.FALSE);
+            return false;
+        }
+    }
+    
 }

@@ -22,5 +22,7 @@ public interface RoomTypeControllerRemote {
     public Boolean checkRoomTypeExists(String roomTypeName) throws RoomTypeNotFoundException;
 
     public void updateRoomType(RoomType roomType);
+
+    public Boolean deleteRoomType(Long roomTypeId) throws RoomTypeNotFoundException;
     
 }
