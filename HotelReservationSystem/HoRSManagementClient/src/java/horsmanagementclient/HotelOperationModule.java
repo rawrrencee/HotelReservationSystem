@@ -9,12 +9,15 @@ import ejb.session.stateless.EmployeeControllerRemote;
 import ejb.session.stateless.RoomControllerRemote;
 import ejb.session.stateless.RoomTypeControllerRemote;
 import entity.Employee;
+import entity.Room;
 import entity.RoomType;
 import java.util.List;
 import java.util.Scanner;
 import util.enumeration.EmployeeAccessRightEnum;
+import util.enumeration.RoomStatus;
 import util.exception.GeneralException;
 import util.exception.InvalidAccessRightException;
+import util.exception.RoomExistException;
 import util.exception.RoomTypeExistException;
 import util.exception.RoomTypeNotFoundException;
 
@@ -382,7 +385,64 @@ public class HotelOperationModule {
     
     private void createNewRoom() {
         Scanner sc = new Scanner(System.in);
-        
+        Room newRoom = new Room();
+        String input = "";
+        Long roomTypeId;
+        List<RoomType> roomTypes = roomTypeControllerRemote.retrieveAllRoomTypes();
+
+        System.out.println("*** Hotel Reservation System :: Hotel Operations :: Create New Room ***\n");
+
+        try {
+            while (true) {
+                System.out.print("Enter Room Number in the format xxyy where xx is the Floor number, and yy is the Sequence number (e.g. 2015)> ");
+                input = sc.nextLine().trim();
+                if (input.length() != 4) {
+                    System.out.println("Room Number must be 4 digits");
+                    continue;
+                }
+                try {
+                    if (!roomControllerRemote.checkRoomExistsByRoomNumber(Integer.parseInt(input))) {
+                        newRoom.setRoomNumber(Integer.parseInt(input));
+                        break;
+                    } else {
+                        System.out.println("Room Number already exists, please enter another number.");
+                    }
+                } catch (NumberFormatException ex) {
+                    System.out.println("Please enter numeric values.");
+                }
+            }
+
+            System.out.println("Please set the status of the room (1: AVAILABLE, 2: CLEANING, 3: ALLOCATED, 4: DISABLED)> ");
+            input = sc.nextLine().trim();
+            while (true) {
+                if (input.equals("1")) {
+                    newRoom.setRoomStatus(RoomStatus.AVAILABLE);
+                    break;
+                } else if (input.equals("2")) {
+                    newRoom.setRoomStatus(RoomStatus.CLEANING);
+                    break;
+                } else if (input.equals("3")) {
+                    newRoom.setRoomStatus(RoomStatus.ALLOCATED);
+                    break;
+                } else if (input.equals("4")) {
+                    newRoom.setRoomStatus(RoomStatus.DISABLED);
+                    break;
+                } else {
+                    System.out.println("Input not recognised, please re-enter value.");
+                }
+            }
+            System.out.println("*** List of available Room Types ***");
+            for (RoomType roomType : roomTypes) {
+                System.out.println(roomType.getRoomTypeId() + ": " + roomType.getRoomTypeName());
+            }
+            System.out.println("-------------------------");
+            System.out.print("Please enter Room Type ID of the Room> ");
+            roomTypeId = sc.nextLong();
+            roomControllerRemote.createNewRoom(newRoom, roomTypeId);
+            System.out.println("Room Number: " + newRoom.getRoomNumber()  + " with Room Type " + roomTypeControllerRemote.retrieveRoomTypeByRoomTypeId(roomTypeId).getRoomTypeName() + " created!\n");
+        } catch (RoomTypeNotFoundException | RoomExistException | GeneralException ex) {
+            System.out.println("An error has occurred while creating the new room: " + ex.getMessage() + "!\n");
+        }
     }
     
     private void updateRoom() {
