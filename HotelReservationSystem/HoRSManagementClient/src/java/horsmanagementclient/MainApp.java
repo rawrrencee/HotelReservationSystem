@@ -7,6 +7,7 @@ package horsmanagementclient;
 
 import ejb.session.stateless.EmployeeControllerRemote;
 import ejb.session.stateless.PartnerControllerRemote;
+import ejb.session.stateless.RoomTypeControllerRemote;
 import entity.Employee;
 import java.util.Scanner;
 import util.exception.InvalidAccessRightException;
@@ -20,17 +21,20 @@ public class MainApp {
     
     private EmployeeControllerRemote employeeControllerRemote;
     private PartnerControllerRemote partnerControllerRemote;
+    private RoomTypeControllerRemote roomTypeControllerRemote;
     
     private SystemAdministrationModule systemAdministrationModule;
+    private HotelOperationModule hotelOperationModule;
     
     private Employee currentEmployee;
     
     public MainApp(){
     }
 
-    public MainApp(EmployeeControllerRemote employeeControllerRemote, PartnerControllerRemote partnerControllerRemote) {
+    public MainApp(EmployeeControllerRemote employeeControllerRemote, PartnerControllerRemote partnerControllerRemote, RoomTypeControllerRemote roomTypeControllerRemote) {
         this.employeeControllerRemote = employeeControllerRemote;
         this.partnerControllerRemote = partnerControllerRemote;
+        this.roomTypeControllerRemote = roomTypeControllerRemote;
     }
     
     
@@ -54,6 +58,7 @@ public class MainApp {
                             doLogin();
                             System.out.println("Login successful!\n");
                             systemAdministrationModule = new SystemAdministrationModule(employeeControllerRemote, partnerControllerRemote, currentEmployee);
+                            hotelOperationModule = new HotelOperationModule(employeeControllerRemote, roomTypeControllerRemote, currentEmployee);
                             menuMain();
                         } catch (InvalidLoginCredentialException ex) {
                             System.out.println("Invalid login credentials: " + ex.getMessage() + "\n");
@@ -113,6 +118,11 @@ public class MainApp {
                         }
                         break;
                     case 2:
+                        try {
+                            hotelOperationModule.menuMain();
+                        } catch (InvalidAccessRightException ex) {
+                            System.out.println("You lack the proper access rights to use this function. (" + ex.getMessage() + ")\n");
+                        }
                         break;
                     case 3:
                         break;

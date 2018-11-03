@@ -33,6 +33,9 @@ public class RoomNight implements Serializable {
     @ManyToOne
     private ReservationLineItem reservationLineItem;
 
+    public RoomNight() {
+    }
+
     public RoomNight(Date date) {
         this.date = date;
     }

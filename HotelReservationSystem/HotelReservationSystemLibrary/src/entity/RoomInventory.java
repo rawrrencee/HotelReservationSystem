@@ -30,6 +30,9 @@ public class RoomInventory implements Serializable {
     @ManyToOne
     private RoomType roomType;
 
+    public RoomInventory() {
+    }
+
     public RoomInventory(Date date) {
         this.date = date;
     }
@@ -65,6 +68,34 @@ public class RoomInventory implements Serializable {
     @Override
     public String toString() {
         return "entity.RoomInventory[ id=" + roomInventoryId + " ]";
+    }
+
+    /**
+     * @return the date
+     */
+    public Date getDate() {
+        return date;
+    }
+
+    /**
+     * @param date the date to set
+     */
+    public void setDate(Date date) {
+        this.date = date;
+    }
+
+    /**
+     * @return the roomType
+     */
+    public RoomType getRoomType() {
+        return roomType;
+    }
+
+    /**
+     * @param roomType the roomType to set
+     */
+    public void setRoomType(RoomType roomType) {
+        this.roomType = roomType;
     }
     
 }

@@ -34,6 +34,12 @@ public class ReservationLineItem implements Serializable {
     
     @OneToMany(mappedBy="reservationLineItem")
     private List<RoomNight> roomNights;
+    
+    @OneToMany(mappedBy="reservationLineItem")
+    private List<Room> rooms;
+
+    public ReservationLineItem() {
+    }
 
     public ReservationLineItem(BigDecimal amount) {
         this.amount = amount;
@@ -94,6 +100,20 @@ public class ReservationLineItem implements Serializable {
     @Override
     public String toString() {
         return "entity.ReservationLineItem[ id=" + reservationLineItemId + " ]";
+    }
+
+    /**
+     * @return the rooms
+     */
+    public List<Room> getRooms() {
+        return rooms;
+    }
+
+    /**
+     * @param rooms the rooms to set
+     */
+    public void setRooms(List<Room> rooms) {
+        this.rooms = rooms;
     }
     
 }

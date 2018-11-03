@@ -31,6 +31,8 @@ public class RoomType implements Serializable {
     private String bedInfo;
     private Integer capacity;
     private String amenities;
+    private Integer numRooms;
+    private Boolean isEnabled;
     
     @OneToMany(mappedBy="roomType")
     private List<RoomInventory> roomInventories;
@@ -44,13 +46,15 @@ public class RoomType implements Serializable {
     public RoomType() {
     }
 
-    public RoomType(String roomTypeName, String roomTypeDescription, Integer roomSize, String bedInfo, Integer capacity, String amenities) {
+    public RoomType(String roomTypeName, String roomTypeDescription, Integer roomSize, String bedInfo, Integer capacity, String amenities, Integer numRooms, Boolean isEnabled) {
         this.roomTypeName = roomTypeName;
         this.roomTypeDescription = roomTypeDescription;
         this.roomSize = roomSize;
         this.bedInfo = bedInfo;
         this.capacity = capacity;
         this.amenities = amenities;
+        this.numRooms = numRooms;
+        this.isEnabled = isEnabled;
     }
     
     public Long getRoomTypeId() {
@@ -210,6 +214,34 @@ public class RoomType implements Serializable {
      */
     public void setRooms(List<Room> rooms) {
         this.rooms = rooms;
+    }
+
+    /**
+     * @return the numRooms
+     */
+    public Integer getNumRooms() {
+        return numRooms;
+    }
+
+    /**
+     * @param numRooms the numRooms to set
+     */
+    public void setNumRooms(Integer numRooms) {
+        this.numRooms = numRooms;
+    }
+
+    /**
+     * @return the isEnabled
+     */
+    public Boolean getIsEnabled() {
+        return isEnabled;
+    }
+
+    /**
+     * @param isEnabled the isEnabled to set
+     */
+    public void setIsEnabled(Boolean isEnabled) {
+        this.isEnabled = isEnabled;
     }
     
 }

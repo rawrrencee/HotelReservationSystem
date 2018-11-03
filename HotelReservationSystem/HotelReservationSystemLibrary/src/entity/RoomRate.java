@@ -7,13 +7,11 @@ package entity;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.util.Date;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
-import util.enumeration.RoomRateEnum;
 
 /**
  *
@@ -29,7 +27,7 @@ public abstract class RoomRate implements Serializable {
     
     protected String roomRateName;
     protected BigDecimal ratePerNight;
-    protected Boolean isDisabled;
+    protected Boolean isEnabled;
     
     @ManyToOne
     private RoomType roomType;
@@ -37,10 +35,10 @@ public abstract class RoomRate implements Serializable {
     public RoomRate() {
     }
 
-    public RoomRate(String roomRateName, BigDecimal ratePerNight, Boolean isDisabled) {
+    public RoomRate(String roomRateName, BigDecimal ratePerNight, Boolean isEnabled) {
         this.roomRateName = roomRateName;
         this.ratePerNight = ratePerNight;
-        this.isDisabled = isDisabled;
+        this.isEnabled = isEnabled;
     }
 
     public Long getRoomRateId() {
@@ -105,17 +103,17 @@ public abstract class RoomRate implements Serializable {
     }
 
     /**
-     * @return the isDisabled
+     * @return the isEnabled
      */
-    public Boolean getIsDisabled() {
-        return isDisabled;
+    public Boolean getIsEnabled() {
+        return isEnabled;
     }
 
     /**
-     * @param isDisabled the isDisabled to set
+     * @param isEnabled the isEnabled to set
      */
-    public void setIsDisabled(Boolean isDisabled) {
-        this.isDisabled = isDisabled;
+    public void setIsEnabled(Boolean isEnabled) {
+        this.isEnabled = isEnabled;
     }
 
     /**

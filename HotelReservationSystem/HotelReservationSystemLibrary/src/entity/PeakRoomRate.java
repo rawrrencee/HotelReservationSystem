@@ -22,9 +22,7 @@ public class PeakRoomRate extends RoomRate implements Serializable {
     private Date startDate;
     private Date endDate;
 
-    public PeakRoomRate(Date startDate, Date endDate) {
-        this.startDate = startDate;
-        this.endDate = endDate;
+    public PeakRoomRate() {
     }
 
     public PeakRoomRate(Date startDate, Date endDate, String roomRateName, BigDecimal ratePerNight, Boolean isDisabled) {
@@ -32,7 +30,7 @@ public class PeakRoomRate extends RoomRate implements Serializable {
         this.endDate = endDate;
         this.roomRateName = roomRateName;
         this.ratePerNight = ratePerNight;
-        this.isDisabled = isDisabled;
+        this.isEnabled = isDisabled;
     }
 
     @Override

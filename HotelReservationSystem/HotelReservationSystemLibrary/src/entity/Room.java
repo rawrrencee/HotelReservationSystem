@@ -10,6 +10,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import util.enumeration.RoomStatus;
 
 /**
@@ -25,6 +26,12 @@ public class Room implements Serializable {
     private Long roomId;
     private Integer roomNumber;
     private RoomStatus roomStatus;
+    
+    @ManyToOne
+    private ReservationLineItem reservationLineItem;
+    
+    @ManyToOne
+    private RoomType roomType;
     
     public Room() {
     }
@@ -93,6 +100,34 @@ public class Room implements Serializable {
      */
     public void setRoomStatus(RoomStatus roomStatus) {
         this.roomStatus = roomStatus;
+    }
+
+    /**
+     * @return the reservationLineItem
+     */
+    public ReservationLineItem getReservationLineItem() {
+        return reservationLineItem;
+    }
+
+    /**
+     * @param reservationLineItem the reservationLineItem to set
+     */
+    public void setReservationLineItem(ReservationLineItem reservationLineItem) {
+        this.reservationLineItem = reservationLineItem;
+    }
+
+    /**
+     * @return the roomType
+     */
+    public RoomType getRoomType() {
+        return roomType;
+    }
+
+    /**
+     * @param roomType the roomType to set
+     */
+    public void setRoomType(RoomType roomType) {
+        this.roomType = roomType;
     }
     
 }

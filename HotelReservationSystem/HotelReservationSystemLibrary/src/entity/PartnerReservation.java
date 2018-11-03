@@ -21,7 +21,6 @@ public class PartnerReservation extends Reservation implements Serializable {
     private static final long serialVersionUID = 1L;
     
     public PartnerReservation() {
-        super();
     }
 
     public PartnerReservation(Date checkInDate, Date checkOutDate, BigDecimal reservationAmt, Integer numGuests, Date creationDate) throws IncorrectDateException {

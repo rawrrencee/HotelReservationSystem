@@ -23,6 +23,9 @@ public class RegisteredGuest extends Guest implements Serializable {
     @OneToMany(mappedBy="registeredGuest")
     private List<OnlineReservation> onlineReservations;
 
+    public RegisteredGuest() {
+    }
+
     public RegisteredGuest(String username, String password) {
         this.username = username;
         this.password = password;

@@ -10,6 +10,17 @@
     <class>entity.Guest</class>
     <class>entity.Partner</class>
     <class>entity.RoomRate</class>
+    <class>entity.NormalRoomRate</class>
+    <class>entity.OnlineReservation</class>
+    <class>entity.PartnerReservation</class>
+    <class>entity.PeakRoomRate</class>
+    <class>entity.PromoRoomRate</class>
+    <class>entity.PublishedRoomRate</class>
+    <class>entity.RegisteredGuest</class>
+    <class>entity.ReservationLineItem</class>
+    <class>entity.RoomInventory</class>
+    <class>entity.RoomNight</class>
+    <class>entity.WalkInReservation</class>
     <exclude-unlisted-classes>true</exclude-unlisted-classes>
     <properties>
       <property name="javax.persistence.schema-generation.database.action" value="create"/>

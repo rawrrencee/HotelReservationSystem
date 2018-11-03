@@ -25,7 +25,6 @@ public class OnlineReservation extends Reservation implements Serializable {
     private RegisteredGuest registeredGuest;
 
     public OnlineReservation() {
-        super();
     }
 
     public OnlineReservation(Date checkInDate, Date checkOutDate, BigDecimal reservationAmt, Integer numGuests, Date creationDate) throws IncorrectDateException{

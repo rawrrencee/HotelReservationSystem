@@ -6,10 +6,8 @@
 package entity;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
 
 /**
  *
@@ -20,6 +18,14 @@ public class NormalRoomRate extends RoomRate implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
+    public NormalRoomRate() {
+    }
+
+    public NormalRoomRate(String roomRateName, BigDecimal ratePerNight, Boolean isDisabled) {
+        this.roomRateName = roomRateName;
+        this.ratePerNight = ratePerNight;
+        this.isEnabled = isDisabled;
+    }
 
     @Override
     public int hashCode() {

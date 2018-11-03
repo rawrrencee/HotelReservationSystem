@@ -22,17 +22,15 @@ public class PromoRoomRate extends RoomRate implements Serializable {
     private Date startDate;
     private Date endDate;
 
-    public PromoRoomRate(Date startDate, Date endDate) {
-        this.startDate = startDate;
-        this.endDate = endDate;
+    public PromoRoomRate() {
     }
-
+    
     public PromoRoomRate(Date startDate, Date endDate, String roomRateName, BigDecimal ratePerNight, Boolean isDisabled) {
         this.startDate = startDate;
         this.endDate = endDate;
         this.roomRateName = roomRateName;
         this.ratePerNight = ratePerNight;
-        this.isDisabled = isDisabled;
+        this.isEnabled = isDisabled;
     }
 
     @Override
