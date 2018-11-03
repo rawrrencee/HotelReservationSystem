@@ -18,6 +18,7 @@ import util.enumeration.RoomStatus;
 import util.exception.GeneralException;
 import util.exception.InvalidAccessRightException;
 import util.exception.RoomExistException;
+import util.exception.RoomNotFoundException;
 import util.exception.RoomTypeExistException;
 import util.exception.RoomTypeNotFoundException;
 
@@ -33,6 +34,7 @@ public class HotelOperationModule {
     
     private Employee currentEmployee;
     private RoomType currentRoomType;
+    private Room currentRoom;
 
     public HotelOperationModule() {
     }
@@ -446,7 +448,88 @@ public class HotelOperationModule {
     }
     
     private void updateRoom() {
+        Scanner sc = new Scanner(System.in);
+        String input;
+        Long roomTypeId;
+        List<Room> rooms = roomControllerRemote.retrieveAllRooms();
+        List<RoomType> roomTypes = roomTypeControllerRemote.retrieveAllRoomTypes();
+
+        System.out.println("*** Hotel Reservation System :: Hotel Operations :: Update Room ***\n");
         
+        viewAllRooms();
+
+        while (true) {
+            System.out.print("Enter Room ID to update> ");
+            int response = sc.nextInt();
+            if (response >= 1 && response <= rooms.size()) {
+                try {
+                    currentRoom = roomControllerRemote.retrieveRoomByRoomId(Long.valueOf(response));
+                    break;
+                } catch (RoomNotFoundException ex) {
+                    System.out.println("Invalid option!\n");
+                }
+            }
+        }
+        
+        //consume new line
+        sc.nextLine();
+        
+        while (true) {
+            System.out.print("Enter new Room Number (blank if no change)> ");
+            input = sc.nextLine();
+            if (input.length() > 0) {
+                try {
+                    if (!roomControllerRemote.checkRoomExistsByRoomNumber(Integer.parseInt(input))) {
+                        currentRoom.setRoomNumber(Integer.parseInt(input));
+                        break;
+                    } else {
+                        System.out.println("Room Number already exists, please enter another number.");
+                    }
+                } catch (NumberFormatException ex) {
+                    System.out.println("Please enter numeric values.");
+                }
+            } else {
+                break;
+            }
+        }
+        
+        System.out.println("Please set the status of the room (1: AVAILABLE, 2: CLEANING, 3: ALLOCATED, 4: DISABLED)> ");
+        input = sc.nextLine().trim();
+        while (true) {
+            if (input.equals("1")) {
+                currentRoom.setRoomStatus(RoomStatus.AVAILABLE);
+                break;
+            } else if (input.equals("2")) {
+                currentRoom.setRoomStatus(RoomStatus.CLEANING);
+                break;
+            } else if (input.equals("3")) {
+                currentRoom.setRoomStatus(RoomStatus.ALLOCATED);
+                break;
+            } else if (input.equals("4")) {
+                currentRoom.setRoomStatus(RoomStatus.DISABLED);
+                break;
+            } else {
+                System.out.println("Input not recognised, please re-enter value.");
+            }
+        }
+        
+        System.out.println("*** List of available Room Types ***");
+        for (RoomType roomType : roomTypes) {
+            System.out.println(roomType.getRoomTypeId() + ": " + roomType.getRoomTypeName());
+        }
+        System.out.println("-------------------------");
+        System.out.print("Please enter Room Type ID of the Room> ");
+        input = sc.nextLine().trim();
+        if (input.length() == 0) {
+            input = currentRoom.getRoomType().getRoomTypeId().toString();
+        }
+        try {
+            roomControllerRemote.updateRoom(currentRoom, Long.parseLong(input));
+            System.out.println("-------------------------");
+            System.out.println("Room updated!\n");
+        } catch (RoomTypeNotFoundException ex) {
+            System.out.println("An error has occurred while updating the room: " + ex.getMessage() + "!\n");
+        }
     }
     
     private void deleteRoom() {

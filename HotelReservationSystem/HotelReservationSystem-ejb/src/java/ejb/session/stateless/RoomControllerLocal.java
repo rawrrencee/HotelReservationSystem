@@ -21,4 +21,8 @@ public interface RoomControllerLocal {
     public Room createNewRoom(Room newRoom, Long roomTypeId) throws RoomTypeNotFoundException, RoomExistException, GeneralException;
     
     public Boolean checkRoomExistsByRoomNumber(Integer roomNumber);
+    
+    public void updateRoom(Room room, Long roomTypeId) throws RoomTypeNotFoundException;
+    
+    public Room retrieveRoomByRoomId(Long roomId) throws RoomNotFoundException;
 }

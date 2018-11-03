@@ -48,6 +48,16 @@ public class RoomController implements RoomControllerLocal, RoomControllerRemote
 
         return query.getResultList();
     }
+    
+    @Override
+    public Room retrieveRoomByRoomId(Long roomId) throws RoomNotFoundException {
+        Room room = em.find(Room.class, roomId);
+        if (room != null) {
+            return room;
+        } else {
+            throw new RoomNotFoundException("Room " + roomId + " does not exist!");
+        }
+    }
 
     @Override
     public Room retrieveRoomByRoomNumber(Integer roomNumber) throws RoomNotFoundException {
@@ -95,5 +105,23 @@ public class RoomController implements RoomControllerLocal, RoomControllerRemote
         } catch (NoResultException ex) {
             return false;
         }
+    }
+    
+    @Override
+    public void updateRoom(Room room, Long newRoomTypeId) throws RoomTypeNotFoundException {
+        Long currentRoomTypeId = room.getRoomType().getRoomTypeId();
+        RoomType currentRoomType = roomTypeControllerLocal.retrieveRoomTypeByRoomTypeId(currentRoomTypeId);
+        
+        try {
+            if (!currentRoomTypeId.equals(newRoomTypeId)) {
+                RoomType newRoomType = roomTypeControllerLocal.retrieveRoomTypeByRoomTypeId(newRoomTypeId);
+                room.setRoomType(newRoomType);
+                newRoomType.getRooms().add(room);
+                currentRoomType.getRooms().remove(room);
+            }
+        } catch (RoomTypeNotFoundException ex) {
+            System.out.println("Room type does not exist!");
+        }
+        em.merge(room);     
     }
 }
