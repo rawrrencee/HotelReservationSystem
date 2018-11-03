@@ -537,7 +537,17 @@ public class HotelOperationModule {
     }
     
     private void viewAllRooms() {
-        
+        Scanner sc = new Scanner(System.in);
+        List<Room> rooms = roomControllerRemote.retrieveAllRooms();
+
+        System.out.println("*** List of Rooms ***");
+        for (Room room : rooms) {
+            System.out.println("Room ID: " + room.getRoomId() + "| Room Number: " + room.getRoomNumber() + " | Status: " + room.getRoomStatus());
+        }
+        System.out.println("-------------------------");
+        System.out.print("Press any key to continue...");
+        sc.nextLine();
+        System.out.println();
     }
     
     private void viewRoomAllocationExceptionReport() {
