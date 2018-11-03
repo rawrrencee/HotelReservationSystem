@@ -9,6 +9,7 @@ import ejb.session.stateless.EmployeeControllerRemote;
 import ejb.session.stateless.RoomTypeControllerRemote;
 import entity.Employee;
 import entity.RoomType;
+import java.util.List;
 import java.util.Scanner;
 import util.enumeration.EmployeeAccessRightEnum;
 import util.exception.GeneralException;
@@ -208,7 +209,44 @@ public class HotelOperationModule {
     }
     
     private void viewRoomTypeDetails() {
+        Scanner sc = new Scanner(System.in);
+        Boolean conditionChecker = true;
+        List<RoomType> roomTypes = roomTypeControllerRemote.retrieveAllRoomTypes();
         
+        System.out.println("*** List of Room Types ***");
+        for (RoomType roomType : roomTypes) {
+            System.out.println(roomType.getRoomTypeId() + ": " + roomType.getRoomTypeName());
+        }
+        System.out.println("-------------------------");
+        
+        while (conditionChecker) {
+            System.out.print("Enter Room Type ID to query> ");
+            int response = sc.nextInt();
+            if (response >= 1 && response <= roomTypes.size()) {
+                try {
+                    RoomType roomType = roomTypeControllerRemote.retrieveRoomTypeByRoomTypeId(Long.valueOf(response));
+                    System.out.println("Room Type Details: ");
+                    System.out.println("Room Type Name | " + roomType.getRoomTypeName());
+                    System.out.println("Description: " + roomType.getRoomTypeDescription());
+                    System.out.println("Room Size: " + roomType.getRoomSize() + "sq m");
+                    System.out.println("Bed Info: " + roomType.getBedInfo());
+                    System.out.println("Capacity: " + roomType.getCapacity() + " guests");
+                    System.out.println("Amenities: " + roomType.getAmenities());
+                    System.out.println("Number of Rooms available (incl. Reserved Rooms): " + roomType.getNumRooms());
+                    if (roomType.getIsEnabled()) {
+                        System.out.println("Room Type Status: ENABLED\n");
+                    } else {
+                        System.out.println("Room Type Status: DISABLED\n");
+                    }
+                    conditionChecker = false;
+                } catch (RoomTypeNotFoundException ex) {
+                    System.out.println("Invalid option!\n");
+                    continue;
+                } catch (Exception ex) {
+                    System.out.println("An unexpected error occurred: " + ex.getMessage());
+                }
+            }
+        }
     }
     
     private void updateRoomType() {
