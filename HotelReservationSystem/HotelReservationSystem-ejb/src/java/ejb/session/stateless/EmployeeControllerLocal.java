@@ -7,12 +7,14 @@ package ejb.session.stateless;
 
 import entity.Employee;
 import java.util.List;
+import util.exception.EmployeeExistException;
 import util.exception.EmployeeNotFoundException;
+import util.exception.GeneralException;
 import util.exception.InvalidLoginCredentialException;
 
 public interface EmployeeControllerLocal {
 
-    public Employee createNewEmployee(Employee newEmployee);
+    public Employee createNewEmployee(Employee newEmployee) throws EmployeeExistException, GeneralException;
     
     public List<Employee> retrieveAllEmployees();
 
@@ -21,5 +23,7 @@ public interface EmployeeControllerLocal {
     public Employee retrieveEmployeeByUsername(String username) throws EmployeeNotFoundException;
     
     public Employee employeeLogin(String username, String password) throws InvalidLoginCredentialException;
+    
+    public Boolean checkEmployeeExists(String username) throws EmployeeNotFoundException;
     
 }

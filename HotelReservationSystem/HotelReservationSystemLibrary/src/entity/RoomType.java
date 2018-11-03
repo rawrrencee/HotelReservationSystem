@@ -6,10 +6,12 @@
 package entity;
 
 import java.io.Serializable;
+import java.util.List;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 
 /**
  *
@@ -29,6 +31,15 @@ public class RoomType implements Serializable {
     private String bedInfo;
     private Integer capacity;
     private String amenities;
+    
+    @OneToMany(mappedBy="roomType")
+    private List<RoomInventory> roomInventories;
+    
+    @OneToMany(mappedBy="roomType")
+    private List<RoomRate> roomRates;
+    
+    @OneToMany(mappedBy="roomType")
+    private List<Room> rooms;
 
     public RoomType() {
     }
@@ -157,6 +168,48 @@ public class RoomType implements Serializable {
      */
     public void setAmenities(String amenities) {
         this.amenities = amenities;
+    }
+
+    /**
+     * @return the roomInventories
+     */
+    public List<RoomInventory> getRoomInventories() {
+        return roomInventories;
+    }
+
+    /**
+     * @param roomInventories the roomInventories to set
+     */
+    public void setRoomInventories(List<RoomInventory> roomInventories) {
+        this.roomInventories = roomInventories;
+    }
+
+    /**
+     * @return the roomRates
+     */
+    public List<RoomRate> getRoomRates() {
+        return roomRates;
+    }
+
+    /**
+     * @param roomRates the roomRates to set
+     */
+    public void setRoomRates(List<RoomRate> roomRates) {
+        this.roomRates = roomRates;
+    }
+
+    /**
+     * @return the rooms
+     */
+    public List<Room> getRooms() {
+        return rooms;
+    }
+
+    /**
+     * @param rooms the rooms to set
+     */
+    public void setRooms(List<Room> rooms) {
+        this.rooms = rooms;
     }
     
 }

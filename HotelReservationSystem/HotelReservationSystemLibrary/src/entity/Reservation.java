@@ -12,38 +12,36 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import util.enumeration.ReservationType;
-
+import javax.persistence.ManyToOne;
 /**
  *
  * @author Lawrence
  */
 @Entity
-public class Reservation implements Serializable {
+public abstract class Reservation implements Serializable {
 
     private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long reservationId;
+    protected Long reservationId;
     
-    private Date checkInDate;
-    private Date checkOutDate;
-    private ReservationType reservationType;
-    private BigDecimal reservationAmt;
-    private Integer numGuests;
-    private String reservedBy;
-    private Date createdDate;
+    protected Date checkInDate;
+    protected Date checkOutDate;
+    protected BigDecimal reservationAmt;
+    protected Integer numGuests;
+    protected Date createdDate;
+    
+    @ManyToOne
+    private Guest guest;
 
     public Reservation() {
     }
 
-    public Reservation(Date checkInDate, Date checkOutDate, ReservationType reservationType, BigDecimal reservationAmt, Integer numGuests, String reservedTo, Date creationDate) {
+    public Reservation(Date checkInDate, Date checkOutDate, BigDecimal reservationAmt, Integer numGuests, Date creationDate) {
         this.checkInDate = checkInDate;
         this.checkOutDate = checkOutDate;
-        this.reservationType = reservationType;
         this.reservationAmt = reservationAmt;
         this.numGuests = numGuests;
-        this.reservedBy = reservedTo;
         this.createdDate = creationDate;
     }
 
@@ -109,20 +107,6 @@ public class Reservation implements Serializable {
     }
 
     /**
-     * @return the reservationType
-     */
-    public ReservationType getReservationType() {
-        return reservationType;
-    }
-
-    /**
-     * @param reservationType the reservationType to set
-     */
-    public void setReservationType(ReservationType reservationType) {
-        this.reservationType = reservationType;
-    }
-
-    /**
      * @return the reservationAmt
      */
     public BigDecimal getReservationAmt() {
@@ -151,20 +135,6 @@ public class Reservation implements Serializable {
     }
 
     /**
-     * @return the reservedBy
-     */
-    public String getReservedBy() {
-        return reservedBy;
-    }
-
-    /**
-     * @param reservedBy the reservedBy to set
-     */
-    public void setReservedBy(String reservedBy) {
-        this.reservedBy = reservedBy;
-    }
-
-    /**
      * @return the createdDate
      */
     public Date getCreatedDate() {
@@ -176,6 +146,20 @@ public class Reservation implements Serializable {
      */
     public void setCreatedDate(Date createdDate) {
         this.createdDate = createdDate;
+    }
+
+    /**
+     * @return the guest
+     */
+    public Guest getGuest() {
+        return guest;
+    }
+
+    /**
+     * @param guest the guest to set
+     */
+    public void setGuest(Guest guest) {
+        this.guest = guest;
     }
     
 }

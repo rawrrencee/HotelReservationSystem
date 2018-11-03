@@ -12,6 +12,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import util.enumeration.RoomRateEnum;
 
 /**
@@ -19,28 +20,25 @@ import util.enumeration.RoomRateEnum;
  * @author Lawrence
  */
 @Entity
-public class RoomRate implements Serializable {
+public abstract class RoomRate implements Serializable {
 
     private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long roomRateId;
+    protected Long roomRateId;
     
-    private String roomRateName;
-    private Date rateStartDate;
-    private Date rateEndDate;
-    private RoomRateEnum roomRateEnum;
-    private BigDecimal ratePerNight;
-    private Boolean isDisabled;
+    protected String roomRateName;
+    protected BigDecimal ratePerNight;
+    protected Boolean isDisabled;
+    
+    @ManyToOne
+    private RoomType roomType;
 
     public RoomRate() {
     }
 
-    public RoomRate(String roomRateName, Date rateStartDate, Date rateEndDate, RoomRateEnum roomRateEnum, BigDecimal ratePerNight, Boolean isDisabled) {
+    public RoomRate(String roomRateName, BigDecimal ratePerNight, Boolean isDisabled) {
         this.roomRateName = roomRateName;
-        this.rateStartDate = rateStartDate;
-        this.rateEndDate = rateEndDate;
-        this.roomRateEnum = roomRateEnum;
         this.ratePerNight = ratePerNight;
         this.isDisabled = isDisabled;
     }
@@ -93,48 +91,6 @@ public class RoomRate implements Serializable {
     }
 
     /**
-     * @return the rateStartDate
-     */
-    public Date getRateStartDate() {
-        return rateStartDate;
-    }
-
-    /**
-     * @param rateStartDate the rateStartDate to set
-     */
-    public void setRateStartDate(Date rateStartDate) {
-        this.rateStartDate = rateStartDate;
-    }
-
-    /**
-     * @return the rateEndDate
-     */
-    public Date getRateEndDate() {
-        return rateEndDate;
-    }
-
-    /**
-     * @param rateEndDate the rateEndDate to set
-     */
-    public void setRateEndDate(Date rateEndDate) {
-        this.rateEndDate = rateEndDate;
-    }
-
-    /**
-     * @return the roomRateEnum
-     */
-    public RoomRateEnum getRoomRateEnum() {
-        return roomRateEnum;
-    }
-
-    /**
-     * @param roomRateEnum the roomRateEnum to set
-     */
-    public void setRoomRateEnum(RoomRateEnum roomRateEnum) {
-        this.roomRateEnum = roomRateEnum;
-    }
-
-    /**
      * @return the ratePerNight
      */
     public BigDecimal getRatePerNight() {
@@ -160,6 +116,20 @@ public class RoomRate implements Serializable {
      */
     public void setIsDisabled(Boolean isDisabled) {
         this.isDisabled = isDisabled;
+    }
+
+    /**
+     * @return the roomType
+     */
+    public RoomType getRoomType() {
+        return roomType;
+    }
+
+    /**
+     * @param roomType the roomType to set
+     */
+    public void setRoomType(RoomType roomType) {
+        this.roomType = roomType;
     }
     
 }

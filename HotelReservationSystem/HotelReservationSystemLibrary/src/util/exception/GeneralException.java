@@ -3,15 +3,18 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package util.enumeration;
+package util.exception;
 
 /**
  *
  * @author Lawrence
  */
-public enum RoomStatus {
-    AVAILABLE,
-    CLEANING,
-    ALLOCATED,
-    DISABLED
+public class GeneralException extends Exception {
+    
+    public GeneralException() {
+    }
+    
+    public GeneralException(String msg) {
+        super(msg);
+    }
 }

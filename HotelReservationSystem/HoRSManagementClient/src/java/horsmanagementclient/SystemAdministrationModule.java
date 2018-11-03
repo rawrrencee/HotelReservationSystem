@@ -12,7 +12,9 @@ import entity.Partner;
 import java.util.List;
 import java.util.Scanner;
 import util.enumeration.EmployeeAccessRightEnum;
+import util.exception.EmployeeExistException;
 import util.exception.EmployeeNotFoundException;
+import util.exception.GeneralException;
 import util.exception.InvalidAccessRightException;
 import util.exception.PartnerNotFoundException;
 
@@ -84,15 +86,16 @@ public class SystemAdministrationModule {
         Scanner sc = new Scanner(System.in);
         Employee newEmployee = new Employee();
         Boolean conditionChecker = true;
-
+        
+        try {
         System.out.println("*** Hotel Reservation System :: System Administration :: Create New Employee ***\n");
 
         while (conditionChecker) {
             System.out.print("Enter Username> ");
             String inUsername = sc.nextLine().trim();
             try {
-                Employee getEmployee = employeeControllerRemote.retrieveEmployeeByUsername(inUsername); //don't return employee object
-                if (getEmployee != null) {
+                Boolean employeeExists = employeeControllerRemote.checkEmployeeExists(inUsername);
+                if (employeeExists) {
                     System.out.println("Username already taken, please choose another one!");
                 }
             } catch (EmployeeNotFoundException ex) {
@@ -179,6 +182,9 @@ public class SystemAdministrationModule {
         sc.nextLine(); //consume empty space
         newEmployee = employeeControllerRemote.createNewEmployee(newEmployee);
         System.out.println("New employee (" + newEmployee.getFirstName() + ") created successfully! Employee ID is " + newEmployee.getEmployeeId() + "\n");
+        } catch (EmployeeExistException | GeneralException ex) {
+            System.out.println("An error has occurred while creating the new employee: " + ex.getMessage() + "!\n");
+        }
     }
 
     private void viewAllEmployees() {

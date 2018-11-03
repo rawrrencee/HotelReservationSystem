@@ -14,8 +14,11 @@ import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.NonUniqueResultException;
 import javax.persistence.PersistenceContext;
+import javax.persistence.PersistenceException;
 import javax.persistence.Query;
+import util.exception.EmployeeExistException;
 import util.exception.EmployeeNotFoundException;
+import util.exception.GeneralException;
 import util.exception.InvalidLoginCredentialException;
 
 /**
@@ -35,11 +38,20 @@ public class EmployeeController implements EmployeeControllerLocal, EmployeeCont
     }
     
     @Override
-    public Employee createNewEmployee(Employee newEmployee) {
-        em.persist(newEmployee);
-        em.flush();
-        
-        return newEmployee;
+    public Employee createNewEmployee(Employee newEmployee) throws EmployeeExistException, GeneralException {
+        try {
+            em.persist(newEmployee);
+            em.flush();
+            
+            return newEmployee;
+        } catch (PersistenceException ex) {
+            if (ex.getCause() != null && ex.getCause().getCause() != null && ex.getCause().getCause().getClass().getSimpleName().equals("SQLIntegrityConstraintViolationException")) {
+                throw new EmployeeExistException("An employee with the provided particulars already exists!");
+            }
+            else {
+                throw new GeneralException("An unexpected error has occurred: " + ex.getMessage());
+            }
+        }
     }
     
     @Override
@@ -68,7 +80,19 @@ public class EmployeeController implements EmployeeControllerLocal, EmployeeCont
         try {
             return (Employee)query.getSingleResult();
         } catch (NoResultException | NonUniqueResultException ex) {
-            throw new EmployeeNotFoundException("Employee Username " + username + " does not exist!");
+            throw new EmployeeNotFoundException("Employee username " + username + " does not exist!");
+        }
+    }
+    
+    @Override
+    public Boolean checkEmployeeExists(String username) throws EmployeeNotFoundException {
+        Query query = em.createQuery("SELECT e FROM Employee e WHERE e.username = :inUsername");
+        query.setParameter("inUsername", username);
+        
+        try {
+            return ((Employee)query.getSingleResult() != null);
+        } catch (NoResultException | NonUniqueResultException ex) {
+            throw new EmployeeNotFoundException("Employee username " + username + "does not exist!");
         }
     }
     
