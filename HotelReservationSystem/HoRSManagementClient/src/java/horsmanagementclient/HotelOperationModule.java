@@ -86,11 +86,7 @@ public class HotelOperationModule {
             System.out.println("13: Update Room Rate");
             System.out.println("14: Delete Room Rate");
             System.out.println("15: View All Room Rates");
-            System.out.println("16: Walk-in Search Room");
-            System.out.println("17: Walk-in Reserve Room");
-            System.out.println("18: Check-in Guest");
-            System.out.println("19: Check-out Guest");
-            System.out.println("20: Back\n");
+            System.out.println("16: Back\n");
             response = 0;
             
             while (response < 1 || response > 20) {
@@ -150,18 +146,6 @@ public class HotelOperationModule {
                         viewAllRoomRates();
                         break;
                     case 16:
-                        walkInSearchRoom();
-                        break;
-                    case 17:
-                        walkInReserveRoom();
-                        break;
-                    case 18:
-                        checkInGuest();
-                        break;
-                    case 19:
-                        checkOutGuest();
-                        break;
-                    case 20:
                         return;
                     default:
                         break;
@@ -172,6 +156,8 @@ public class HotelOperationModule {
     
     private void createNewRoomType() {
         Scanner sc = new Scanner(System.in);
+        String input;
+        Integer value;
         RoomType newRoomType = new RoomType();
         Boolean conditionChecker = true;
         
@@ -195,40 +181,61 @@ public class HotelOperationModule {
             
             System.out.print("Enter Room Type Description> ");
             newRoomType.setRoomTypeDescription(sc.nextLine().trim());
-            System.out.print("Enter Room Size> ");
-            newRoomType.setRoomSize(sc.nextInt());
             
-            //Consume next Line
-            sc.nextLine();
+            while (true) {
+                System.out.print("Enter Room Size in sq m> ");
+                input = sc.nextLine().trim();
+                try {
+                    value = Integer.parseInt(input);
+                    newRoomType.setRoomSize(value);
+                    break;
+                } catch (NumberFormatException ex) {
+                    System.out.println("Please enter a numerical value.");
+                }
+            }
             
             System.out.print("Enter Bed Info> ");
             newRoomType.setBedInfo(sc.nextLine().trim());
-            System.out.print("Enter Capacity> ");
-            newRoomType.setCapacity(sc.nextInt());
             
-            //Consume next Line
-            sc.nextLine();
+            while (true) {
+                System.out.print("Enter Capacity> ");
+                input = sc.nextLine().trim();
+                try {
+                    value = Integer.parseInt(input);
+                    newRoomType.setCapacity(value);
+                    break;
+                } catch (NumberFormatException ex) {
+                    System.out.println("Please enter a numerical value.");
+                }
+            }
             
             System.out.print("Enter Amenities> ");
-            newRoomType.setAmenities(sc.nextLine());
-            System.out.print("Enter Number of Rooms of this Room Type> ");
-            newRoomType.setNumRooms(sc.nextInt());
+            newRoomType.setAmenities(sc.nextLine().trim());
             
-            //Consume next Line
-            sc.nextLine();
+            while (true) {
+                System.out.print("Enter Number of Rooms of this Room Type> ");
+                input = sc.nextLine().trim();
+                try {
+                    value = Integer.parseInt(input);
+                    newRoomType.setNumRooms(value);
+                    break;
+                } catch (NumberFormatException ex) {
+                    System.out.println("Please enter a numerical value.");
+                }
+            }
             
-            conditionChecker = true;
-            while (conditionChecker) {
+            while (true) {
                 System.out.print("Enable Room Type? Y/N> ");
-                String input = sc.nextLine().trim();
+                input = sc.nextLine().trim();
                 if (input.toLowerCase().equals("y")) {
                     newRoomType.setIsEnabled(true);
-                    conditionChecker = false;
+                    break;
                 }
                 if (input.toLowerCase().equals("n")){
                     newRoomType.setIsEnabled(false);
-                    conditionChecker = false;
+                    break;
                 }
+                System.out.println("Please enter Y/N.");
             }
             
             newRoomType = roomTypeControllerRemote.createNewRoomType(newRoomType);
@@ -399,7 +406,9 @@ public class HotelOperationModule {
                 Long roomTypeIdToRemove = Long.parseLong(input);
                 try {
                     if (!roomTypeControllerRemote.deleteRoomType(roomTypeIdToRemove)) {
-                        System.out.println("Room Type is currently associated with other entities. Set to DISABLED instead.");
+                        System.out.println("Room Type is currently associated with other entities. Set to DISABLED instead.\n");
+                    } else {
+                        System.out.println("Room Type " + roomTypeIdToRemove + " removed from database.");
                     }
                 } catch (RoomTypeNotFoundException ex) {
                     System.out.println("An error occurred: " + ex.getMessage());
@@ -517,7 +526,7 @@ public class HotelOperationModule {
                 System.out.println("Please enter a numerical value.");
                 continue;
             }
-            if (response >= 1 && response <= rooms.size()) {
+            if (response > 0) {
                 try {
                     currentRoom = roomControllerRemote.retrieveRoomByRoomId(Long.valueOf(response));
                     break;
@@ -546,7 +555,7 @@ public class HotelOperationModule {
             }
         }
         
-        System.out.println("Please set the status of the room (1: AVAILABLE, 2: CLEANING, 3: ALLOCATED, 4: DISABLED)> ");
+        System.out.print("Please set the status of the room (1: AVAILABLE, 2: CLEANING, 3: ALLOCATED, 4: DISABLED)> ");
         input = sc.nextLine().trim();
         while (true) {
             if (input.equals("1")) {
@@ -597,6 +606,40 @@ public class HotelOperationModule {
     }
     
     private void deleteRoom() {
+        Scanner sc = new Scanner(System.in);
+        String input;
+        Long roomId;
+        Boolean deleteResult;
+        List<Room> rooms = roomControllerRemote.retrieveAllRooms();
+
+        System.out.println("*** List of Rooms ***");
+        for (Room room : rooms) {
+            System.out.println("Room ID: " + room.getRoomId() + "| Room Number: " + room.getRoomNumber() + " | Status: " + room.getRoomStatus());
+        }
+        System.out.println("-------------------------");
+        
+        while (true) {
+            System.out.print("Enter Room ID to delete> ");
+            input = sc.nextLine().trim();
+            try {
+                roomId = Long.parseLong(input);
+                try {
+                    deleteResult = roomControllerRemote.deleteRoom(roomId);
+                } catch (RoomNotFoundException ex) {
+                    System.out.println("Please enter a valid Room ID.");
+                    continue;
+                }
+                break;
+            } catch (NumberFormatException ex) {
+                System.out.println("Please enter a numerical value.");
+            }
+        }
+        
+        if (deleteResult) {
+            System.out.println("Room " + roomId + " removed from the database.");
+        } else {
+            System.out.println("Room " + roomId + " is in use. Set to DISABLED.");
+        }
         
     }
     
@@ -1271,7 +1314,45 @@ public class HotelOperationModule {
     }
     
     private void deleteRoomRate() {
+        Scanner sc = new Scanner(System.in);
+        String input;
+        Long roomRateId;
+        Boolean deleteResult;
+        List<RoomRate> roomRates;
+
+        try {
+            roomRates = roomRateControllerRemote.retrieveAllRoomRates();
+            System.out.println("*** List of Room Rates ***");
+            for (RoomRate roomRate : roomRates) {
+                System.out.println("Room Rate ID: " + roomRate.getRoomRateId() + " | " + roomRate.getRoomRateName() + " | Rate per night: " + roomRate.getRatePerNight() + " | Room Type: " + roomRate.getRoomType().getRoomTypeName() + " | Enabled: " + roomRate.getIsEnabled());
+            }
+        } catch (NullPointerException ex) {
+            System.out.println("No current room rates available.");
+            return;
+        }
         
+        while (true) {
+            System.out.print("Enter Room Rate to delete> ");
+            input = sc.nextLine().trim();
+            try {
+                roomRateId = Long.parseLong(input);
+                try {
+                    deleteResult = roomRateControllerRemote.deleteRoomRate(roomRateId);
+                } catch (RoomRateNotFoundException ex) {
+                    System.out.println("Please enter a valid Room Rate ID.");
+                    continue;
+                }
+                break;
+            } catch (NumberFormatException ex) {
+                System.out.println("Please enter a numerical value.");
+            }
+        }
+        
+        if (deleteResult) {
+            System.out.println("Room " + roomRateId + " removed from the database.\n");
+        } else {
+            System.out.println("Room " + roomRateId + " is in use. Set to DISABLED.\n");
+        }
     }
     
     private void viewAllRoomRates() {
@@ -1291,21 +1372,5 @@ public class HotelOperationModule {
         
         System.out.print("Press any key to continue...");
         sc.nextLine();
-    }
-    
-    private void walkInSearchRoom() {
-        
-    }
-    
-    private void walkInReserveRoom() {
-        
-    }
-    
-    private void checkInGuest() {
-        
-    }
-    
-    private void checkOutGuest() {
-        
     }
 }

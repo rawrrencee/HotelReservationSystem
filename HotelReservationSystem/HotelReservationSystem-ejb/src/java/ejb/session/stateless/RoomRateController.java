@@ -99,4 +99,18 @@ public class RoomRateController implements RoomRateControllerLocal, RoomRateCont
         }
         em.merge(roomRate);     
     }
+    
+    @Override
+    public Boolean deleteRoomRate(Long roomRateId) throws RoomRateNotFoundException {
+        RoomRate roomRateToRemove = retrieveRoomRateByRoomRateId(roomRateId);
+        
+        try {
+            roomRateToRemove.getRoomType();
+            roomRateToRemove.setIsEnabled(Boolean.FALSE);
+            return false;
+        } catch (NullPointerException ex) {
+            em.remove(roomRateToRemove);
+            return true;
+        }
+    }
 }

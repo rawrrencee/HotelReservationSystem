@@ -21,5 +21,7 @@ public interface RoomRateControllerRemote {
     public RoomRate retrieveRoomRateByRoomRateId(Long roomRateId) throws RoomRateNotFoundException;
 
     public void updateRoomRate(RoomRate roomRate, Long newRoomTypeId) throws RoomTypeNotFoundException;
+
+    public Boolean deleteRoomRate(Long roomRateId) throws RoomRateNotFoundException;
     
 }

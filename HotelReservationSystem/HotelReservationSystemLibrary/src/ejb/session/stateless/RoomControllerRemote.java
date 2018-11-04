@@ -25,5 +25,7 @@ public interface RoomControllerRemote {
     public void updateRoom(Room room, Long roomTypeId) throws RoomTypeNotFoundException;
 
     public Room retrieveRoomByRoomId(Long roomId) throws RoomNotFoundException;
+
+    public Boolean deleteRoom(Long roomId) throws RoomNotFoundException;
     
 }

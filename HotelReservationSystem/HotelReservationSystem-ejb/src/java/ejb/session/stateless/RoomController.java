@@ -17,6 +17,7 @@ import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceException;
 import javax.persistence.Query;
+import util.enumeration.RoomStatus;
 import util.exception.GeneralException;
 import util.exception.RoomExistException;
 import util.exception.RoomNotFoundException;
@@ -123,5 +124,18 @@ public class RoomController implements RoomControllerLocal, RoomControllerRemote
             System.out.println("Room type does not exist!");
         }
         em.merge(room);     
+    }
+    
+    @Override
+    public Boolean deleteRoom(Long roomId) throws RoomNotFoundException {
+        Room roomToRemove = retrieveRoomByRoomId(roomId);
+        
+        if (roomToRemove.getRoomStatus().equals(RoomStatus.ALLOCATED) || roomToRemove.getRoomStatus().equals(RoomStatus.CLEANING)) {
+            roomToRemove.setRoomStatus(RoomStatus.DISABLED);
+            return false;
+        } else {
+            em.remove(roomToRemove);
+            return true;
+        }
     }
 }
