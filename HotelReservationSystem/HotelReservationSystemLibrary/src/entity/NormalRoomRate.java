@@ -19,6 +19,7 @@ public class NormalRoomRate extends RoomRate implements Serializable {
     private static final long serialVersionUID = 1L;
 
     public NormalRoomRate() {
+        super();
     }
 
     public NormalRoomRate(String roomRateName, BigDecimal ratePerNight, Boolean isDisabled) {

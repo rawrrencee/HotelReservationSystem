@@ -7,7 +7,7 @@ package entity;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.util.Date;
+import java.util.Calendar;
 import javax.persistence.Entity;
 
 /**
@@ -19,13 +19,14 @@ public class PromoRoomRate extends RoomRate implements Serializable {
 
     private static final long serialVersionUID = 1L;
     
-    private Date startDate;
-    private Date endDate;
+    private Calendar startDate;
+    private Calendar endDate;
 
     public PromoRoomRate() {
+        super();
     }
     
-    public PromoRoomRate(Date startDate, Date endDate, String roomRateName, BigDecimal ratePerNight, Boolean isDisabled) {
+    public PromoRoomRate(Calendar startDate, Calendar endDate, String roomRateName, BigDecimal ratePerNight, Boolean isDisabled) {
         this.startDate = startDate;
         this.endDate = endDate;
         this.roomRateName = roomRateName;
@@ -61,28 +62,28 @@ public class PromoRoomRate extends RoomRate implements Serializable {
     /**
      * @return the startDate
      */
-    public Date getStartDate() {
+    public Calendar getStartDate() {
         return startDate;
     }
 
     /**
      * @param startDate the startDate to set
      */
-    public void setStartDate(Date startDate) {
+    public void setStartDate(Calendar startDate) {
         this.startDate = startDate;
     }
 
     /**
      * @return the endDate
      */
-    public Date getEndDate() {
+    public Calendar getEndDate() {
         return endDate;
     }
 
     /**
      * @param endDate the endDate to set
      */
-    public void setEndDate(Date endDate) {
+    public void setEndDate(Calendar endDate) {
         this.endDate = endDate;
     }
     
