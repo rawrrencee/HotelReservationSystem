@@ -615,13 +615,17 @@ public class HotelOperationModule {
         System.out.println("2: Normal Room Rate");
         System.out.println("3: Peak Room Rate");
         System.out.println("4: Promo Room Rate");
-        System.out.print("Please select type of Room Rate to create> ");
-        
+
         while (true) {
+            System.out.print("Please select type of Room Rate to create> ");
             try {
-                response = sc.nextInt();
-                //consume empty line
-                sc.nextLine();
+                input = sc.nextLine().trim();
+                try {
+                    response = Integer.parseInt(input);
+                } catch (NumberFormatException ex) {
+                    System.out.println("Please enter numeric values.");
+                    continue;
+                }
                 if (response > 0 || response < 5) {
                     switch(response) {
                         case 1:
