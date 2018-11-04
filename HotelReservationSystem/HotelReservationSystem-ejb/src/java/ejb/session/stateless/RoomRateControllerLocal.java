@@ -9,6 +9,7 @@ import entity.RoomRate;
 import java.util.List;
 import util.exception.GeneralException;
 import util.exception.RoomRateExistException;
+import util.exception.RoomRateNotFoundException;
 import util.exception.RoomTypeNotFoundException;
 
 public interface RoomRateControllerLocal {
@@ -16,4 +17,8 @@ public interface RoomRateControllerLocal {
     public List<RoomRate> retrieveAllRoomRates();
     
     public RoomRate createNewRoomRate(RoomRate newRoomRate, Long roomTypeId) throws RoomRateExistException, RoomTypeNotFoundException, GeneralException;
+    
+    public RoomRate retrieveRoomRateByRoomRateId(Long roomRateId) throws RoomRateNotFoundException;
+    
+    public void updateRoomRate(RoomRate roomRate, Long newRoomTypeId) throws RoomTypeNotFoundException;
 }

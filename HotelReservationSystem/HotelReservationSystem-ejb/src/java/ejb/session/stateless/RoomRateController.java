@@ -18,6 +18,7 @@ import javax.persistence.PersistenceException;
 import javax.persistence.Query;
 import util.exception.GeneralException;
 import util.exception.RoomRateExistException;
+import util.exception.RoomRateNotFoundException;
 import util.exception.RoomTypeNotFoundException;
 
 /**
@@ -68,5 +69,34 @@ public class RoomRateController implements RoomRateControllerLocal, RoomRateCont
                 throw new GeneralException("An unexpected error has occurred: " + ex.getMessage());
             }
         }
+    }
+    
+    @Override
+    public RoomRate retrieveRoomRateByRoomRateId(Long roomRateId) throws RoomRateNotFoundException {
+        RoomRate roomRate = em.find(RoomRate.class, roomRateId);
+        
+        if (roomRate != null) {
+        return roomRate;
+        } else {
+            throw new RoomRateNotFoundException("Room Rate ID " + roomRateId + " does not exist!");
+        }
+    }
+    
+    @Override
+    public void updateRoomRate(RoomRate roomRate, Long newRoomTypeId) throws RoomTypeNotFoundException {
+        Long currentRoomTypeId = roomRate.getRoomType().getRoomTypeId();
+        RoomType currentRoomType = roomTypeControllerLocal.retrieveRoomTypeByRoomTypeId(currentRoomTypeId);
+        
+        try {
+            if (!currentRoomTypeId.equals(newRoomTypeId)) {
+                RoomType newRoomType = roomTypeControllerLocal.retrieveRoomTypeByRoomTypeId(newRoomTypeId);
+                roomRate.setRoomType(newRoomType);
+                newRoomType.getRoomRates().add(roomRate);
+                currentRoomType.getRoomRates().remove(roomRate);
+            }
+        } catch (RoomTypeNotFoundException ex) {
+            System.out.println("Room rate does not exist!");
+        }
+        em.merge(roomRate);     
     }
 }
