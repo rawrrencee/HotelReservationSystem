@@ -10,11 +10,15 @@ import ejb.session.stateless.RoomControllerRemote;
 import ejb.session.stateless.RoomRateControllerRemote;
 import ejb.session.stateless.RoomTypeControllerRemote;
 import entity.Employee;
+import entity.NormalRoomRate;
+import entity.PeakRoomRate;
+import entity.PromoRoomRate;
 import entity.PublishedRoomRate;
 import entity.Room;
 import entity.RoomRate;
 import entity.RoomType;
 import java.math.BigDecimal;
+import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Scanner;
 import util.enumeration.EmployeeAccessRightEnum;
@@ -23,6 +27,7 @@ import util.exception.GeneralException;
 import util.exception.InvalidAccessRightException;
 import util.exception.RoomExistException;
 import util.exception.RoomNotFoundException;
+import util.exception.RoomRateExistException;
 import util.exception.RoomTypeExistException;
 import util.exception.RoomTypeNotFoundException;
 
@@ -604,9 +609,103 @@ public class HotelOperationModule {
         System.out.println("3: Peak Room Rate");
         System.out.println("4: Promo Room Rate");
         System.out.println("Please select type of Room Rate to create> ");
-        response = sc.nextInt();
-        //consume empty line
-        sc.nextLine();
+        
+        while (true) {
+            try {
+                response = sc.nextInt();
+                //consume empty line
+                sc.nextLine();
+                if (response > 0 || response < 5) {
+                    switch(response) {
+                        case 1:
+                            newRoomRate = new PublishedRoomRate();
+                            System.out.println("Published Room Rate selected for creation.");
+                            createNewRoomRateExtended(sc, response, newRoomRate, roomTypes);
+                            break;
+                        case 2:
+                            newRoomRate = new NormalRoomRate();
+                            System.out.println("Normal Room Rate selected for creation.");
+                            createNewRoomRateExtended(sc, response, newRoomRate, roomTypes);
+                            break;
+                        case 3:
+                            newRoomRate = new PeakRoomRate();
+                            System.out.println("Peak Room Rate selected for creation.");
+                            createNewRoomRateExtended(sc, response, newRoomRate, roomTypes);
+                            break;
+                        case 4:
+                            newRoomRate = new PromoRoomRate();
+                            System.out.println("Promo Room Rate selected for creation.");
+                            createNewRoomRateExtended(sc, response, newRoomRate, roomTypes);
+                            break;
+                        default:
+                            break;
+                    }
+                } else {
+                    System.out.println("Please make a selection between the provided values.");
+                    continue;
+                }
+                break;
+            } catch (NumberFormatException ex) {
+                System.out.println("Please enter numeric values.");
+            }
+        }
+    }
+    
+    private void createNewRoomRateExtended(Scanner sc, Integer response, RoomRate newRoomRate, List<RoomType> roomTypes) {
+        String input;
+        BigDecimal ratePerNight;
+        if (response <= 2 && response > 0) {
+            System.out.print("Enter Room Rate Name> ");
+            input = sc.nextLine().trim();
+            newRoomRate.setRoomRateName(input);
+            System.out.print("Enter Room Rate per night (in SGD)> ");
+            while (true) {
+                try {
+                    ratePerNight = sc.nextBigDecimal();
+                    System.out.println("Rate entered: " + ratePerNight.toString());
+                    break;
+                } catch (InputMismatchException ex) {
+                    System.out.println("Please enter numeric values.");
+                }
+            }
+            //consume empty line
+            sc.nextLine();
+            newRoomRate.setRatePerNight(ratePerNight);
+
+            while (true) {
+                System.out.print("Enable Room Rate? Y/N> ");
+                input = sc.nextLine().trim();
+                if (input.toLowerCase().equals("y")) {
+                    newRoomRate.setIsEnabled(true);
+                    break;
+                }
+                if (input.toLowerCase().equals("n")) {
+                    newRoomRate.setIsEnabled(false);
+                    break;
+                }
+                System.out.println("Input not recognised! Please enter Y/N.");
+            }
+            
+            System.out.println("*** List of available Room Types ***");
+            for (RoomType roomType : roomTypes) {
+                System.out.println(roomType.getRoomTypeId() + ": " + roomType.getRoomTypeName());
+            }
+            System.out.println("-------------------------");
+            while (true) {
+                System.out.print("Please enter Room Type ID of the Room Rate> ");
+                input = sc.nextLine().trim();
+                try {
+                    roomRateControllerRemote.createNewRoomRate(newRoomRate, Long.parseLong(input));
+                    System.out.println("-------------------------");
+                    System.out.println("Room Rate " + newRoomRate.getRoomRateName() + " created!\n");
+                    break;
+                } catch (RoomRateExistException | GeneralException ex) {
+                    System.out.println("An error has occurred while creating the room rate: " + ex.getMessage() + "!\n");
+                } catch (RoomTypeNotFoundException ex) {
+                    System.out.println("Room type not found error: " + ex.getMessage() + "!\n");
+                }
+            }
+        }
     }
     
     private void viewRoomRateDetails() {
