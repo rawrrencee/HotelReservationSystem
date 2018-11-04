@@ -7,6 +7,7 @@ package entity;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -26,11 +27,12 @@ public abstract class RoomRate implements Serializable {
     protected Long roomRateId;
     
     protected String roomRateName;
+    @Column(nullable = false, precision = 18, scale = 4)
     protected BigDecimal ratePerNight;
     protected Boolean isEnabled;
     
     @ManyToOne
-    private RoomType roomType;
+    protected RoomType roomType;
 
     public RoomRate() {
     }

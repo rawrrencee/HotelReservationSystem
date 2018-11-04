@@ -1,16 +1,48 @@
+# Compiled class file
+*.class
+
+# Log file
+*.log
+
+# BlueJ files
+*.ctxt
+
+# Mobile Tools for Java (J2ME)
+.mtj.tmp/
+
+# Package Files #
+*.jar
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
 /HotelReservationSystem/nbproject/private/
+/HotelReservationSystem/build/
+/HotelReservationSystem/dist/
+
 /HotelReservationSystem/HotelReservationSystem-ejb/nbproject/private/
+/HotelReservationSystem/HotelReservationSystem-ejb/build/
+/HotelReservationSystem/HotelReservationSystem-ejb/dist/
+
+/HotelReservationSystem/HotelReservationSystem-war/nbproject/private/
+/HotelReservationSystem/HotelReservationSystem-war/build/
+/HotelReservationSystem/HotelReservationSystem-war/dist/
+
 /HotelReservationSystem/HoRSManagementClient/nbproject/private/
+/HotelReservationSystem/HoRSManagementClient/build/
+/HotelReservationSystem/HoRSManagementClient/dist/
+
 /HotelReservationSystem/HoRSReservationClient/nbproject/private/
+/HotelReservationSystem/HoRSReservationClient/build/
+/HotelReservationSystem/HoRSReservationClient/dist/
+
 /HotelReservationSystem/HolidayReservationSystem/nbproject/private/
+/HotelReservationSystem/HolidayReservationSystem/build/
+/HotelReservationSystem/HolidayReservationSystem/dist/
+
 /HotelReservationSystem/HotelReservationSystemLibrary/nbproject/private/
 /HotelReservationSystem/HotelReservationSystemLibrary/dist/
-/HotelReservationSystem/build/
 /HotelReservationSystem/HotelReservationSystemLibrary/build/
-/HotelReservationSystem/HoRSManagementClient/build/
-/HotelReservationSystem/HoRSReservationClient/build/
-/HotelReservationSystem/HolidayReservationSystem/build/
-/HotelReservationSystem/HoRSReservationClient/dist/
-/HotelReservationSystem/HoRSManagementClient/dist/
-/HotelReservationSystem/HolidayReservationSystem/dist/
-/HotelReservationSystem/HotelReservationSystem-ejb/dist/

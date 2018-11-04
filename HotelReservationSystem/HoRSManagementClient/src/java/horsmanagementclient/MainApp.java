@@ -46,6 +46,7 @@ public class MainApp {
     
     public void runApp() {
         Scanner sc = new Scanner(System.in);
+        String input;
         Integer response = 0;
         
         while (true) {
@@ -56,8 +57,13 @@ public class MainApp {
             
             while (response <1 || response > 2) {
                 System.out.print("> ");
-                response = sc.nextInt();
-                
+                input = sc.nextLine().trim();
+                try {
+                response = Integer.parseInt(input);
+                } catch (NumberFormatException ex) {
+                    System.out.println("Please enter numerical values.");
+                    continue;
+                }
                 switch(response) {
                     case 1:
                         try {
@@ -100,6 +106,7 @@ public class MainApp {
     
     public void menuMain() {
         Scanner sc = new Scanner(System.in);
+        String input;
         Integer response = 0;
         
         while (true) {
@@ -113,8 +120,13 @@ public class MainApp {
             
             while (response < 1 || response > 4) {
                 System.out.print("> ");
-                response = sc.nextInt();
-                
+                input = sc.nextLine().trim();
+                try {
+                    response = Integer.parseInt(input);
+                } catch (NumberFormatException ex) {
+                    System.out.println("Please enter numerical values.");
+                    continue;
+                }
                 switch(response) {
                     case 1:
                         try {

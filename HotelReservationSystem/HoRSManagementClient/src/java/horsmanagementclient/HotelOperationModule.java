@@ -64,6 +64,7 @@ public class HotelOperationModule {
         
         Scanner sc = new Scanner(System.in);
         Integer response = 0;
+        String input;
         
         while (true) {
             System.out.println("*** Hotel Reservation System :: Hotel Operations ***\n");
@@ -91,7 +92,13 @@ public class HotelOperationModule {
             
             while (response < 1 || response > 20) {
                 System.out.print("> ");
-                response = sc.nextInt();
+                input = sc.nextLine().trim();
+                try {
+                    response = Integer.parseInt(input);
+                } catch (NumberFormatException ex) {
+                    System.out.println("Please enter a numerical value.");
+                    continue;
+                }
                 
                 switch(response) {
                     case 1:
@@ -608,7 +615,7 @@ public class HotelOperationModule {
         System.out.println("2: Normal Room Rate");
         System.out.println("3: Peak Room Rate");
         System.out.println("4: Promo Room Rate");
-        System.out.println("Please select type of Room Rate to create> ");
+        System.out.print("Please select type of Room Rate to create> ");
         
         while (true) {
             try {
@@ -645,8 +652,9 @@ public class HotelOperationModule {
                     continue;
                 }
                 break;
-            } catch (NumberFormatException ex) {
+            } catch (InputMismatchException ex) {
                 System.out.println("Please enter numeric values.");
+                continue;
             }
         }
     }
@@ -658,20 +666,20 @@ public class HotelOperationModule {
             System.out.print("Enter Room Rate Name> ");
             input = sc.nextLine().trim();
             newRoomRate.setRoomRateName(input);
-            System.out.print("Enter Room Rate per night (in SGD)> ");
+            
             while (true) {
+                System.out.print("Enter Room Rate per night (in SGD)> ");
+                input = sc.nextLine().trim();
                 try {
-                    ratePerNight = sc.nextBigDecimal();
+                    ratePerNight = new BigDecimal(input);
                     System.out.println("Rate entered: " + ratePerNight.toString());
+                    newRoomRate.setRatePerNight(ratePerNight);
                     break;
-                } catch (InputMismatchException ex) {
+                } catch (NumberFormatException ex) {
                     System.out.println("Please enter numeric values.");
                 }
             }
-            //consume empty line
-            sc.nextLine();
-            newRoomRate.setRatePerNight(ratePerNight);
-
+            
             while (true) {
                 System.out.print("Enable Room Rate? Y/N> ");
                 input = sc.nextLine().trim();
