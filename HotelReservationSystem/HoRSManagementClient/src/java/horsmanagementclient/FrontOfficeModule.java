@@ -11,7 +11,9 @@ import ejb.session.stateless.RoomRateControllerRemote;
 import ejb.session.stateless.RoomTypeControllerRemote;
 import entity.Employee;
 import entity.RoomInventory;
+import entity.RoomRate;
 import entity.RoomType;
+import java.math.BigDecimal;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -102,11 +104,13 @@ public class FrontOfficeModule {
         List<RoomInventory> roomInventories;
         RoomInventory currentRoomInventory;
         Integer numRoomsLeft = 0;
+        List<RoomRate> roomRates;
+        BigDecimal lowestPublishedRate = new BigDecimal(0);
         Calendar checkInDate = Calendar.getInstance();
         Calendar checkOutDate = Calendar.getInstance();
         Calendar now = Calendar.getInstance();
-        String input, checkInDateString, checkOutDateString;
-        int year, month, day, hour, min;
+        String checkInDateString, checkOutDateString;
+        int year, month, day;
         int count = 0;
 
         System.out.println("*** Hotel Reservation System :: Front Office :: Walk-in Search Room ***\n");
@@ -203,7 +207,13 @@ public class FrontOfficeModule {
             try {
                 roomInventories = roomInventoryControllerRemote.retrieveAllRoomInventoriesOnDate(date);
                 for (RoomInventory roomInventory : roomInventories) {
-                    System.out.println("Room Type: " + roomInventory.getRoomType().getRoomTypeName() + " | Number of rooms left: " + roomInventory.getNumRoomsLeft());
+                    roomRates = roomInventoryControllerRemote.retrieveRoomRatesByTypeOfRoomInventory(roomInventory.getRoomInventoryId());
+                    for (RoomRate roomRate : roomRates) {
+                        if (lowestPublishedRate.compareTo(roomRate.getRatePerNight()) == 1) {
+                        lowestPublishedRate = roomRate.getRatePerNight();
+                        }
+                    }
+                    System.out.println("Room Type: " + roomInventory.getRoomType().getRoomTypeName() + " | Number of rooms left: " + roomInventory.getNumRoomsLeft() + " | Published Rate: " + lowestPublishedRate);
                 }
             } catch (RoomInventoryNotFoundException ex) {
                 System.out.println("No inventories exist for requested date.");

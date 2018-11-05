@@ -6,6 +6,7 @@
 package ejb.session.stateless;
 
 import entity.RoomInventory;
+import entity.RoomRate;
 import java.util.Date;
 import java.util.List;
 import util.exception.GeneralException;
@@ -23,4 +24,6 @@ public interface RoomInventoryControllerLocal {
     public List<RoomInventory> retrieveRoomInventoriesByRoomType(Long roomTypeId) throws RoomInventoryNotFoundException;
     
     public List<RoomInventory> retrieveAllRoomInventoriesOnDate(Date date) throws RoomInventoryNotFoundException;
+    
+    public List<RoomRate> retrieveRoomRatesByTypeOfRoomInventory(Long roomInventoryId) throws RoomInventoryNotFoundException;
 }

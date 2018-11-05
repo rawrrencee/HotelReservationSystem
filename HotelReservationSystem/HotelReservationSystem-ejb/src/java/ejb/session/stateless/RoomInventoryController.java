@@ -6,6 +6,7 @@
 package ejb.session.stateless;
 
 import entity.RoomInventory;
+import entity.RoomRate;
 import entity.RoomType;
 import java.util.Date;
 import java.util.List;
@@ -79,6 +80,15 @@ public class RoomInventoryController implements RoomInventoryControllerLocal, Ro
         } catch (NoResultException ex) {
             throw new RoomInventoryNotFoundException("Room Inventory with Room Type Id " + roomTypeId + " does not exist!");
         }
+    }
+    
+    @Override
+    public List<RoomRate> retrieveRoomRatesByTypeOfRoomInventory(Long roomInventoryId) throws RoomInventoryNotFoundException {
+        RoomInventory roomInventory = retrieveRoomInventoryByRoomInventoryId(roomInventoryId);
+        List<RoomRate> roomRates = roomInventory.getRoomType().getRoomRates();
+        roomRates.size();
+        
+        return roomRates;
     }
     
     @Override
