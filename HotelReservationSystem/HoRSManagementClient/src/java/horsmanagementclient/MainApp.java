@@ -29,6 +29,7 @@ public class MainApp {
     
     private SystemAdministrationModule systemAdministrationModule;
     private HotelOperationModule hotelOperationModule;
+    private FrontOfficeModule frontOfficeModule;
     
     private Employee currentEmployee;
     
@@ -143,6 +144,11 @@ public class MainApp {
                         }
                         break;
                     case 3:
+                        try {
+                            frontOfficeModule.menuMain();
+                        } catch (InvalidAccessRightException ex) {
+                            System.out.println("You lack the proper access rights to use this function. (" + ex.getMessage() + ")\n");
+                        }
                         break;
                     case 4:
                         return;
