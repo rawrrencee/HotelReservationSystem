@@ -54,7 +54,7 @@ public class MainApp {
         Integer response = 0;
         
         while (true) {
-            System.out.println("*** Welcome to Hotel Reservation Management Client :: Main Page ***\n");
+			System.out.println("*** Welcome to Hotel Reservation Management Client :: Main Page ***\n");
             System.out.println("1: Login");
             System.out.println("2: Exit");
             response = 0;
