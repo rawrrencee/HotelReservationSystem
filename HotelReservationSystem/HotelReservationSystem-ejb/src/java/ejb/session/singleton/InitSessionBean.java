@@ -49,7 +49,7 @@ public class InitSessionBean {
         try {
             employeeControllerLocal.createNewEmployee(new Employee("sysadmin", "password", "Default", "System Administrator", "S0000001A", "90123456", "Singapore Address Line 1", "Singapore Address Line 2", "600001", EmployeeAccessRightEnum.SYSADMIN));
             employeeControllerLocal.createNewEmployee(new Employee("opmanager", "password", "OPERATION", "MANAGER", "S0000002A", "90123457", "Singapore Address Line 1", "Singapore Address Line 2", "600002", EmployeeAccessRightEnum.OPMANAGER));
-            roomTypeControllerLocal.createNewRoomType(new RoomType("DELUXE", "Deluxe Room for Family", 1500 , "2 beds with silk covers", 4, "No Air con", 12, true));
+            roomTypeControllerLocal.createNewRoomType(new RoomType("DELUXE", "Deluxe Room for Family", 1500 , "2 beds with silk covers", 4, "No Air con", 1, true));
         } catch (Exception ex) {
             System.err.println("********** DataInitializationSessionBean.initializeData(): An error has occurred while loading initial test data: " + ex.getMessage());
         }

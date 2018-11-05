@@ -7,19 +7,23 @@ package entity;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.util.Date;
+import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 
 /**
  *
  * @author Lawrence
  */
 @Entity
+@Inheritance(strategy= InheritanceType.JOINED)
 public abstract class RoomRate implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -28,12 +32,15 @@ public abstract class RoomRate implements Serializable {
     protected Long roomRateId;
     
     protected String roomRateName;
-    @Column(nullable = false, precision = 18, scale = 4)
+    @Column(nullable = false, precision = 11, scale = 2)
     protected BigDecimal ratePerNight;
     protected Boolean isEnabled;
     
     @ManyToOne
     protected RoomType roomType;
+    
+    @OneToMany(mappedBy="roomRate")
+    private List<RoomNight> roomNights;
 
     public RoomRate() {
     }
@@ -131,6 +138,20 @@ public abstract class RoomRate implements Serializable {
      */
     public void setRoomType(RoomType roomType) {
         this.roomType = roomType;
+    }
+
+    /**
+     * @return the roomNight
+     */
+    public List<RoomNight> getRoomNights() {
+        return roomNights;
+    }
+
+    /**
+     * @param roomNight the roomNight to set
+     */
+    public void setRoomNight(List<RoomNight> roomNights) {
+        this.roomNights = roomNights;
     }
     
 }

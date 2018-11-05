@@ -129,11 +129,13 @@ public class RoomController implements RoomControllerLocal, RoomControllerRemote
     @Override
     public Boolean deleteRoom(Long roomId) throws RoomNotFoundException {
         Room roomToRemove = retrieveRoomByRoomId(roomId);
+        RoomType roomType = roomToRemove.getRoomType();
         
         if (roomToRemove.getRoomStatus().equals(RoomStatus.ALLOCATED) || roomToRemove.getRoomStatus().equals(RoomStatus.CLEANING)) {
             roomToRemove.setRoomStatus(RoomStatus.DISABLED);
             return false;
         } else {
+            roomType.getRooms().remove(roomToRemove);
             em.remove(roomToRemove);
             return true;
         }

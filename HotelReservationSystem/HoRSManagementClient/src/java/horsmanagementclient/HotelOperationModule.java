@@ -157,7 +157,8 @@ public class HotelOperationModule {
     private void createNewRoomType() {
         Scanner sc = new Scanner(System.in);
         String input;
-        Integer value;
+        Integer value = 0;
+        Integer count = 1;
         RoomType newRoomType = new RoomType();
         Boolean conditionChecker = true;
         
@@ -242,6 +243,70 @@ public class HotelOperationModule {
             System.out.println("New Room Type (" + newRoomType.getRoomTypeName() + ") created successfully! Room Type ID is " + newRoomType.getRoomTypeId() + "\n");
         } catch (RoomTypeExistException | GeneralException ex) {
             System.out.println("An error has occurred while creating the new room type: " + ex.getMessage() + " !\n");
+        }
+        
+        while (count <= value) {
+        Room newRoom = new Room();
+        Long roomTypeId;
+        List<RoomType> roomTypes = roomTypeControllerRemote.retrieveAllRoomTypes();
+
+        System.out.println("*** Hotel Reservation System :: Hotel Operations :: Create New Room (" + count + "/" + value + ") ***\n");
+
+            try {
+                while (true) {
+                    System.out.print("Enter Room Number in the format xxyy where xx is the Floor number, and yy is the Sequence number (e.g. 2015)> ");
+                    input = sc.nextLine().trim();
+                    if (input.length() != 4) {
+                        System.out.println("Room Number must be 4 digits");
+                        continue;
+                    }
+                    try {
+                        if (!roomControllerRemote.checkRoomExistsByRoomNumber(Integer.parseInt(input))) {
+                            newRoom.setRoomNumber(Integer.parseInt(input));
+                            break;
+                        } else {
+                            System.out.println("Room Number already exists, please enter another number.");
+                        }
+                    } catch (NumberFormatException ex) {
+                        System.out.println("Please enter numeric values.");
+                    }
+                }
+
+                System.out.print("Please set the status of the room (1: AVAILABLE, 2: CLEANING, 3: ALLOCATED, 4: DISABLED)> ");
+                input = sc.nextLine().trim();
+                while (true) {
+                    if (input.equals("1")) {
+                        newRoom.setRoomStatus(RoomStatus.AVAILABLE);
+                        break;
+                    } else if (input.equals("2")) {
+                        newRoom.setRoomStatus(RoomStatus.CLEANING);
+                        break;
+                    } else if (input.equals("3")) {
+                        newRoom.setRoomStatus(RoomStatus.ALLOCATED);
+                        break;
+                    } else if (input.equals("4")) {
+                        newRoom.setRoomStatus(RoomStatus.DISABLED);
+                        break;
+                    } else {
+                        System.out.println("Input not recognised, please re-enter value.");
+                    }
+                }
+                while (true) {
+                    System.out.println("Room Type ID automatically selected: Room Type ID | " + newRoomType.getRoomTypeId() + " | " + "Room Type Name: " + newRoomType.getRoomTypeName());
+                    roomTypeId = newRoomType.getRoomTypeId();
+                    if (!roomTypeControllerRemote.retrieveRoomTypeByRoomTypeId(roomTypeId).getIsEnabled()) {
+                        System.out.println("Room Type is currently DISABLED. Please enable Room Type via Menu manually.");
+                        return;
+                    } else {
+                        break;
+                    }
+                }
+                roomControllerRemote.createNewRoom(newRoom, roomTypeId);
+                count++;
+                System.out.println("Room Number: " + newRoom.getRoomNumber() + " with Room Type " + roomTypeControllerRemote.retrieveRoomTypeByRoomTypeId(roomTypeId).getRoomTypeName() + " created!\n");
+            } catch (RoomTypeNotFoundException | RoomExistException | GeneralException ex) {
+                System.out.println("An error has occurred while creating the new room: " + ex.getMessage() + "!\n");
+            }
         }
     }
     
@@ -649,7 +714,7 @@ public class HotelOperationModule {
 
         System.out.println("*** List of Rooms ***");
         for (Room room : rooms) {
-            System.out.println("Room ID: " + room.getRoomId() + "| Room Number: " + room.getRoomNumber() + " | Status: " + room.getRoomStatus());
+            System.out.println("Room ID: " + room.getRoomId() + "| Room Number: " + room.getRoomNumber() + "| Room Type: " + room.getRoomType().getRoomTypeName() + " | Status: " + room.getRoomStatus());
         }
         System.out.println("-------------------------");
         System.out.print("Press any key to continue...");

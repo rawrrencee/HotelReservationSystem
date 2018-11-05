@@ -26,6 +26,7 @@ public class RoomInventory implements Serializable {
     private Long roomInventoryId;
     
     private Date date;
+    private Integer numRoomsLeft;
     
     @ManyToOne
     private RoomType roomType;
@@ -33,8 +34,9 @@ public class RoomInventory implements Serializable {
     public RoomInventory() {
     }
 
-    public RoomInventory(Date date) {
+    public RoomInventory(Date date, Integer numRoomsLeft) {
         this.date = date;
+        this.numRoomsLeft = numRoomsLeft;
     }
 
     public Long getRoomInventoryId() {
@@ -96,6 +98,20 @@ public class RoomInventory implements Serializable {
      */
     public void setRoomType(RoomType roomType) {
         this.roomType = roomType;
+    }
+
+    /**
+     * @return the numRoomsLeft
+     */
+    public Integer getNumRoomsLeft() {
+        return numRoomsLeft;
+    }
+
+    /**
+     * @param numRoomsLeft the numRoomsLeft to set
+     */
+    public void setNumRoomsLeft(Integer numRoomsLeft) {
+        this.numRoomsLeft = numRoomsLeft;
     }
     
 }

@@ -103,14 +103,25 @@ public class RoomRateController implements RoomRateControllerLocal, RoomRateCont
     @Override
     public Boolean deleteRoomRate(Long roomRateId) throws RoomRateNotFoundException {
         RoomRate roomRateToRemove = retrieveRoomRateByRoomRateId(roomRateId);
+        RoomType roomType = roomRateToRemove.getRoomType();
         
-        try {
-            roomRateToRemove.getRoomType();
-            roomRateToRemove.setIsEnabled(Boolean.FALSE);
-            return false;
-        } catch (NullPointerException ex) {
+//        try {
+//            roomRateToRemove.getRoomNights();
+//            roomRateToRemove.setIsEnabled(Boolean.FALSE);
+//            return false;
+//        } catch (NullPointerException ex) {
+//            roomType.getRoomRates().remove(roomRateToRemove);
+//            em.remove(roomRateToRemove);
+//            return true;
+//        }
+        
+        if (roomRateToRemove.getRoomNights().isEmpty() || roomRateToRemove.getRoomNights() == null){
+            roomType.getRoomRates().remove(roomRateToRemove);
             em.remove(roomRateToRemove);
             return true;
+        } else {
+            roomRateToRemove.setIsEnabled(Boolean.FALSE);
+            return false;
         }
     }
 }

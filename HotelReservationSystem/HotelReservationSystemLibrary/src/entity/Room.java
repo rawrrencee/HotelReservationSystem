@@ -6,10 +6,14 @@
 package entity;
 
 import java.io.Serializable;
+import java.util.List;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import util.enumeration.RoomStatus;
 
@@ -25,10 +29,11 @@ public class Room implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long roomId;
     private Integer roomNumber;
+    @Enumerated(EnumType.STRING)
     private RoomStatus roomStatus;
     
-    @ManyToOne
-    private ReservationLineItem reservationLineItem;
+    @ManyToMany(mappedBy="rooms")
+    private List<ReservationLineItem> reservationLineItems;
     
     @ManyToOne
     private RoomType roomType;
@@ -101,21 +106,6 @@ public class Room implements Serializable {
     public void setRoomStatus(RoomStatus roomStatus) {
         this.roomStatus = roomStatus;
     }
-
-    /**
-     * @return the reservationLineItem
-     */
-    public ReservationLineItem getReservationLineItem() {
-        return reservationLineItem;
-    }
-
-    /**
-     * @param reservationLineItem the reservationLineItem to set
-     */
-    public void setReservationLineItem(ReservationLineItem reservationLineItem) {
-        this.reservationLineItem = reservationLineItem;
-    }
-
     /**
      * @return the roomType
      */
@@ -128,6 +118,20 @@ public class Room implements Serializable {
      */
     public void setRoomType(RoomType roomType) {
         this.roomType = roomType;
+    }
+
+    /**
+     * @return the reservationLineItems
+     */
+    public List<ReservationLineItem> getReservationLineItems() {
+        return reservationLineItems;
+    }
+
+    /**
+     * @param reservationLineItems the reservationLineItems to set
+     */
+    public void setReservationLineItems(List<ReservationLineItem> reservationLineItems) {
+        this.reservationLineItems = reservationLineItems;
     }
     
 }

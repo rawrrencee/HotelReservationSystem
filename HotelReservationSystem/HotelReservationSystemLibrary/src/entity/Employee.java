@@ -8,6 +8,8 @@ package entity;
 import java.io.Serializable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -43,6 +45,7 @@ public class Employee implements Serializable {
     private String addressLine2;
     @Column(nullable = false, length = 6)
     private String postalCode;
+    @Enumerated(EnumType.STRING)
     private EmployeeAccessRightEnum accessRight;
 
     public Employee() {
