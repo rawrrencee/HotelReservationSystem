@@ -40,7 +40,7 @@ public class SystemAdministrationModule {
 
     public void menuMain() throws InvalidAccessRightException {
         if (currentEmployee.getAccessRight() != EmployeeAccessRightEnum.SYSADMIN) {
-            throw new InvalidAccessRightException("You don't have SYSTEM ADMINISTRATOR rights to access the System Administration Module.");
+            throw new InvalidAccessRightException("You don't have SYSTEM ADMINISTRATOR rights to access the System Administration Module!!");
         }
 
         Scanner sc = new Scanner(System.in);
