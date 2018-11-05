@@ -105,7 +105,7 @@ public class FrontOfficeModule {
         RoomInventory currentRoomInventory;
         Integer numRoomsLeft = 0;
         List<RoomRate> roomRates;
-        BigDecimal lowestPublishedRate = new BigDecimal(0);
+        BigDecimal lowestPublishedRate = new BigDecimal(Integer.MAX_VALUE);
         Calendar checkInDate = Calendar.getInstance();
         Calendar checkOutDate = Calendar.getInstance();
         Calendar now = Calendar.getInstance();
@@ -214,6 +214,7 @@ public class FrontOfficeModule {
                         }
                     }
                     System.out.println("Room Type: " + roomInventory.getRoomType().getRoomTypeName() + " | Number of rooms left: " + roomInventory.getNumRoomsLeft() + " | Published Rate: " + lowestPublishedRate);
+                    lowestPublishedRate = new BigDecimal(Integer.MAX_VALUE);
                 }
             } catch (RoomInventoryNotFoundException ex) {
                 System.out.println("No inventories exist for requested date.");
