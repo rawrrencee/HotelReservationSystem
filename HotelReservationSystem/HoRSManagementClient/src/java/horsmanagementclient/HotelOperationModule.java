@@ -27,6 +27,7 @@ import util.enumeration.RoomStatus;
 import util.exception.GeneralException;
 import util.exception.InvalidAccessRightException;
 import util.exception.RoomExistException;
+import util.exception.RoomInventoryNotFoundException;
 import util.exception.RoomNotFoundException;
 import util.exception.RoomRateExistException;
 import util.exception.RoomRateNotFoundException;
@@ -555,13 +556,27 @@ public class HotelOperationModule {
             }
             System.out.println("-------------------------");
             while (true) {
-                System.out.print("Please enter Room Type ID of the Room> ");
-                roomTypeId = sc.nextLong();
+                System.out.print("Please enter Room Type ID of the Room (-1 to cancel Room creation) > ");
+                input = sc.nextLine().trim();
+                roomTypeId = -1l;
+                try {
+                roomTypeId = Long.parseLong(input);
+                if (roomTypeId == -1) break;
+                } catch (NumberFormatException ex) {
+                    System.out.println("Please enter a numerical value.");
+                }
+                try {
                 if (!roomTypeControllerRemote.retrieveRoomTypeByRoomTypeId(roomTypeId).getIsEnabled()) {
                     System.out.println("Room Type is currently DISABLED. Please select another Room Type.");
                     continue;
+                } else if (roomTypeControllerRemote.retrieveRoomTypeByRoomTypeId(roomTypeId).getNumRooms() == roomControllerRemote.retrieveRoomsByRoomType(roomTypeId).size()) {
+                    System.out.println("Room Type is at its pre-defined maximum number of rooms. Please select another Room Type or enter -1 to exit.");
                 } else {
                     break;
+                }
+                } catch (RoomNotFoundException ex) {
+                    System.out.println("Input not accepted. Please select another Room Type.");
+                    continue;
                 }
             }
             roomControllerRemote.createNewRoom(newRoom, roomTypeId);
@@ -575,12 +590,17 @@ public class HotelOperationModule {
         Scanner sc = new Scanner(System.in);
         String input;
         Integer response;
+        Integer statusChanged = 0;
         List<Room> rooms = roomControllerRemote.retrieveAllRooms();
         List<RoomType> roomTypes = roomTypeControllerRemote.retrieveAllRoomTypes();
 
         System.out.println("*** Hotel Reservation System :: Hotel Operations :: Update Room ***\n");
         
-        viewAllRooms();
+        System.out.println("*** List of Rooms ***");
+        for (Room room : rooms) {
+            System.out.println("Room ID: " + room.getRoomId() + "| Room Number: " + room.getRoomNumber() + "| Room Type: " + room.getRoomType().getRoomTypeName() + " | Status: " + room.getRoomStatus());
+        }
+        System.out.println("-------------------------");
 
         while (true) {
             System.out.print("Enter Room ID to update> ");
@@ -619,20 +639,28 @@ public class HotelOperationModule {
                 break;
             }
         }
-        
-        System.out.print("Please set the status of the room (1: AVAILABLE, 2: CLEANING, 3: ALLOCATED, 4: DISABLED)> ");
-        input = sc.nextLine().trim();
+
         while (true) {
+            System.out.print("Please set the status of the room (1: AVAILABLE, 2: CLEANING, 3: ALLOCATED, 4: DISABLED)> ");
+            input = sc.nextLine().trim();
             if (input.equals("1")) {
+                if (currentRoom.getRoomStatus().equals(RoomStatus.AVAILABLE) || currentRoom.getRoomStatus().equals(RoomStatus.CLEANING)) statusChanged = 0;
+                if (currentRoom.getRoomStatus().equals(RoomStatus.ALLOCATED) || currentRoom.getRoomStatus().equals(RoomStatus.DISABLED)) statusChanged = 1;
                 currentRoom.setRoomStatus(RoomStatus.AVAILABLE);
                 break;
             } else if (input.equals("2")) {
+                if (currentRoom.getRoomStatus().equals(RoomStatus.AVAILABLE) || currentRoom.getRoomStatus().equals(RoomStatus.CLEANING)) statusChanged = 0;
+                if (currentRoom.getRoomStatus().equals(RoomStatus.ALLOCATED) || currentRoom.getRoomStatus().equals(RoomStatus.DISABLED)) statusChanged = 1;
                 currentRoom.setRoomStatus(RoomStatus.CLEANING);
                 break;
             } else if (input.equals("3")) {
+                if (currentRoom.getRoomStatus().equals(RoomStatus.AVAILABLE) || currentRoom.getRoomStatus().equals(RoomStatus.CLEANING)) statusChanged = -1;
+                if (currentRoom.getRoomStatus().equals(RoomStatus.ALLOCATED) || currentRoom.getRoomStatus().equals(RoomStatus.DISABLED)) statusChanged = 0;
                 currentRoom.setRoomStatus(RoomStatus.ALLOCATED);
                 break;
             } else if (input.equals("4")) {
+                if (currentRoom.getRoomStatus().equals(RoomStatus.AVAILABLE) || currentRoom.getRoomStatus().equals(RoomStatus.CLEANING)) statusChanged = -1;
+                if (currentRoom.getRoomStatus().equals(RoomStatus.ALLOCATED) || currentRoom.getRoomStatus().equals(RoomStatus.DISABLED)) statusChanged = 0;
                 currentRoom.setRoomStatus(RoomStatus.DISABLED);
                 break;
             } else {
@@ -648,8 +676,10 @@ public class HotelOperationModule {
         while (true) {
             System.out.print("Please enter Room Type ID of the Room> ");
             input = sc.nextLine().trim();
-            if (input.length() == 0) {
+            if (input.length() == 0 || input.length() > 0) {
+            //if (input.length() == 0) {
                 input = currentRoom.getRoomType().getRoomTypeId().toString();
+                System.out.println("Room Type ID cannot be changed at this time. Selected previous ID: " + input + " by default.");
             }
             try {
                 if (!roomTypeControllerRemote.retrieveRoomTypeByRoomTypeId(Long.parseLong(input)).getIsEnabled()) {
@@ -662,10 +692,10 @@ public class HotelOperationModule {
             }
         }
         try {
-            roomControllerRemote.updateRoom(currentRoom, Long.parseLong(input));
+            roomControllerRemote.updateRoom(currentRoom, Long.parseLong(input), statusChanged);
             System.out.println("-------------------------");
             System.out.println("Room updated!\n");
-        } catch (RoomTypeNotFoundException ex) {
+        } catch (RoomTypeNotFoundException | RoomInventoryNotFoundException ex) {
             System.out.println("An error has occurred while updating the room: " + ex.getMessage() + "!\n");
         }
     }
@@ -690,7 +720,7 @@ public class HotelOperationModule {
                 roomId = Long.parseLong(input);
                 try {
                     deleteResult = roomControllerRemote.deleteRoom(roomId);
-                } catch (RoomNotFoundException ex) {
+                } catch (RoomNotFoundException | RoomInventoryNotFoundException ex) {
                     System.out.println("Please enter a valid Room ID.");
                     continue;
                 }
@@ -933,7 +963,7 @@ public class HotelOperationModule {
                 if(sDateTime.isEmpty() || sDateTime.length() != 12) {
                     System.out.println("Start date time value cannot be empty and contain 12 numbers.");
                     count = -1;
-                    endDateTime.set(1990, 0, 1, 0, 0);
+                    startDateTime.set(1990, 0, 1, 0, 0);
                     continue;
                 }
                 

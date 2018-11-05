@@ -6,6 +6,7 @@
 package ejb.session.stateless;
 
 import entity.Room;
+import entity.RoomInventory;
 import entity.RoomType;
 import java.util.List;
 import javax.ejb.EJB;
@@ -20,6 +21,7 @@ import javax.persistence.Query;
 import util.enumeration.RoomStatus;
 import util.exception.GeneralException;
 import util.exception.RoomExistException;
+import util.exception.RoomInventoryNotFoundException;
 import util.exception.RoomNotFoundException;
 import util.exception.RoomTypeNotFoundException;
 
@@ -33,7 +35,12 @@ import util.exception.RoomTypeNotFoundException;
 public class RoomController implements RoomControllerLocal, RoomControllerRemote {
 
     @EJB
+    private RoomInventoryControllerLocal roomInventoryControllerLocal;
+
+    @EJB
     private RoomTypeControllerLocal roomTypeControllerLocal;
+    
+    
 
     @PersistenceContext(unitName = "HotelReservationSystem-ejbPU")
     private EntityManager em;
@@ -67,6 +74,14 @@ public class RoomController implements RoomControllerLocal, RoomControllerRemote
 
         return (Room) query.getSingleResult();
     }
+    
+    @Override
+    public List<Room> retrieveRoomsByRoomType(Long roomTypeId) throws RoomNotFoundException {
+        Query query = em.createQuery("SELECT r FROM Room r WHERE r.roomType.roomTypeId = :inRoomTypeId");
+        query.setParameter("inRoomTypeId", roomTypeId);
+        
+        return query.getResultList();
+    }
 
     @Override
     public Room createNewRoom(Room newRoom, Long roomTypeId) throws RoomTypeNotFoundException, RoomExistException, GeneralException {
@@ -80,6 +95,15 @@ public class RoomController implements RoomControllerLocal, RoomControllerRemote
             
             em.flush();
             em.refresh(newRoom);
+            
+            try {
+            List<RoomInventory> roomInventories = roomInventoryControllerLocal.retrieveRoomInventoriesByRoomType(roomTypeId);
+            for(RoomInventory roomInventory : roomInventories) {
+                roomInventory.setNumRoomsLeft(roomInventory.getNumRoomsLeft() + 1);
+            }
+            } catch (RoomInventoryNotFoundException ex) {
+                System.out.println("Room inventories not incremented by 1 as none exist to be added.");
+            }
             
             return newRoom;
         } catch (RoomTypeNotFoundException ex) {
@@ -109,9 +133,26 @@ public class RoomController implements RoomControllerLocal, RoomControllerRemote
     }
     
     @Override
-    public void updateRoom(Room room, Long newRoomTypeId) throws RoomTypeNotFoundException {
+    public void updateRoom(Room room, Long newRoomTypeId, Integer statusChanged) throws RoomTypeNotFoundException, RoomInventoryNotFoundException {
         Long currentRoomTypeId = room.getRoomType().getRoomTypeId();
         RoomType currentRoomType = roomTypeControllerLocal.retrieveRoomTypeByRoomTypeId(currentRoomTypeId);
+        
+        List<RoomInventory> roomInventoriesOfRoomType = roomInventoryControllerLocal.retrieveRoomInventoriesByRoomType(currentRoomType.getRoomTypeId());
+        Integer newNumRoomsLeft;
+        
+        if (statusChanged == -1) {
+            for (RoomInventory roomInventory : roomInventoriesOfRoomType) {
+                newNumRoomsLeft = roomInventory.getNumRoomsLeft() - 1;
+                roomInventory.setNumRoomsLeft(newNumRoomsLeft);
+            }
+        }
+        
+        if (statusChanged == 1) {
+            for (RoomInventory roomInventory : roomInventoriesOfRoomType) {
+                newNumRoomsLeft = roomInventory.getNumRoomsLeft() + 1;
+                roomInventory.setNumRoomsLeft(newNumRoomsLeft);
+            }
+        }
         
         try {
             if (!currentRoomTypeId.equals(newRoomTypeId)) {
@@ -123,13 +164,24 @@ public class RoomController implements RoomControllerLocal, RoomControllerRemote
         } catch (RoomTypeNotFoundException ex) {
             System.out.println("Room type does not exist!");
         }
-        em.merge(room);     
+        em.merge(room);
     }
     
     @Override
-    public Boolean deleteRoom(Long roomId) throws RoomNotFoundException {
+    public Boolean deleteRoom(Long roomId) throws RoomNotFoundException, RoomInventoryNotFoundException {
         Room roomToRemove = retrieveRoomByRoomId(roomId);
         RoomType roomType = roomToRemove.getRoomType();
+        List<RoomInventory> roomInventoriesOfRoomType = roomInventoryControllerLocal.retrieveRoomInventoriesByRoomType(roomType.getRoomTypeId());
+        Integer newNumRoomsLeft;
+        
+        //reduce quantity of room from all room inventory count
+        if (roomToRemove.getRoomStatus().equals(RoomStatus.AVAILABLE)) {
+            for (RoomInventory roomInventory : roomInventoriesOfRoomType) {
+                newNumRoomsLeft = roomInventory.getNumRoomsLeft() - 1;
+                roomInventory.setNumRoomsLeft(newNumRoomsLeft);
+            }
+            roomType.setNumRooms(roomType.getNumRooms() - 1);
+        }
         
         if (roomToRemove.getRoomStatus().equals(RoomStatus.ALLOCATED) || roomToRemove.getRoomStatus().equals(RoomStatus.CLEANING)) {
             roomToRemove.setRoomStatus(RoomStatus.DISABLED);

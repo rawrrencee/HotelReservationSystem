@@ -9,6 +9,7 @@ import entity.Room;
 import java.util.List;
 import util.exception.GeneralException;
 import util.exception.RoomExistException;
+import util.exception.RoomInventoryNotFoundException;
 import util.exception.RoomNotFoundException;
 import util.exception.RoomTypeNotFoundException;
 
@@ -22,9 +23,11 @@ public interface RoomControllerLocal {
     
     public Boolean checkRoomExistsByRoomNumber(Integer roomNumber);
     
-    public void updateRoom(Room room, Long roomTypeId) throws RoomTypeNotFoundException;
+    public void updateRoom(Room room, Long roomTypeId, Integer statusChanged) throws RoomTypeNotFoundException, RoomInventoryNotFoundException;
     
     public Room retrieveRoomByRoomId(Long roomId) throws RoomNotFoundException;
     
-    public Boolean deleteRoom(Long roomId) throws RoomNotFoundException;
+    public Boolean deleteRoom(Long roomId) throws RoomNotFoundException, RoomInventoryNotFoundException;
+    
+    public List<Room> retrieveRoomsByRoomType(Long roomTypeId) throws RoomNotFoundException;
 }

@@ -10,9 +10,17 @@ import ejb.session.stateless.RoomInventoryControllerRemote;
 import ejb.session.stateless.RoomRateControllerRemote;
 import ejb.session.stateless.RoomTypeControllerRemote;
 import entity.Employee;
+import entity.RoomInventory;
+import entity.RoomType;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 import java.util.Scanner;
 import util.enumeration.EmployeeAccessRightEnum;
+import util.exception.GeneralException;
 import util.exception.InvalidAccessRightException;
+import util.exception.RoomInventoryExistException;
+import util.exception.RoomInventoryNotFoundException;
 
 /**
  *
@@ -40,7 +48,7 @@ public class FrontOfficeModule {
 
     public void menuMain() throws InvalidAccessRightException {
         if (currentEmployee.getAccessRight() != EmployeeAccessRightEnum.GUESTRELOFF) {
-            throw new InvalidAccessRightException("You don't have GUEST RELATION OFFICER rights to access the System Administration Module!!");
+            throw new InvalidAccessRightException("You don't have GUEST RELATION OFFICER rights to access the Front Office4 Module!!");
         }
 
         Scanner sc = new Scanner(System.in);
@@ -87,16 +95,120 @@ public class FrontOfficeModule {
             }
         }
     }
-    
-    public void walkInSearchRoom(){
+
+    public void walkInSearchRoom() {
+        Scanner sc = new Scanner(System.in);
+        List<RoomType> roomTypes = roomTypeControllerRemote.retrieveAllRoomTypes();
+        RoomInventory currentRoomInventory;
+        Integer numRoomsLeft = 0;
+        Calendar checkInDate = Calendar.getInstance();
+        Calendar checkOutDate = Calendar.getInstance();
+        Calendar now = Calendar.getInstance();
+        String input, checkInDateString, checkOutDateString;
+        int year, month, day, hour, min;
+        int count = 0;
+
+        System.out.println("*** Hotel Reservation System :: Front Office :: Walk-in Search Room ***\n");
+
+            do {
+                if (count > 0){
+                    System.out.println("Start date and time cannot be before current date and time!");
+                }
+                System.out.print("Enter Check-in date in the format (yyyymmdd)> ");
+                checkInDateString = sc.nextLine().trim();
+                if(checkInDateString.isEmpty() || checkInDateString.length() != 8) {
+                    System.out.println("Check-in date value cannot be empty and should contain 8 numbers.");
+                    count = -1;
+                    checkInDate.set(1990, 0, 1, 0, 0);
+                    continue;
+                }
+                
+                try {
+                    year = Integer.parseInt(checkInDateString.substring(0,4).trim());
+                    month = Integer.parseInt(checkInDateString.substring(4,6).trim());
+                    day = Integer.parseInt(checkInDateString.substring(6,8).trim());
+                    checkInDate.clear();
+                    checkInDate.set(year, month - 1, day);
+                    checkInDate.set(Calendar.HOUR_OF_DAY, 0);
+                    checkInDate.set(Calendar.MINUTE, 0);
+                    checkInDate.set(Calendar.SECOND, 0);
+                    checkInDate.set(Calendar.MILLISECOND, 0);
+                } catch (NumberFormatException ex) {
+                    System.out.println("Please enter numeric values.");
+                    checkInDate.set(1990,0,1,0,0);
+                    count = 0;
+                    continue;
+                }
+                count++;
+            } while (now.compareTo(checkInDate) > 0);
+            
+            count = 0;
+            
+            do {
+                if (count > 0) {
+                    System.out.println("Check-out date must be later than start date!");
+                }
+                System.out.print("Enter Check-out date in the format (yyyymmdd)> ");
+                checkOutDateString = sc.nextLine().trim();
+                
+                if (checkOutDateString.isEmpty() || checkOutDateString.length() < 8) {
+                    System.out.println("Check-out date value cannot be empty and should contain 8 numbers!");
+                    checkOutDate.set(1990, 0, 1, 0, 0);
+                    count = 0;
+                    continue;
+                }
+                try {
+                    year = Integer.parseInt(checkOutDateString.substring(0,4). trim());
+                    month = Integer.parseInt(checkOutDateString.substring(4,6). trim());
+                    day = Integer.parseInt(checkOutDateString.substring(6,8). trim());
+                    checkOutDate.clear();
+                    checkOutDate.set(year, month - 1, day);
+                    checkOutDate.set(Calendar.HOUR_OF_DAY, 0);
+                    checkOutDate.set(Calendar.MINUTE, 0);
+                    checkOutDate.set(Calendar.SECOND, 0);
+                    checkOutDate.set(Calendar.MILLISECOND, 0);
+                } catch (NumberFormatException ex) {
+                    System.out.println("Please enter numeric values.");
+                    checkOutDate.set(1990, 0, 1, 0,0);
+                    count = 0;
+                    continue;
+                }
+                count++;
+            } while (now.compareTo(checkOutDate) > 0 || Long.parseLong(checkOutDateString) < Long.parseLong(checkInDateString));
+            
+        for (Date date = checkInDate.getTime(); checkInDate.before(checkOutDate); checkInDate.add(Calendar.DATE, 1), date = checkInDate.getTime()) {
+            // Do your job here with `date`.
+            System.out.println(date);
+            numRoomsLeft = 0;
+            for (RoomType roomType : roomTypes) {
+                if (roomType.getIsEnabled()) {
+                    try {
+                        currentRoomInventory = roomInventoryControllerRemote.retrieveRoomInventoryByDate(date, roomType.getRoomTypeId());
+                        numRoomsLeft += currentRoomInventory.getNumRoomsLeft();
+                    } catch (RoomInventoryNotFoundException ex) {
+                        try {
+                        currentRoomInventory = roomInventoryControllerRemote.createNewRoomInventory(date, roomType.getRoomTypeId());
+                        numRoomsLeft += currentRoomInventory.getNumRoomsLeft();
+                        } catch (GeneralException | RoomInventoryExistException e) {
+                            System.out.println("An unexpected error has occured during creation of Room Inventory: " + e.getMessage());
+                        }
+                    }
+                }
+            }
+            if (numRoomsLeft == 0) {
+                System.out.println("All rooms in hotel have been allocated or are not available for reservation.");
+                return;
+            }
+        }
+        
     }
-    
-    public void walkInReserveRoom(){
+
+    public void walkInReserveRoom() {
     }
-    
-    public void checkInGuest(){
+
+    public void checkInGuest() {
     }
-    
-    public void checkOutGuest(){
+
+    public void checkOutGuest() {
     }
 }
