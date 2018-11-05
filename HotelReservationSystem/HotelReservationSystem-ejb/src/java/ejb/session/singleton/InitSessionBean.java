@@ -6,6 +6,7 @@
 package ejb.session.singleton;
 
 import ejb.session.stateless.EmployeeControllerLocal;
+import ejb.session.stateless.RoomRateControllerLocal;
 import ejb.session.stateless.RoomTypeControllerLocal;
 import entity.Employee;
 import entity.RoomType;
@@ -28,10 +29,15 @@ import util.exception.RoomTypeNotFoundException;
 public class InitSessionBean {
 
     @EJB
+    private RoomRateControllerLocal roomRateControllerLocal;
+
+    @EJB
     private RoomTypeControllerLocal roomTypeControllerLocal;
 
     @EJB
     private EmployeeControllerLocal employeeControllerLocal;
+    
+    
     
     @PostConstruct
     public void PostConstruct() {
@@ -49,7 +55,9 @@ public class InitSessionBean {
         try {
             employeeControllerLocal.createNewEmployee(new Employee("sysadmin", "password", "Default", "System Administrator", "S0000001A", "90123456", "Singapore Address Line 1", "Singapore Address Line 2", "600001", EmployeeAccessRightEnum.SYSADMIN));
             employeeControllerLocal.createNewEmployee(new Employee("opmanager", "password", "OPERATION", "MANAGER", "S0000002A", "90123457", "Singapore Address Line 1", "Singapore Address Line 2", "600002", EmployeeAccessRightEnum.OPMANAGER));
+            employeeControllerLocal.createNewEmployee(new Employee("guestreloff", "password", "GUEST RELATION", "OFFICER", "S0000003A", "90123458", "Singapore Address Line 1", "Singapore Address Line 2", "600003", EmployeeAccessRightEnum.GUESTRELOFF));
             roomTypeControllerLocal.createNewRoomType(new RoomType("DELUXE", "Deluxe Room for Family", 1500 , "2 beds with silk covers", 4, "No Air con", 1, true));
+            roomTypeControllerLocal.createNewRoomType(new RoomType("PREMIER", "WOW MAGIC ROOM", 1911 , "6 beds with silk covers", 4, "No Air con", 2, true));
         } catch (Exception ex) {
             System.err.println("********** DataInitializationSessionBean.initializeData(): An error has occurred while loading initial test data: " + ex.getMessage());
         }

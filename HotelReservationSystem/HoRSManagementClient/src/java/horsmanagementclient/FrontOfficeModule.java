@@ -99,6 +99,7 @@ public class FrontOfficeModule {
     public void walkInSearchRoom() {
         Scanner sc = new Scanner(System.in);
         List<RoomType> roomTypes = roomTypeControllerRemote.retrieveAllRoomTypes();
+        List<RoomInventory> roomInventories;
         RoomInventory currentRoomInventory;
         Integer numRoomsLeft = 0;
         Calendar checkInDate = Calendar.getInstance();
@@ -178,7 +179,6 @@ public class FrontOfficeModule {
             
         for (Date date = checkInDate.getTime(); checkInDate.before(checkOutDate); checkInDate.add(Calendar.DATE, 1), date = checkInDate.getTime()) {
             // Do your job here with `date`.
-            System.out.println(date);
             numRoomsLeft = 0;
             for (RoomType roomType : roomTypes) {
                 if (roomType.getIsEnabled()) {
@@ -199,8 +199,17 @@ public class FrontOfficeModule {
                 System.out.println("All rooms in hotel have been allocated or are not available for reservation.");
                 return;
             }
+            System.out.println("----------Date: " + date);
+            try {
+                roomInventories = roomInventoryControllerRemote.retrieveAllRoomInventoriesOnDate(date);
+                for (RoomInventory roomInventory : roomInventories) {
+                    System.out.println("Room Type: " + roomInventory.getRoomType().getRoomTypeName() + " | Number of rooms left: " + roomInventory.getNumRoomsLeft());
+                }
+            } catch (RoomInventoryNotFoundException ex) {
+                System.out.println("No inventories exist for requested date.");
+            }
+            System.out.println();
         }
-        
     }
 
     public void walkInReserveRoom() {

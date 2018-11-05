@@ -58,6 +58,18 @@ public class RoomInventoryController implements RoomInventoryControllerLocal, Ro
     }
     
     @Override
+    public List<RoomInventory> retrieveAllRoomInventoriesOnDate(Date date) throws RoomInventoryNotFoundException {
+        Query query = em.createQuery("SELECT ri FROM RoomInventory ri WHERE ri.date = :inDate");
+        query.setParameter("inDate", date);
+        
+        try {
+            return query.getResultList();
+        } catch (NoResultException ex) {
+            throw new RoomInventoryNotFoundException("No room inventories with date " + date + " exist.");
+        }
+    }
+    
+    @Override
     public List<RoomInventory> retrieveRoomInventoriesByRoomType(Long roomTypeId) throws RoomInventoryNotFoundException {
         Query query = em.createQuery("SELECT ri FROM RoomInventory ri WHERE ri.roomType.roomTypeId = :inRoomTypeId");
         query.setParameter("inRoomTypeId", roomTypeId);

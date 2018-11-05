@@ -11,7 +11,6 @@ import java.util.List;
 import util.exception.GeneralException;
 import util.exception.RoomInventoryExistException;
 import util.exception.RoomInventoryNotFoundException;
-import util.exception.RoomNotFoundException;
 
 public interface RoomInventoryControllerRemote {
 
@@ -22,5 +21,7 @@ public interface RoomInventoryControllerRemote {
     public RoomInventory createNewRoomInventory(Date date, Long roomTypeId) throws RoomInventoryExistException, GeneralException;
 
     public List<RoomInventory> retrieveRoomInventoriesByRoomType(Long roomTypeId) throws RoomInventoryNotFoundException;
+
+    public List<RoomInventory> retrieveAllRoomInventoriesOnDate(Date date) throws RoomInventoryNotFoundException;
     
 }
