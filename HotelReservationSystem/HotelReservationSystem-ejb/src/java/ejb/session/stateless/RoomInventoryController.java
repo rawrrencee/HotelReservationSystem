@@ -8,8 +8,10 @@ package ejb.session.stateless;
 import entity.RoomInventory;
 import entity.RoomRate;
 import entity.RoomType;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import javax.ejb.EJB;
 import javax.ejb.Local;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
@@ -18,9 +20,12 @@ import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceException;
 import javax.persistence.Query;
+import util.exception.CheckRoomInventoryAvailabilityException;
+import util.exception.CheckRoomInventoryException;
 import util.exception.GeneralException;
 import util.exception.RoomInventoryExistException;
 import util.exception.RoomInventoryNotFoundException;
+import util.exception.RoomTypeNotFoundException;
 
 /**
  *
@@ -30,6 +35,9 @@ import util.exception.RoomInventoryNotFoundException;
 @Local(RoomInventoryControllerLocal.class)
 @Remote(RoomInventoryControllerRemote.class)
 public class RoomInventoryController implements RoomInventoryControllerLocal, RoomInventoryControllerRemote {
+
+    @EJB
+    private RoomTypeControllerLocal roomTypeControllerLocal;
 
     @PersistenceContext(unitName = "HotelReservationSystem-ejbPU")
     private EntityManager em;
@@ -116,6 +124,53 @@ public class RoomInventoryController implements RoomInventoryControllerLocal, Ro
             else {
                 throw new GeneralException("An unexpected error has occurred: " + ex.getMessage());
             }
+        }
+    }
+    
+    @Override
+    public Boolean checkRoomInventoryOnDate(Calendar checkInDate, Calendar checkOutDate) throws CheckRoomInventoryException {
+        Integer numRoomsLeft = 0;
+        RoomInventory currentRoomInventory;
+        List<RoomType> roomTypes = roomTypeControllerLocal.retrieveAllRoomTypes();
+        
+        for (Date date = checkInDate.getTime(); checkInDate.before(checkOutDate); checkInDate.add(Calendar.DATE, 1), date = checkInDate.getTime()) {
+            numRoomsLeft = 0;
+            for (RoomType roomType : roomTypes) {
+                if(roomType.getIsEnabled()) {
+                    try {
+                        currentRoomInventory = retrieveRoomInventoryByDate(date, roomType.getRoomTypeId());
+                        numRoomsLeft += currentRoomInventory.getNumRoomsLeft();
+                    } catch (RoomInventoryNotFoundException ex) {
+                        try {
+                            currentRoomInventory = createNewRoomInventory(date, roomType.getRoomTypeId());
+                            numRoomsLeft += currentRoomInventory.getNumRoomsLeft();
+                        } catch (GeneralException | RoomInventoryExistException e) {
+                            throw new CheckRoomInventoryException("An unexpected error has occurred: " + e.getMessage());
+                        }
+                    } 
+                }
+            }
+            if (numRoomsLeft <= 0) {
+                return false;
+            }
+        }
+        return true;
+    }
+    
+    @Override
+    public Boolean checkRoomInventoryAvailability(Calendar checkInDate, Calendar checkOutDate, Long roomTypeId, Integer numRoomsRequested) throws CheckRoomInventoryAvailabilityException {
+        RoomInventory roomInventory;
+        
+        try { 
+            for (Date date = checkInDate.getTime(); checkInDate.before(checkOutDate); checkInDate.add(Calendar.DATE, 1), date = checkInDate.getTime()) {
+                roomInventory = retrieveRoomInventoryByDate(date, roomTypeId);
+                if (roomInventory.getNumRoomsLeft() < numRoomsRequested) {
+                    return false;
+                }
+            }
+            return true;
+        } catch (RoomInventoryNotFoundException ex) {
+            throw new CheckRoomInventoryAvailabilityException("An error has occurred: " + ex.getMessage());
         }
     }
 }

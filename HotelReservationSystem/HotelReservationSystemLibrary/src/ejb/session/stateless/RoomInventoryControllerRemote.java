@@ -7,8 +7,11 @@ package ejb.session.stateless;
 
 import entity.RoomInventory;
 import entity.RoomRate;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import util.exception.CheckRoomInventoryAvailabilityException;
+import util.exception.CheckRoomInventoryException;
 import util.exception.GeneralException;
 import util.exception.RoomInventoryExistException;
 import util.exception.RoomInventoryNotFoundException;
@@ -26,5 +29,9 @@ public interface RoomInventoryControllerRemote {
     public List<RoomInventory> retrieveAllRoomInventoriesOnDate(Date date) throws RoomInventoryNotFoundException;
 
     public List<RoomRate> retrieveRoomRatesByTypeOfRoomInventory(Long roomInventoryId) throws RoomInventoryNotFoundException;
+
+    public Boolean checkRoomInventoryOnDate(Calendar checkInDate, Calendar checkOutDate) throws CheckRoomInventoryException;
+
+    public Boolean checkRoomInventoryAvailability(Calendar checkInDate, Calendar checkOutDate, Long roomTypeId, Integer numRoomsRequested) throws CheckRoomInventoryAvailabilityException;
     
 }

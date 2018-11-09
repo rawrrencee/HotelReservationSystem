@@ -6,6 +6,7 @@
 package horsmanagementclient;
 
 import ejb.session.stateless.EmployeeControllerRemote;
+import ejb.session.stateless.GuestControllerRemote;
 import ejb.session.stateless.PartnerControllerRemote;
 import ejb.session.stateless.RoomControllerRemote;
 import ejb.session.stateless.RoomInventoryControllerRemote;
@@ -19,6 +20,8 @@ import javax.ejb.EJB;
  */
 public class Main {
 
+    @EJB
+    private static GuestControllerRemote guestControllerRemote;
     @EJB
     private static RoomInventoryControllerRemote roomInventoryControllerRemote;
     @EJB
@@ -37,7 +40,7 @@ public class Main {
 
     public static void main(String[] args) {
        
-        MainApp mainApp = new MainApp(employeeControllerRemote, partnerControllerRemote, roomTypeControllerRemote, roomControllerRemote, roomRateControllerRemote, roomInventoryControllerRemote);
+        MainApp mainApp = new MainApp(employeeControllerRemote, partnerControllerRemote, roomTypeControllerRemote, roomControllerRemote, roomRateControllerRemote, roomInventoryControllerRemote, guestControllerRemote);
         mainApp.runApp();
     }
     

@@ -29,6 +29,7 @@ public class ReservationLineItem implements Serializable {
     private Long reservationLineItemId;
     
     private BigDecimal amount;
+    private Integer numRoomsRequested;
     
     @ManyToOne
     private RoomType roomType;
