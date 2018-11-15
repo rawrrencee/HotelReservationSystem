@@ -33,5 +33,7 @@ public interface ReservationControllerRemote {
     public RoomType retrieveRoomTypeByLineId(Long reservationLineItemId);
 
     public void processCheckout(Long reservationLineItemId, Long walkInReservationId) throws RoomCheckoutException;
+
+    public void setReservationAmount(Long reservationId, BigDecimal amount);
        
 }

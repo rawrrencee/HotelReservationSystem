@@ -118,7 +118,14 @@ public class ReservationController implements ReservationControllerRemote, Reser
             amount = (roomNight.getRoomRate().getRatePerNight()).add(amount);
         }
         amount = amount.multiply(BigDecimal.valueOf(reservationLineItem.getNumRoomsRequested()));
+        reservationLineItem.setAmount(amount);
         return amount;
+    }
+    
+    @Override
+    public void setReservationAmount(Long reservationId, BigDecimal amount) {
+        Reservation reservation = em.find(Reservation.class, reservationId);
+        reservation.setReservationAmt(amount);
     }
     
     @Override

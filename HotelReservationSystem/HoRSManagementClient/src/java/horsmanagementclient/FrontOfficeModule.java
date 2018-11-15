@@ -397,10 +397,15 @@ public class FrontOfficeModule {
                 try {
                     Reservation currentReservation = reservationControllerRemote.retrieveReservationByReservationId(walkInReservation.getReservationId());
                     List<ReservationLineItem> reservationLineItems = currentReservation.getReservationLineItems();
+                    BigDecimal totalAmount = BigDecimal.ZERO;
                     for (ReservationLineItem lineItem : reservationLineItems) {
                         RoomType roomType = reservationControllerRemote.retrieveRoomTypeByLineId(lineItem.getReservationLineItemId());
-                        System.out.println(reservationLineItems.indexOf(lineItem) + ". Room Type Requested: " + roomType.getRoomTypeName() + " | Number of rooms requested: " + lineItem.getNumRoomsRequested() + " | Total cost: " + reservationControllerRemote.calculateReservationLineAmount(lineItem.getReservationLineItemId()));
+                        BigDecimal amount = reservationControllerRemote.calculateReservationLineAmount(lineItem.getReservationLineItemId());
+                        System.out.println(reservationLineItems.indexOf(lineItem) + ". Room Type Requested: " + roomType.getRoomTypeName() + " | Number of rooms requested: " + lineItem.getNumRoomsRequested() + " | Total cost: " + amount);
+                        totalAmount.add(amount);
                     }
+                    reservationControllerRemote.setReservationAmount(currentReservation.getReservationId(), totalAmount);
+                    System.out.println("Total Amount: " + totalAmount);
 //                    while (true) {
 //                        System.out.print("Confirm reservation? Y/N> ");
 //                        input = sc.nextLine().trim();
