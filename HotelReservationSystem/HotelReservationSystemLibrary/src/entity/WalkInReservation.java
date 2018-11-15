@@ -21,6 +21,9 @@ public class WalkInReservation extends Reservation implements Serializable  {
 
     private static final long serialVersionUID = 1L;
     
+    @ManyToOne
+    private Employee employee;
+    
     public WalkInReservation() {
         super();
     }
@@ -71,6 +74,20 @@ public class WalkInReservation extends Reservation implements Serializable  {
     @Override
     public String toString() {
         return "entity.WalkInReservation[ reservationId=" + reservationId + " ]";
+    }
+
+    /**
+     * @return the employee
+     */
+    public Employee getEmployee() {
+        return employee;
+    }
+
+    /**
+     * @param employee the employee to set
+     */
+    public void setEmployee(Employee employee) {
+        this.employee = employee;
     }
     
 }

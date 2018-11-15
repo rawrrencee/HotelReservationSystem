@@ -7,6 +7,7 @@ package ejb.session.stateless;
 
 import entity.Room;
 import java.util.List;
+import javax.persistence.NoResultException;
 import util.exception.GeneralException;
 import util.exception.RoomExistException;
 import util.exception.RoomInventoryNotFoundException;
@@ -30,5 +31,7 @@ public interface RoomControllerRemote {
     public Boolean deleteRoom(Long roomId) throws RoomNotFoundException, RoomInventoryNotFoundException;
 
     public List<Room> retrieveRoomsByRoomType(Long roomTypeId) throws RoomNotFoundException;
+
+    public Room retrieveFirstAvailableRoomOfRoomType(Long roomTypeId) throws NoResultException;
     
 }

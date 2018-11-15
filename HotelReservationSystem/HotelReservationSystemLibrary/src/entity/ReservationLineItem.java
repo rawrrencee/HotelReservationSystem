@@ -7,6 +7,7 @@ package entity;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -41,6 +42,8 @@ public class ReservationLineItem implements Serializable {
     private List<Room> rooms;
 
     public ReservationLineItem() {
+        roomNights = new ArrayList<>();
+        rooms = new ArrayList<>();
     }
 
     public ReservationLineItem(BigDecimal amount) {
@@ -116,6 +119,20 @@ public class ReservationLineItem implements Serializable {
      */
     public void setRooms(List<Room> rooms) {
         this.rooms = rooms;
+    }
+
+    /**
+     * @return the numRoomsRequested
+     */
+    public Integer getNumRoomsRequested() {
+        return numRoomsRequested;
+    }
+
+    /**
+     * @param numRoomsRequested the numRoomsRequested to set
+     */
+    public void setNumRoomsRequested(Integer numRoomsRequested) {
+        this.numRoomsRequested = numRoomsRequested;
     }
     
 }

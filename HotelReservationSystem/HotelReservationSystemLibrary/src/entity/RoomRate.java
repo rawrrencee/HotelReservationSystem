@@ -141,16 +141,16 @@ public abstract class RoomRate implements Serializable {
     }
 
     /**
-     * @return the roomNight
+     * @return the roomNights
      */
     public List<RoomNight> getRoomNights() {
         return roomNights;
     }
 
     /**
-     * @param roomNight the roomNight to set
+     * @param roomNights the roomNights to set
      */
-    public void setRoomNight(List<RoomNight> roomNights) {
+    public void setRoomNights(List<RoomNight> roomNights) {
         this.roomNights = roomNights;
     }
     

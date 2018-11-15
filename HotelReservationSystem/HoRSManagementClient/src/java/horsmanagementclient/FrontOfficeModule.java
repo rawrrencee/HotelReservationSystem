@@ -6,16 +6,25 @@
 package horsmanagementclient;
 
 import ejb.session.stateless.GuestControllerRemote;
+import ejb.session.stateless.ReservationControllerRemote;
 import ejb.session.stateless.RoomControllerRemote;
 import ejb.session.stateless.RoomInventoryControllerRemote;
 import ejb.session.stateless.RoomRateControllerRemote;
 import ejb.session.stateless.RoomTypeControllerRemote;
 import entity.Employee;
 import entity.Guest;
+import entity.Reservation;
+import entity.ReservationLineItem;
+import entity.Room;
 import entity.RoomInventory;
+import entity.RoomNight;
 import entity.RoomRate;
 import entity.RoomType;
+import entity.WalkInReservation;
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -27,6 +36,8 @@ import util.exception.GeneralException;
 import util.exception.GuestExistException;
 import util.exception.GuestNotFoundException;
 import util.exception.InvalidAccessRightException;
+import util.exception.ReservationNotFoundException;
+import util.exception.RoomAllocationException;
 import util.exception.RoomInventoryExistException;
 import util.exception.RoomInventoryNotFoundException;
 
@@ -41,18 +52,20 @@ public class FrontOfficeModule {
     private RoomTypeControllerRemote roomTypeControllerRemote;
     private RoomInventoryControllerRemote roomInventoryControllerRemote;
     private GuestControllerRemote guestControllerRemote;
+    private ReservationControllerRemote reservationControllerRemote;
 
     private Employee currentEmployee;
 
     public FrontOfficeModule() {
     }
 
-    public FrontOfficeModule(RoomRateControllerRemote roomRateControllerRemote, RoomControllerRemote roomControllerRemote, RoomTypeControllerRemote roomTypeControllerRemote, RoomInventoryControllerRemote roomInventoryControllerRemote, GuestControllerRemote guestControllerRemote, Employee currentEmployee) {
+    public FrontOfficeModule(RoomRateControllerRemote roomRateControllerRemote, RoomControllerRemote roomControllerRemote, RoomTypeControllerRemote roomTypeControllerRemote, RoomInventoryControllerRemote roomInventoryControllerRemote, GuestControllerRemote guestControllerRemote, ReservationControllerRemote reservationControllerRemote, Employee currentEmployee) {
         this.roomRateControllerRemote = roomRateControllerRemote;
         this.roomControllerRemote = roomControllerRemote;
         this.roomTypeControllerRemote = roomTypeControllerRemote;
         this.roomInventoryControllerRemote = roomInventoryControllerRemote;
         this.guestControllerRemote = guestControllerRemote;
+        this.reservationControllerRemote = reservationControllerRemote;
         this.currentEmployee = currentEmployee;
     }
 
@@ -236,7 +249,7 @@ public class FrontOfficeModule {
         Calendar checkInDate = Calendar.getInstance();
         Calendar checkOutDate = Calendar.getInstance();
         Calendar now = Calendar.getInstance();
-        String checkInDateString, checkOutDateString, input;
+        String checkInDateString, checkOutDateString, input, passportNum;
         BigDecimal lowestPublishedRate = new BigDecimal(Integer.MAX_VALUE);
         int year, month, day;
         int count = 0;
@@ -329,8 +342,8 @@ public class FrontOfficeModule {
             System.out.println("An error has occurred: " + ex.getMessage());
         }
 
-        checkInDateTemp = checkInDate;
-        checkOutDateTemp = checkOutDate;
+        checkInDateTemp = (Calendar) checkInDate.clone();
+        checkOutDateTemp = (Calendar) checkOutDate.clone();
 
         for (Date date = checkInDateTemp.getTime(); checkInDateTemp.before(checkOutDateTemp); checkInDateTemp.add(Calendar.DATE, 1), date = checkInDateTemp.getTime()) {
             System.out.println("\n----------Date: " + date);
@@ -421,7 +434,8 @@ public class FrontOfficeModule {
 
         while (true) {
             System.out.print("Enter Passport Number> ");
-            newGuest.setPassportNum(sc.nextLine().trim());
+            passportNum = sc.nextLine().trim();
+            newGuest.setPassportNum(passportNum);
 
             try {
                 if (guestControllerRemote.checkGuestExistsByPassportNum(newGuest.getPassportNum())) {
@@ -431,13 +445,130 @@ public class FrontOfficeModule {
                 break;
             } catch (GuestNotFoundException ex) {
                 try {
-                    guestControllerRemote.createNewGuest(newGuest);
+                    currentGuest = guestControllerRemote.createNewGuest(newGuest);
+                    System.out.println("New Guest with Passport Number " + newGuest.getPassportNum() + " created!");
+                    break;
                 } catch (GuestExistException | GeneralException e) {
                     System.out.println("An unexpected error has occurred: " + e.getMessage());
                     return;
                 }
             }
         }
+
+        try {
+            //create new walk in reservation
+            currentGuest = guestControllerRemote.retrieveGuestByPassportNumber(passportNum);
+            WalkInReservation walkInReservation = new WalkInReservation();
+            walkInReservation.setCheckInDate(checkInDate.getTime());
+            walkInReservation.setCheckOutDate(checkOutDate.getTime());
+            walkInReservation.setNumGuests(numGuests);
+            walkInReservation.setCreatedDate(Calendar.getInstance().getTime());
+            walkInReservation.setGuest(currentGuest);
+            walkInReservation = reservationControllerRemote.createNewWalkInReservation(walkInReservation);
+            
+            while (true) {
+                //create new reservation line item
+                ReservationLineItem reservationLineItem = new ReservationLineItem();
+                reservationLineItem.setNumRoomsRequested(numRoomsRequested);
+                reservationLineItem = reservationControllerRemote.createNewReservationLineItem(reservationLineItem, walkInReservation.getReservationId(), reserveRoomTypeId);
+
+                //create new room nights
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+                LocalDate localCheckInDate = LocalDate.parse(checkInDateString, formatter);
+                LocalDate localCheckOutDate = LocalDate.parse(checkOutDateString, formatter);
+                long numNights = ChronoUnit.DAYS.between(localCheckInDate, localCheckOutDate);
+
+                checkInDateTemp = (Calendar) checkInDate.clone();
+
+                for (long l = 0l; l < numNights; l++) {
+                    RoomNight roomNight = new RoomNight();
+                    roomNight.setDate(checkInDateTemp.getTime());
+                    reservationControllerRemote.createNewRoomNight(roomNight, reserveRoomTypeId, reservationLineItem.getReservationLineItemId());
+                    checkInDateTemp.add(Calendar.DATE, 1);
+                }
+                
+                //calculate total amount in reservation and ask for confirmation
+                System.out.println("*** Reservation ID: " + walkInReservation.getReservationId() + " | All Reservations ***");
+                try {
+                    Reservation currentReservation = reservationControllerRemote.retrieveReservationByReservationId(walkInReservation.getReservationId());
+                    List<ReservationLineItem> reservationLineItems = currentReservation.getReservationLineItems();
+                    for (ReservationLineItem lineItem : reservationLineItems) {
+                        RoomType roomType = reservationControllerRemote.retrieveRoomTypeByLineId(lineItem.getReservationLineItemId());
+                        System.out.println(reservationLineItems.indexOf(lineItem) + ". Room Type Requested: " + roomType.getRoomTypeName() + " | Number of rooms requested: " + lineItem.getNumRoomsRequested() + " | Total cost: " + reservationControllerRemote.calculateReservationLineAmount(lineItem.getReservationLineItemId()));
+                    }
+                    while (true) {
+                        System.out.print("Confirm reservation? Y/N> ");
+                        input = sc.nextLine().trim();
+                        if (input.equals("N")) {
+                            return;
+                        } else if (input.equals("Y")) {
+                            break;
+                        } else {
+                            System.out.println("Please enter Y/N.");
+                        }
+                    }
+                } catch (ReservationNotFoundException ex) {
+                    System.out.println("An error has occurred: " + ex.getMessage());
+                }
+                
+                //allocate rooms
+                for (int i = 0; i < numRoomsRequested; i++) {
+                    try {
+                        Room allocatedRoom = reservationControllerRemote.allocateRoom(reserveRoomTypeId, reservationLineItem.getReservationLineItemId(), walkInReservation.getReservationId());
+                        System.out.println("Room " + allocatedRoom.getRoomNumber() + " has been allocated.");
+                    } catch (RoomAllocationException ex) {
+                        System.out.println("An error occurred: " + ex.getMessage());
+                        return;
+                    }
+                }
+                
+                //repeat allocation of rooms
+                while (true) {
+                    System.out.print("Would you like to reserve rooms of another room type? Enter Y/N> ");
+                    input = sc.nextLine().trim();
+                    if (input.equals("N")) {
+                        return;
+                    } else if (input.equals("Y")) {
+                        while (true) {
+                            System.out.print("Enter Room Type ID to reserve> ");
+                            input = sc.nextLine().trim();
+                            try {
+                                reserveRoomTypeId = Long.parseLong(input);
+                                break;
+                            } catch (NumberFormatException ex) {
+                                System.out.println("Please input numerical values.");
+                            }
+                        }
+
+                        while (true) {
+                            System.out.print("Enter Number of Rooms Required for Room Type> ");
+                            input = sc.nextLine().trim();
+                            try {
+                                numRoomsRequested = Integer.parseInt(input);
+                                try {
+                                    if (!roomInventoryControllerRemote.checkRoomInventoryAvailability(checkInDate, checkOutDate, reserveRoomTypeId, numRoomsRequested)) {
+                                        System.out.println("Room Inventory of Room Type selected is insufficient for booking, please select another Room Type.");
+                                        continue;
+                                    }
+                                } catch (CheckRoomInventoryAvailabilityException ex) {
+                                    System.out.println("Room Inventory is not available for this Room Type: " + ex.getMessage());
+                                    return;
+                                }
+                                break;
+                            } catch (NumberFormatException ex) {
+                                System.out.println("Please input numerical values.");
+                            }
+                        }
+                        break;
+                    } else {
+                        System.out.println("Please enter Y/N.");
+                    }
+                }
+            }
+        } catch (GuestNotFoundException ex) {
+            System.out.println("An unexpected error has occurred: " + ex.getMessage());
+        }
+
     }
 
     public void checkInGuest() {

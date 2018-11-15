@@ -82,6 +82,18 @@ public class RoomController implements RoomControllerLocal, RoomControllerRemote
         
         return query.getResultList();
     }
+    
+    @Override
+    public Room retrieveFirstAvailableRoomOfRoomType(Long roomTypeId) throws NoResultException {
+        Query query = em.createQuery("SELECT r FROM Room r WHERE r.roomType.roomTypeId = :inRoomTypeId AND r.roomStatus = :inRoomAvail OR r.roomStatus = :inRoomCleaning");
+        query.setParameter("inRoomTypeId", roomTypeId);
+        query.setParameter("inRoomAvail", RoomStatus.AVAILABLE);
+        query.setParameter("inRoomCleaning", RoomStatus.CLEANING);
+        query.setFirstResult(0);
+        query.setMaxResults(1);
+        
+        return (Room) query.getSingleResult();
+    }
 
     @Override
     public Room createNewRoom(Room newRoom, Long roomTypeId) throws RoomTypeNotFoundException, RoomExistException, GeneralException {

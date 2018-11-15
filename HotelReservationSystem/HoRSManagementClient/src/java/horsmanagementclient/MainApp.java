@@ -8,6 +8,7 @@ package horsmanagementclient;
 import ejb.session.stateless.EmployeeControllerRemote;
 import ejb.session.stateless.GuestControllerRemote;
 import ejb.session.stateless.PartnerControllerRemote;
+import ejb.session.stateless.ReservationControllerRemote;
 import ejb.session.stateless.RoomControllerRemote;
 import ejb.session.stateless.RoomInventoryControllerRemote;
 import ejb.session.stateless.RoomRateControllerRemote;
@@ -30,6 +31,7 @@ public class MainApp {
     private RoomRateControllerRemote roomRateControllerRemote;
     private RoomInventoryControllerRemote roomInventoryControllerRemote;
     private GuestControllerRemote guestControllerRemote;
+    private ReservationControllerRemote reservationControllerRemote;
     
     private SystemAdministrationModule systemAdministrationModule;
     private HotelOperationModule hotelOperationModule;
@@ -40,13 +42,14 @@ public class MainApp {
     public MainApp(){
     }
 
-    public MainApp(EmployeeControllerRemote employeeControllerRemote, PartnerControllerRemote partnerControllerRemote, RoomTypeControllerRemote roomTypeControllerRemote, RoomControllerRemote roomControllerRemote, RoomRateControllerRemote roomRateControllerRemote, RoomInventoryControllerRemote roomInventoryControllerRemote, GuestControllerRemote guestControllerRemote) {
+    public MainApp(EmployeeControllerRemote employeeControllerRemote, PartnerControllerRemote partnerControllerRemote, RoomTypeControllerRemote roomTypeControllerRemote, RoomControllerRemote roomControllerRemote, RoomRateControllerRemote roomRateControllerRemote, RoomInventoryControllerRemote roomInventoryControllerRemote, GuestControllerRemote guestControllerRemote, ReservationControllerRemote reservationControllerRemote) {
         this.employeeControllerRemote = employeeControllerRemote;
         this.partnerControllerRemote = partnerControllerRemote;
         this.roomTypeControllerRemote = roomTypeControllerRemote;
         this.roomControllerRemote = roomControllerRemote;
         this.roomRateControllerRemote = roomRateControllerRemote;
         this.roomInventoryControllerRemote = roomInventoryControllerRemote;
+        this.reservationControllerRemote = reservationControllerRemote;
         this.guestControllerRemote = guestControllerRemote;
     }
     
@@ -78,7 +81,7 @@ public class MainApp {
                             System.out.println("Login successful!\n");
                             systemAdministrationModule = new SystemAdministrationModule(employeeControllerRemote, partnerControllerRemote, currentEmployee);
                             hotelOperationModule = new HotelOperationModule(employeeControllerRemote, roomControllerRemote, roomTypeControllerRemote, currentEmployee, roomRateControllerRemote);
-                            frontOfficeModule = new FrontOfficeModule(roomRateControllerRemote, roomControllerRemote, roomTypeControllerRemote, roomInventoryControllerRemote, guestControllerRemote, currentEmployee);
+                            frontOfficeModule = new FrontOfficeModule(roomRateControllerRemote, roomControllerRemote, roomTypeControllerRemote, roomInventoryControllerRemote, guestControllerRemote, reservationControllerRemote, currentEmployee);
                             menuMain();
                         } catch (InvalidLoginCredentialException ex) {
                             System.out.println("Invalid login credentials: " + ex.getMessage() + "\n");

@@ -124,4 +124,15 @@ public class RoomRateController implements RoomRateControllerLocal, RoomRateCont
             return false;
         }
     }
+    
+    @Override
+    public RoomRate retrieveLowestPublishedRoomRate(Long roomTypeId) {
+        Query query = em.createQuery("SELECT p FROM PublishedRoomRate p WHERE p.roomType.roomTypeId = :inRoomTypeId ORDER BY p.ratePerNight ASC");
+        query.setParameter("inRoomTypeId", roomTypeId);
+        query.setFirstResult(0);
+        query.setMaxResults(1);
+        
+        return (RoomRate) query.getSingleResult();
+    }
+    
 }

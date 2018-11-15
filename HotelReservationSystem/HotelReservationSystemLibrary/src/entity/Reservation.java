@@ -7,7 +7,9 @@ package entity;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -16,6 +18,7 @@ import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 /**
  *
  * @author Lawrence
@@ -38,8 +41,12 @@ public abstract class Reservation implements Serializable {
     
     @ManyToOne
     private Guest guest;
+    
+    @OneToMany
+    private List<ReservationLineItem> reservationLineItems;
 
     public Reservation() {
+        reservationLineItems = new ArrayList<>();
     }
 
     public Reservation(Date checkInDate, Date checkOutDate, BigDecimal reservationAmt, Integer numGuests, Date creationDate) {
@@ -165,6 +172,20 @@ public abstract class Reservation implements Serializable {
      */
     public void setGuest(Guest guest) {
         this.guest = guest;
+    }
+
+    /**
+     * @return the reservationLineItems
+     */
+    public List<ReservationLineItem> getReservationLineItems() {
+        return reservationLineItems;
+    }
+
+    /**
+     * @param reservationLineItems the reservationLineItems to set
+     */
+    public void setReservationLineItems(List<ReservationLineItem> reservationLineItems) {
+        this.reservationLineItems = reservationLineItems;
     }
     
 }
