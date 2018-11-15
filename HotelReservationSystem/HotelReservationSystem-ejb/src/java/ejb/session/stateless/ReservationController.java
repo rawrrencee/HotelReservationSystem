@@ -14,8 +14,7 @@ import entity.RoomRate;
 import entity.RoomType;
 import entity.WalkInReservation;
 import java.math.BigDecimal;
-import java.util.Calendar;
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.List;
 import javax.ejb.EJB;
 import javax.ejb.Local;
@@ -27,6 +26,7 @@ import javax.persistence.PersistenceContext;
 import util.enumeration.RoomStatus;
 import util.exception.ReservationNotFoundException;
 import util.exception.RoomAllocationException;
+import util.exception.RoomCheckoutException;
 import util.exception.RoomInventoryNotFoundException;
 
 @Local(ReservationControllerLocal.class)
@@ -126,21 +126,17 @@ public class ReservationController implements ReservationControllerRemote, Reser
         ReservationLineItem reservationLineItem = em.find(ReservationLineItem.class, reservationLineItemId);
         WalkInReservation walkInReservation = em.find(WalkInReservation.class, walkInReservationId);
         
-        Date checkInDate = walkInReservation.getCheckInDate();
+        LocalDate checkInDate = walkInReservation.getCheckInDate();
         System.out.println("walkin reservation checkindate: " + checkInDate);
-        Date checkOutDate = walkInReservation.getCheckOutDate();
+        LocalDate checkOutDate = walkInReservation.getCheckOutDate();
         System.out.println("walkin reservation checkkOutdate: " + checkOutDate);
-        Calendar checkInDateCal = Calendar.getInstance();
-        checkInDateCal.setTime(checkInDate);
-        Calendar checkOutDateCal = Calendar.getInstance();
-        checkOutDateCal.setTime(checkOutDate);
         
         try {
             Room room = roomControllerLocal.retrieveFirstAvailableRoomOfRoomType(roomTypeId);
             room.setRoomStatus(RoomStatus.ALLOCATED);
             reservationLineItem.getRooms().add(room);
 
-            for (Date date = checkInDateCal.getTime(); checkInDateCal.before(checkOutDateCal); checkInDateCal.add(Calendar.DATE, 1), date = checkInDateCal.getTime()) {
+            for (LocalDate date = checkInDate; date.isBefore(checkOutDate); date = date.plusDays(1)) {
                 System.out.println("Current date for allocation: " + date);
                 try {
                     System.out.println("Current date for allocation: " + date);
@@ -157,6 +153,33 @@ public class ReservationController implements ReservationControllerRemote, Reser
             return room;
         } catch (NoResultException ex) {
             throw new RoomAllocationException("No available rooms of room type!");
+        }
+    }
+    
+    @Override
+    public void processCheckout(Long reservationLineItemId, Long walkInReservationId) throws RoomCheckoutException {
+        ReservationLineItem reservationLineItem = em.find(ReservationLineItem.class, reservationLineItemId);
+        WalkInReservation walkInReservation = em.find(WalkInReservation.class, walkInReservationId);
+
+        try {
+            if (walkInReservation.getCheckOutDate().equals(LocalDate.now()) || walkInReservation.getCheckOutDate().isBefore(LocalDate.now())) {
+                List<Room> rooms = reservationLineItem.getRooms();
+                for (Room room : rooms) {
+                    room.setRoomStatus(RoomStatus.AVAILABLE);
+                }
+            } else if (walkInReservation.getCheckOutDate().isAfter(LocalDate.now())) {
+                RoomType roomType = reservationLineItem.getRoomType();
+                for (LocalDate date = LocalDate.now(); date.isBefore(walkInReservation.getCheckOutDate()); date = date.plusDays(1)) {
+                    RoomInventory roomInventory = roomInventoryControllerLocal.retrieveRoomInventoryByDate(date, roomType.getRoomTypeId());
+                    roomInventory.setNumRoomsLeft(roomInventory.getNumRoomsLeft() + 1);
+                }
+                List<Room> rooms = reservationLineItem.getRooms();
+                for (Room room : rooms) {
+                    room.setRoomStatus(RoomStatus.AVAILABLE);
+                }
+            }
+        } catch (RoomInventoryNotFoundException ex) {
+            throw new RoomCheckoutException(ex.getMessage());
         }
     }
 

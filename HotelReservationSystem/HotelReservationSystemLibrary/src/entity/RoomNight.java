@@ -6,6 +6,8 @@
 package entity;
 
 import java.io.Serializable;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Date;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -36,16 +38,16 @@ public class RoomNight implements Serializable {
     public RoomNight() {
     }
 
-    public RoomNight(Date date) {
-        this.date = date;
+    public RoomNight(LocalDate date) {
+        this.date = Date.from(date.atStartOfDay(ZoneId.systemDefault()).toInstant());
     }
 
-    public Date getDate() {
-        return date;
+    public LocalDate getDate() {
+        return date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
     }
 
-    public void setDate(Date date) {
-        this.date = date;
+    public void setDate(LocalDate date) {
+        this.date = Date.from(date.atStartOfDay(ZoneId.systemDefault()).toInstant());
     }
 
     public ReservationLineItem getReservationLineItem() {

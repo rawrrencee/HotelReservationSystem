@@ -8,7 +8,8 @@ package ejb.session.stateless;
 import entity.RoomInventory;
 import entity.RoomRate;
 import entity.RoomType;
-import java.util.Calendar;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
 import javax.ejb.EJB;
@@ -25,7 +26,6 @@ import util.exception.CheckRoomInventoryException;
 import util.exception.GeneralException;
 import util.exception.RoomInventoryExistException;
 import util.exception.RoomInventoryNotFoundException;
-import util.exception.RoomTypeNotFoundException;
 
 /**
  *
@@ -54,9 +54,9 @@ public class RoomInventoryController implements RoomInventoryControllerLocal, Ro
     }
     
     @Override
-    public RoomInventory retrieveRoomInventoryByDate(Date date, Long roomTypeId) throws RoomInventoryNotFoundException {
+    public RoomInventory retrieveRoomInventoryByDate(LocalDate date, Long roomTypeId) throws RoomInventoryNotFoundException {
         Query query = em.createQuery("SELECT ri FROM RoomInventory ri WHERE ri.date = :inDate AND ri.roomType.roomTypeId = :inRoomTypeId");
-        query.setParameter("inDate", date);
+        query.setParameter("inDate", Date.from(date.atStartOfDay(ZoneId.systemDefault()).toInstant()));
         query.setParameter("inRoomTypeId", roomTypeId);
         
         try {
@@ -67,9 +67,9 @@ public class RoomInventoryController implements RoomInventoryControllerLocal, Ro
     }
     
     @Override
-    public List<RoomInventory> retrieveAllRoomInventoriesOnDate(Date date) throws RoomInventoryNotFoundException {
+    public List<RoomInventory> retrieveAllRoomInventoriesOnDate(LocalDate date) throws RoomInventoryNotFoundException {
         Query query = em.createQuery("SELECT ri FROM RoomInventory ri WHERE ri.date = :inDate");
-        query.setParameter("inDate", date);
+        query.setParameter("inDate", Date.from(date.atStartOfDay(ZoneId.systemDefault()).toInstant()));
         
         try {
             return query.getResultList();
@@ -100,7 +100,7 @@ public class RoomInventoryController implements RoomInventoryControllerLocal, Ro
     }
     
     @Override
-    public RoomInventory createNewRoomInventory(Date date, Long roomTypeId) throws RoomInventoryExistException, GeneralException {
+    public RoomInventory createNewRoomInventory(LocalDate date, Long roomTypeId) throws RoomInventoryExistException, GeneralException {
         RoomType roomType = em.find(RoomType.class, roomTypeId);
         RoomInventory newRoomInventory = new RoomInventory();
         
@@ -128,12 +128,12 @@ public class RoomInventoryController implements RoomInventoryControllerLocal, Ro
     }
     
     @Override
-    public Boolean checkRoomInventoryOnDate(Calendar checkInDate, Calendar checkOutDate) throws CheckRoomInventoryException {
+    public Boolean checkRoomInventoryOnDate(LocalDate checkInDate, LocalDate checkOutDate) throws CheckRoomInventoryException {
         Integer numRoomsLeft = 0;
         RoomInventory currentRoomInventory;
         List<RoomType> roomTypes = roomTypeControllerLocal.retrieveAllRoomTypes();
         
-        for (Date date = checkInDate.getTime(); checkInDate.before(checkOutDate); checkInDate.add(Calendar.DATE, 1), date = checkInDate.getTime()) {
+        for (LocalDate date = checkInDate; date.isBefore(checkOutDate); date = date.plusDays(1)) {
             numRoomsLeft = 0;
             for (RoomType roomType : roomTypes) {
                 if(roomType.getIsEnabled()) {
@@ -158,11 +158,11 @@ public class RoomInventoryController implements RoomInventoryControllerLocal, Ro
     }
     
     @Override
-    public Boolean checkRoomInventoryAvailability(Calendar checkInDate, Calendar checkOutDate, Long roomTypeId, Integer numRoomsRequested) throws CheckRoomInventoryAvailabilityException {
+    public Boolean checkRoomInventoryAvailability(LocalDate checkInDate, LocalDate checkOutDate, Long roomTypeId, Integer numRoomsRequested) throws CheckRoomInventoryAvailabilityException {
         RoomInventory roomInventory;
         
         try { 
-            for (Date date = checkInDate.getTime(); checkInDate.before(checkOutDate); checkInDate.add(Calendar.DATE, 1), date = checkInDate.getTime()) {
+            for (LocalDate date = checkInDate; date.isBefore(checkOutDate); date = date.plusDays(1)) {
                 roomInventory = retrieveRoomInventoryByDate(date, roomTypeId);
                 if (roomInventory.getNumRoomsLeft() < numRoomsRequested) {
                     return false;

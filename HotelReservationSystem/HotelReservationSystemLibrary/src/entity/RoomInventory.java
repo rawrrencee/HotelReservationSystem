@@ -6,6 +6,8 @@
 package entity;
 
 import java.io.Serializable;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Date;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -34,8 +36,8 @@ public class RoomInventory implements Serializable {
     public RoomInventory() {
     }
 
-    public RoomInventory(Date date, Integer numRoomsLeft) {
-        this.date = date;
+    public RoomInventory(LocalDate date, Integer numRoomsLeft) {
+        this.date = Date.from(date.atStartOfDay(ZoneId.systemDefault()).toInstant());
         this.numRoomsLeft = numRoomsLeft;
     }
 
@@ -75,15 +77,15 @@ public class RoomInventory implements Serializable {
     /**
      * @return the date
      */
-    public Date getDate() {
-        return date;
+    public LocalDate getDate() {
+        return date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
     }
 
     /**
      * @param date the date to set
      */
-    public void setDate(Date date) {
-        this.date = date;
+    public void setDate(LocalDate date) {
+        this.date = Date.from(date.atStartOfDay(ZoneId.systemDefault()).toInstant());
     }
 
     /**

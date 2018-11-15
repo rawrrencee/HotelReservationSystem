@@ -7,6 +7,9 @@ package entity;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -49,12 +52,12 @@ public abstract class Reservation implements Serializable {
         reservationLineItems = new ArrayList<>();
     }
 
-    public Reservation(Date checkInDate, Date checkOutDate, BigDecimal reservationAmt, Integer numGuests, Date creationDate) {
-        this.checkInDate = checkInDate;
-        this.checkOutDate = checkOutDate;
+    public Reservation(LocalDate checkInDate, LocalDate checkOutDate, BigDecimal reservationAmt, Integer numGuests, LocalDateTime createdDate) {
+        this.checkInDate = Date.from(checkInDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+        this.checkOutDate = Date.from(checkOutDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
         this.reservationAmt = reservationAmt;
         this.numGuests = numGuests;
-        this.createdDate = creationDate;
+        this.createdDate = Date.from(createdDate.atZone(ZoneId.systemDefault()).toInstant());
     }
 
     public Long getReservationId() {
@@ -93,29 +96,29 @@ public abstract class Reservation implements Serializable {
     /**
      * @return the checkInDate
      */
-    public Date getCheckInDate() {
-        return checkInDate;
+    public LocalDate getCheckInDate() {
+        return checkInDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
     }
 
     /**
      * @param checkInDate the checkInDate to set
      */
-    public void setCheckInDate(Date checkInDate) {
-        this.checkInDate = checkInDate;
+    public void setCheckInDate(LocalDate checkInDate) {
+        this.checkInDate = Date.from(checkInDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
     }
 
     /**
      * @return the checkOutDate
      */
-    public Date getCheckOutDate() {
-        return checkOutDate;
+    public LocalDate getCheckOutDate() {
+        return checkOutDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
     }
 
     /**
      * @param checkOutDate the checkOutDate to set
      */
-    public void setCheckOutDate(Date checkOutDate) {
-        this.checkOutDate = checkOutDate;
+    public void setCheckOutDate(LocalDate checkOutDate) {
+        this.checkOutDate = Date.from(checkOutDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
     }
 
     /**
@@ -149,15 +152,15 @@ public abstract class Reservation implements Serializable {
     /**
      * @return the createdDate
      */
-    public Date getCreatedDate() {
-        return createdDate;
+    public LocalDateTime getCreatedDate() {
+        return LocalDateTime.ofInstant(createdDate.toInstant(), ZoneId.systemDefault());
     }
 
     /**
      * @param createdDate the createdDate to set
      */
-    public void setCreatedDate(Date createdDate) {
-        this.createdDate = createdDate;
+    public void setCreatedDate(LocalDateTime createdDate) {
+        this.createdDate = Date.from(createdDate.atZone(ZoneId.systemDefault()).toInstant());
     }
 
     /**

@@ -14,6 +14,7 @@ import entity.WalkInReservation;
 import java.math.BigDecimal;
 import util.exception.ReservationNotFoundException;
 import util.exception.RoomAllocationException;
+import util.exception.RoomCheckoutException;
 
 public interface ReservationControllerLocal {
     
@@ -30,4 +31,6 @@ public interface ReservationControllerLocal {
     public Reservation retrieveReservationByReservationId(Long reservationId) throws ReservationNotFoundException;
     
     public RoomType retrieveRoomTypeByLineId(Long reservationLineItemId);
+    
+    public void processCheckout(Long reservationLineItemId, Long walkInReservationId) throws RoomCheckoutException;
 }

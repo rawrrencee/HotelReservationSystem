@@ -7,6 +7,9 @@ package entity;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Date;
 import javax.persistence.Entity;
 import util.exception.IncorrectDateException;
@@ -23,24 +26,24 @@ public class PartnerReservation extends Reservation implements Serializable {
     public PartnerReservation() {
     }
 
-    public PartnerReservation(Date checkInDate, Date checkOutDate, BigDecimal reservationAmt, Integer numGuests, Date creationDate) throws IncorrectDateException {
+    public PartnerReservation(LocalDate checkInDate, LocalDate checkOutDate, BigDecimal reservationAmt, Integer numGuests, LocalDateTime createdDate) throws IncorrectDateException {
         
         this();
         
-        if (checkInDate.after(createdDate)) {
-        this.checkInDate = checkInDate;
+        if (checkInDate.isAfter(createdDate.toLocalDate())) {
+        this.checkInDate = Date.from(checkInDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
         } else {
             throw new IncorrectDateException("Cannot make reservation for a date in the past!");
         }
-        if (checkOutDate.after(checkInDate)) {
-        this.checkOutDate = checkOutDate;
+        if (checkOutDate.isAfter(checkInDate)) {
+        this.checkOutDate = Date.from(checkOutDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
         } else {
             throw new IncorrectDateException("Check-out Date cannot be before Check-in Date.");
         }
         this.reservationAmt = reservationAmt;
         this.numGuests = numGuests;
-        if (createdDate.before(checkInDate)) {
-        this.createdDate = createdDate;
+        if (createdDate.toLocalDate().isBefore(checkInDate)) {
+        this.createdDate = Date.from(createdDate.atZone(ZoneId.systemDefault()).toInstant());
         } else {
             throw new IncorrectDateException("Cannot make reservation for a date in the past!");
         }

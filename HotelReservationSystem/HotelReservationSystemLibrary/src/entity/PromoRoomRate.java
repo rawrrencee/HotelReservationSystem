@@ -7,7 +7,9 @@ package entity;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.util.Calendar;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Date;
 import javax.persistence.Entity;
 
 /**
@@ -19,16 +21,16 @@ public class PromoRoomRate extends RoomRate implements Serializable {
 
     private static final long serialVersionUID = 1L;
     
-    private Calendar startDate;
-    private Calendar endDate;
+    private Date startDate;
+    private Date endDate;
 
     public PromoRoomRate() {
         super();
     }
     
-    public PromoRoomRate(Calendar startDate, Calendar endDate, String roomRateName, BigDecimal ratePerNight, Boolean isDisabled) {
-        this.startDate = startDate;
-        this.endDate = endDate;
+    public PromoRoomRate(LocalDateTime startDate, LocalDateTime endDate, String roomRateName, BigDecimal ratePerNight, Boolean isDisabled) {
+        this.startDate = Date.from(startDate.atZone(ZoneId.systemDefault()).toInstant());
+        this.endDate = Date.from(endDate.atZone(ZoneId.systemDefault()).toInstant());
         this.roomRateName = roomRateName;
         this.ratePerNight = ratePerNight;
         this.isEnabled = isDisabled;
@@ -62,29 +64,29 @@ public class PromoRoomRate extends RoomRate implements Serializable {
     /**
      * @return the startDate
      */
-    public Calendar getStartDate() {
-        return startDate;
+    public LocalDateTime getStartDate() {
+        return LocalDateTime.ofInstant(startDate.toInstant(), ZoneId.systemDefault());
     }
 
     /**
      * @param startDate the startDate to set
      */
-    public void setStartDate(Calendar startDate) {
-        this.startDate = startDate;
+    public void setStartDate(LocalDateTime startDate) {
+        this.startDate = Date.from(startDate.atZone(ZoneId.systemDefault()).toInstant());
     }
 
     /**
      * @return the endDate
      */
-    public Calendar getEndDate() {
-        return endDate;
+    public LocalDateTime getEndDate() {
+        return LocalDateTime.ofInstant(endDate.toInstant(), ZoneId.systemDefault());
     }
 
     /**
      * @param endDate the endDate to set
      */
-    public void setEndDate(Calendar endDate) {
-        this.endDate = endDate;
+    public void setEndDate(LocalDateTime endDate) {
+        this.endDate = Date.from(endDate.atZone(ZoneId.systemDefault()).toInstant());
     }
     
 }

@@ -23,10 +23,11 @@ import entity.RoomType;
 import entity.WalkInReservation;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoUnit;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
 import util.enumeration.EmployeeAccessRightEnum;
@@ -38,6 +39,7 @@ import util.exception.GuestNotFoundException;
 import util.exception.InvalidAccessRightException;
 import util.exception.ReservationNotFoundException;
 import util.exception.RoomAllocationException;
+import util.exception.RoomCheckoutException;
 import util.exception.RoomInventoryExistException;
 import util.exception.RoomInventoryNotFoundException;
 
@@ -122,87 +124,41 @@ public class FrontOfficeModule {
     public void walkInSearchRoom() {
         Scanner sc = new Scanner(System.in);
         List<RoomType> roomTypes = roomTypeControllerRemote.retrieveAllRoomTypes();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMyyyy");
         List<RoomInventory> roomInventories;
         RoomInventory currentRoomInventory;
         Integer numRoomsLeft = 0;
         List<RoomRate> roomRates;
         BigDecimal lowestPublishedRate = new BigDecimal(Integer.MAX_VALUE);
-        Calendar checkInDate = Calendar.getInstance();
-        Calendar checkOutDate = Calendar.getInstance();
-        Calendar now = Calendar.getInstance();
+        LocalDate checkInDate = LocalDate.now();
+        LocalDate checkOutDate = LocalDate.now();
+        LocalDate now = LocalDate.now();
         String checkInDateString, checkOutDateString;
-        int year, month, day;
-        int count = 0;
 
         System.out.println("*** Hotel Reservation System :: Front Office :: Walk-in Search Room ***\n");
-
-        do {
-            if (count > 0) {
-                System.out.println("Start date and time cannot be before current date and time!");
-            }
-            System.out.print("Enter Check-in date in the format (yyyymmdd)> ");
+        
+        while (true) {
+            System.out.print("Enter Check-in date in the format ddMMyyyy> ");
             checkInDateString = sc.nextLine().trim();
-            if (checkInDateString.isEmpty() || checkInDateString.length() != 8) {
-                System.out.println("Check-in date value cannot be empty and should contain 8 numbers.");
-                count = -1;
-                checkInDate.set(1990, 0, 1, 0, 0);
-                continue;
-            }
-
             try {
-                year = Integer.parseInt(checkInDateString.substring(0, 4).trim());
-                month = Integer.parseInt(checkInDateString.substring(4, 6).trim());
-                day = Integer.parseInt(checkInDateString.substring(6, 8).trim());
-                checkInDate.clear();
-                checkInDate.set(year, month - 1, day);
-                checkInDate.set(Calendar.HOUR_OF_DAY, 0);
-                checkInDate.set(Calendar.MINUTE, 0);
-                checkInDate.set(Calendar.SECOND, 0);
-                checkInDate.set(Calendar.MILLISECOND, 0);
-            } catch (NumberFormatException ex) {
-                System.out.println("Please enter numeric values.");
-                checkInDate.set(1990, 0, 1, 0, 0);
-                count = 0;
-                continue;
+                checkInDate = LocalDate.parse(checkInDateString, formatter);
+                break;
+            } catch (DateTimeParseException ex) {
+                System.out.println("Please enter in the right format ddMMyyyy");
             }
-            count++;
-        } while (now.compareTo(checkInDate) > 0);
-
-        count = 0;
-
-        do {
-            if (count > 0) {
-                System.out.println("Check-out date must be later than start date!");
-            }
-            System.out.print("Enter Check-out date in the format (yyyymmdd)> ");
+        }
+        while (true) {
+            System.out.print("Enter Check-out date in the format ddMMyyyy> ");
             checkOutDateString = sc.nextLine().trim();
-
-            if (checkOutDateString.isEmpty() || checkOutDateString.length() < 8) {
-                System.out.println("Check-out date value cannot be empty and should contain 8 numbers!");
-                checkOutDate.set(1990, 0, 1, 0, 0);
-                count = 0;
-                continue;
-            }
             try {
-                year = Integer.parseInt(checkOutDateString.substring(0, 4).trim());
-                month = Integer.parseInt(checkOutDateString.substring(4, 6).trim());
-                day = Integer.parseInt(checkOutDateString.substring(6, 8).trim());
-                checkOutDate.clear();
-                checkOutDate.set(year, month - 1, day);
-                checkOutDate.set(Calendar.HOUR_OF_DAY, 0);
-                checkOutDate.set(Calendar.MINUTE, 0);
-                checkOutDate.set(Calendar.SECOND, 0);
-                checkOutDate.set(Calendar.MILLISECOND, 0);
-            } catch (NumberFormatException ex) {
-                System.out.println("Please enter numeric values.");
-                checkOutDate.set(1990, 0, 1, 0, 0);
-                count = 0;
-                continue;
+                checkOutDate = LocalDate.parse(checkOutDateString, formatter);
+                break;
+            } catch (DateTimeParseException ex) {
+                System.out.println("Please enter in the right format ddMMyyyy");
             }
-            count++;
-        } while (now.compareTo(checkOutDate) > 0 || Long.parseLong(checkOutDateString) < Long.parseLong(checkInDateString));
+        }
 
-        for (Date date = checkInDate.getTime(); checkInDate.before(checkOutDate); checkInDate.add(Calendar.DATE, 1), date = checkInDate.getTime()) {
+        for (LocalDate date = checkInDate; date.isBefore(checkOutDate); date = date.plusDays(1)) {
             // Do your job here with `date`.
             numRoomsLeft = 0;
             for (RoomType roomType : roomTypes) {
@@ -246,13 +202,12 @@ public class FrontOfficeModule {
 
     public void walkInReserveRoom() {
         Scanner sc = new Scanner(System.in);
-        Calendar checkInDate = Calendar.getInstance();
-        Calendar checkOutDate = Calendar.getInstance();
-        Calendar now = Calendar.getInstance();
+        LocalDate checkInDate = LocalDate.now();
+        LocalDate checkOutDate = LocalDate.now();
+        LocalDate now = LocalDate.now();
+        LocalDateTime nowTime = LocalDateTime.now();
         String checkInDateString, checkOutDateString, input, passportNum;
         BigDecimal lowestPublishedRate = new BigDecimal(Integer.MAX_VALUE);
-        int year, month, day;
-        int count = 0;
         Long reserveRoomTypeId;
         Integer numGuests, numRoomsRequested;
         Boolean haveRoomsLeft;
@@ -260,77 +215,33 @@ public class FrontOfficeModule {
         Calendar checkOutDateTemp;
         Guest newGuest = new Guest();
         Guest currentGuest;
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMyyyy");
 
         List<RoomInventory> roomInventories;
         List<RoomRate> roomRates;
 
         System.out.println("*** Hotel Reservation System :: Front Office :: Walk-in Reserve Room ***\n");
 
-        do {
-            if (count > 0) {
-                System.out.println("Start date and time cannot be before current date and time!");
-            }
-            System.out.print("Enter Check-in date in the format (yyyymmdd)> ");
+        while (true) {
+            System.out.print("Enter Check-in date in the format ddMMyyyy> ");
             checkInDateString = sc.nextLine().trim();
-            if (checkInDateString.isEmpty() || checkInDateString.length() != 8) {
-                System.out.println("Check-in date value cannot be empty and should contain 8 numbers.");
-                count = -1;
-                checkInDate.set(1990, 0, 1, 0, 0);
-                continue;
-            }
-
             try {
-                year = Integer.parseInt(checkInDateString.substring(0, 4).trim());
-                month = Integer.parseInt(checkInDateString.substring(4, 6).trim());
-                day = Integer.parseInt(checkInDateString.substring(6, 8).trim());
-                checkInDate.clear();
-                checkInDate.set(year, month - 1, day);
-                checkInDate.set(Calendar.HOUR_OF_DAY, 0);
-                checkInDate.set(Calendar.MINUTE, 0);
-                checkInDate.set(Calendar.SECOND, 0);
-                checkInDate.set(Calendar.MILLISECOND, 0);
-            } catch (NumberFormatException ex) {
-                System.out.println("Please enter numeric values.");
-                checkInDate.set(1990, 0, 1, 0, 0);
-                count = 0;
-                continue;
+                checkInDate = LocalDate.parse(checkInDateString, formatter);
+                break;
+            } catch (DateTimeParseException ex) {
+                System.out.println("Please enter in the right format ddMMyyyy");
             }
-            count++;
-        } while (now.compareTo(checkInDate) > 0);
-
-        count = 0;
-
-        do {
-            if (count > 0) {
-                System.out.println("Check-out date must be later than start date!");
-            }
-            System.out.print("Enter Check-out date in the format (yyyymmdd)> ");
+        }
+        while (true) {
+            System.out.print("Enter Check-out date in the format ddMMyyyy> ");
             checkOutDateString = sc.nextLine().trim();
-
-            if (checkOutDateString.isEmpty() || checkOutDateString.length() < 8) {
-                System.out.println("Check-out date value cannot be empty and should contain 8 numbers!");
-                checkOutDate.set(1990, 0, 1, 0, 0);
-                count = 0;
-                continue;
-            }
             try {
-                year = Integer.parseInt(checkOutDateString.substring(0, 4).trim());
-                month = Integer.parseInt(checkOutDateString.substring(4, 6).trim());
-                day = Integer.parseInt(checkOutDateString.substring(6, 8).trim());
-                checkOutDate.clear();
-                checkOutDate.set(year, month - 1, day);
-                checkOutDate.set(Calendar.HOUR_OF_DAY, 0);
-                checkOutDate.set(Calendar.MINUTE, 0);
-                checkOutDate.set(Calendar.SECOND, 0);
-                checkOutDate.set(Calendar.MILLISECOND, 0);
-            } catch (NumberFormatException ex) {
-                System.out.println("Please enter numeric values.");
-                checkOutDate.set(1990, 0, 1, 0, 0);
-                count = 0;
-                continue;
+                checkOutDate = LocalDate.parse(checkOutDateString, formatter);
+                break;
+            } catch (DateTimeParseException ex) {
+                System.out.println("Please enter in the right format ddMMyyyy");
             }
-            count++;
-        } while (now.compareTo(checkOutDate) > 0 || Long.parseLong(checkOutDateString) < Long.parseLong(checkInDateString));
+        }
 
         try {
             haveRoomsLeft = roomInventoryControllerRemote.checkRoomInventoryOnDate(checkInDate, checkOutDate);
@@ -342,10 +253,7 @@ public class FrontOfficeModule {
             System.out.println("An error has occurred: " + ex.getMessage());
         }
 
-        checkInDateTemp = (Calendar) checkInDate.clone();
-        checkOutDateTemp = (Calendar) checkOutDate.clone();
-
-        for (Date date = checkInDateTemp.getTime(); checkInDateTemp.before(checkOutDateTemp); checkInDateTemp.add(Calendar.DATE, 1), date = checkInDateTemp.getTime()) {
+        for (LocalDate date = checkInDate; date.isBefore(checkOutDate); date = date.plusDays(1)) {
             System.out.println("\n----------Date: " + date);
             try {
                 roomInventories = roomInventoryControllerRemote.retrieveAllRoomInventoriesOnDate(date);
@@ -459,13 +367,13 @@ public class FrontOfficeModule {
             //create new walk in reservation
             currentGuest = guestControllerRemote.retrieveGuestByPassportNumber(passportNum);
             WalkInReservation walkInReservation = new WalkInReservation();
-            walkInReservation.setCheckInDate(checkInDate.getTime());
-            walkInReservation.setCheckOutDate(checkOutDate.getTime());
+            walkInReservation.setCheckInDate(checkInDate);
+            walkInReservation.setCheckOutDate(checkOutDate);
             walkInReservation.setNumGuests(numGuests);
-            walkInReservation.setCreatedDate(Calendar.getInstance().getTime());
+            walkInReservation.setCreatedDate(LocalDateTime.now());
             walkInReservation.setGuest(currentGuest);
             walkInReservation = reservationControllerRemote.createNewWalkInReservation(walkInReservation);
-            
+
             while (true) {
                 //create new reservation line item
                 ReservationLineItem reservationLineItem = new ReservationLineItem();
@@ -473,20 +381,17 @@ public class FrontOfficeModule {
                 reservationLineItem = reservationControllerRemote.createNewReservationLineItem(reservationLineItem, walkInReservation.getReservationId(), reserveRoomTypeId);
 
                 //create new room nights
-                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
                 LocalDate localCheckInDate = LocalDate.parse(checkInDateString, formatter);
                 LocalDate localCheckOutDate = LocalDate.parse(checkOutDateString, formatter);
                 long numNights = ChronoUnit.DAYS.between(localCheckInDate, localCheckOutDate);
 
-                checkInDateTemp = (Calendar) checkInDate.clone();
-
                 for (long l = 0l; l < numNights; l++) {
                     RoomNight roomNight = new RoomNight();
-                    roomNight.setDate(checkInDateTemp.getTime());
+                    roomNight.setDate(checkInDate);
                     reservationControllerRemote.createNewRoomNight(roomNight, reserveRoomTypeId, reservationLineItem.getReservationLineItemId());
-                    checkInDateTemp.add(Calendar.DATE, 1);
+                    checkInDate.plusDays(1);
                 }
-                
+
                 //calculate total amount in reservation and ask for confirmation
                 System.out.println("*** Reservation ID: " + walkInReservation.getReservationId() + " | All Reservations ***");
                 try {
@@ -496,33 +401,32 @@ public class FrontOfficeModule {
                         RoomType roomType = reservationControllerRemote.retrieveRoomTypeByLineId(lineItem.getReservationLineItemId());
                         System.out.println(reservationLineItems.indexOf(lineItem) + ". Room Type Requested: " + roomType.getRoomTypeName() + " | Number of rooms requested: " + lineItem.getNumRoomsRequested() + " | Total cost: " + reservationControllerRemote.calculateReservationLineAmount(lineItem.getReservationLineItemId()));
                     }
-                    while (true) {
-                        System.out.print("Confirm reservation? Y/N> ");
-                        input = sc.nextLine().trim();
-                        if (input.equals("N")) {
-                            return;
-                        } else if (input.equals("Y")) {
-                            break;
-                        } else {
-                            System.out.println("Please enter Y/N.");
-                        }
-                    }
+//                    while (true) {
+//                        System.out.print("Confirm reservation? Y/N> ");
+//                        input = sc.nextLine().trim();
+//                        if (input.equals("N")) {
+//                            return;
+//                        } else if (input.equals("Y")) {
+//                            break;
+//                        } else {
+//                            System.out.println("Please enter Y/N.");
+//                        }
+//                    }
                 } catch (ReservationNotFoundException ex) {
                     System.out.println("An error has occurred: " + ex.getMessage());
                 }
-                
-                //allocate rooms
-                for (int i = 0; i < numRoomsRequested; i++) {
-                    try {
-                        Room allocatedRoom = reservationControllerRemote.allocateRoom(reserveRoomTypeId, reservationLineItem.getReservationLineItemId(), walkInReservation.getReservationId());
-                        System.out.println("Room " + allocatedRoom.getRoomNumber() + " has been allocated.");
-                    } catch (RoomAllocationException ex) {
-                        System.out.println("An error occurred: " + ex.getMessage());
-                        return;
-                    }
-                }
-                
-                //repeat allocation of rooms
+
+//                //allocate rooms
+//                for (int i = 0; i < numRoomsRequested; i++) {
+//                    try {
+//                        Room allocatedRoom = reservationControllerRemote.allocateRoom(reserveRoomTypeId, reservationLineItem.getReservationLineItemId(), walkInReservation.getReservationId());
+//                        System.out.println("Room " + allocatedRoom.getRoomNumber() + " has been allocated.");
+//                    } catch (RoomAllocationException ex) {
+//                        System.out.println("An error occurred: " + ex.getMessage());
+//                        return;
+//                    }
+//                }
+                //repeat reservation of rooms
                 while (true) {
                     System.out.print("Would you like to reserve rooms of another room type? Enter Y/N> ");
                     input = sc.nextLine().trim();
@@ -572,8 +476,94 @@ public class FrontOfficeModule {
     }
 
     public void checkInGuest() {
+        Scanner sc = new Scanner(System.in);
+        String input;
+        Long reservationId;
+        Reservation currentReservation;
+        System.out.println("*** Hotel Reservation System :: Front Office :: Check-in Guest ***\n");
+
+        System.out.print("Enter Reservation ID> ");
+        while (true) {
+            input = sc.nextLine().trim();
+            try {
+                reservationId = Long.parseLong(input);
+                break;
+            } catch (NumberFormatException ex) {
+                System.out.println("Please enter numeric values.");
+            }
+        }
+        try {
+            currentReservation = reservationControllerRemote.retrieveReservationByReservationId(reservationId);
+            LocalDate date = currentReservation.getCheckInDate();
+            LocalDate now = LocalDate.now();
+            System.out.println(now + " | and checkin date is: " + date);
+            if (!now.isEqual(date)) {
+                System.out.println("Reservation's check-in date is not today!");
+                return;
+            }
+            List<ReservationLineItem> reservationLineItems = currentReservation.getReservationLineItems();
+            for (ReservationLineItem lineItem : reservationLineItems) {
+                RoomType roomType = reservationControllerRemote.retrieveRoomTypeByLineId(lineItem.getReservationLineItemId());
+                System.out.println(reservationLineItems.indexOf(lineItem) + ". Room Type Requested: " + roomType.getRoomTypeName() + " | Number of rooms requested: " + lineItem.getNumRoomsRequested() + " | Total cost: " + reservationControllerRemote.calculateReservationLineAmount(lineItem.getReservationLineItemId()));
+            }
+            while (true) {
+                System.out.print("Confirm allocation? Y/N> ");
+                input = sc.nextLine().trim();
+                if (input.toLowerCase().equals("n")) {
+                    return;
+                } else if (!input.toLowerCase().equals("y")) {
+                    System.out.println("Please enter Y/N.");
+                } else {
+                    break;
+                }
+            }
+            for (ReservationLineItem lineItem : reservationLineItems) {
+                Integer numRoomsRequested = lineItem.getNumRoomsRequested();
+                RoomType requestedRoomType = reservationControllerRemote.retrieveRoomTypeByLineId(lineItem.getReservationLineItemId());
+                for (int i = 0; i < numRoomsRequested; i++) {
+                    Room allocatedRoom = reservationControllerRemote.allocateRoom(requestedRoomType.getRoomTypeId(), lineItem.getReservationLineItemId(), currentReservation.getReservationId());
+                    System.out.println("Room " + allocatedRoom.getRoomNumber() + " has been allocated.");
+                }
+            }
+        } catch (ReservationNotFoundException ex) {
+            System.out.println("An error occurred: " + ex.getMessage());
+        } catch (RoomAllocationException e) {
+            
+        }
+
     }
 
     public void checkOutGuest() {
+        Scanner sc = new Scanner(System.in);
+        String input;
+        Long reservationId;
+        Reservation currentReservation;
+        System.out.println("*** Hotel Reservation System :: Front Office :: Check-out Guest ***\n");
+        
+        System.out.print("Enter Reservation ID> ");
+        while (true) {
+            input = sc.nextLine().trim();
+            try {
+                reservationId = Long.parseLong(input);
+                break;
+            } catch (NumberFormatException ex) {
+                System.out.println("Please enter numeric values.");
+            }
+        }
+
+        try {
+            currentReservation = reservationControllerRemote.retrieveReservationByReservationId(reservationId);
+            LocalDate date = currentReservation.getCheckOutDate();
+            LocalDate now = LocalDate.now();
+            System.out.println(now + " | and checkin date is: " + date);
+            List<ReservationLineItem> reservationLineItems = currentReservation.getReservationLineItems();
+            for (ReservationLineItem lineItem : reservationLineItems) {
+            reservationControllerRemote.processCheckout(lineItem.getReservationLineItemId(), currentReservation.getReservationId());
+            }
+        } catch (ReservationNotFoundException | RoomCheckoutException ex) {
+            System.out.println("An error occurred: " + ex.getMessage());
+        }
+        
+        System.out.println("Checkout completed!");
     }
 }
