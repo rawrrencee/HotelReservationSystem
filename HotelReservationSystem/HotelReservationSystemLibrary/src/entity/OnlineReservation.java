@@ -22,6 +22,20 @@ import util.exception.IncorrectDateException;
 @Entity
 public class OnlineReservation extends Reservation implements Serializable {
 
+    /**
+     * @return the registeredGuest
+     */
+    public RegisteredGuest getRegisteredGuest() {
+        return registeredGuest;
+    }
+
+    /**
+     * @param registeredGuest the registeredGuest to set
+     */
+    public void setRegisteredGuest(RegisteredGuest registeredGuest) {
+        this.registeredGuest = registeredGuest;
+    }
+
     private static final long serialVersionUID = 1L;
     
     @ManyToOne

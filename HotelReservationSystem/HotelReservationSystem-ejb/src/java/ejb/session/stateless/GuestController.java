@@ -85,7 +85,7 @@ public class GuestController implements GuestControllerRemote, GuestControllerLo
     }
 
     @Override
-    public Guest createNewRegisteredGuest(RegisteredGuest newRegisteredGuest) throws RegisteredGuestExistException, GeneralException {
+    public RegisteredGuest createNewRegisteredGuest(RegisteredGuest newRegisteredGuest) throws RegisteredGuestExistException, GeneralException {
             try {
                 em.persist(newRegisteredGuest);
                 em.flush();
@@ -114,7 +114,7 @@ public class GuestController implements GuestControllerRemote, GuestControllerLo
     
         
     @Override
-    public Guest retrieveRegisteredGuestByPassportNumber(String passportNum) throws RegisteredGuestNotFoundException {
+    public RegisteredGuest retrieveRegisteredGuestByPassportNumber(String passportNum) throws RegisteredGuestNotFoundException {
         Query query = em.createQuery("SELECT rg FROM RegisteredGuest rg WHERE rg.passportNum = :inPassportNum");
         query.setParameter("inPassportNum", passportNum);
         

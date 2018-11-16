@@ -5,6 +5,7 @@
  */
 package ejb.session.stateless;
 
+import entity.OnlineReservation;
 import entity.Reservation;
 import entity.ReservationLineItem;
 import entity.Room;
@@ -12,6 +13,8 @@ import entity.RoomNight;
 import entity.RoomType;
 import entity.WalkInReservation;
 import java.math.BigDecimal;
+import java.util.List;
+import util.exception.LineCalculationException;
 import util.exception.ReservationNotFoundException;
 import util.exception.RoomAllocationException;
 import util.exception.RoomCheckoutException;
@@ -26,7 +29,7 @@ public interface ReservationControllerRemote {
 
     public Room allocateRoom(Long roomTypeId, Long reservationLineItemId, Long walkInReservationId) throws RoomAllocationException;
 
-    public BigDecimal calculateReservationLineAmount(Long reservationLineItemId);
+    public BigDecimal calculateReservationLineAmount(Long reservationLineItemId) throws LineCalculationException ;
 
     public Reservation retrieveReservationByReservationId(Long reservationId) throws ReservationNotFoundException;
 
@@ -35,5 +38,13 @@ public interface ReservationControllerRemote {
     public void processCheckout(Long reservationLineItemId, Long walkInReservationId) throws RoomCheckoutException;
 
     public void setReservationAmount(Long reservationId, BigDecimal amount);
+
+    public OnlineReservation createNewOnlineReservation(OnlineReservation newOnlineReservation);
+    
+    public ReservationLineItem createNewOnlineReservationLineItem(ReservationLineItem newReservationLineItem, Long onlineReservationId, Long roomTypeId);
+    
+    public List<Reservation> retrieveAllReservationsByRegisteredGuest(Long registeredGuestId) throws ReservationNotFoundException;
+
+    
        
 }

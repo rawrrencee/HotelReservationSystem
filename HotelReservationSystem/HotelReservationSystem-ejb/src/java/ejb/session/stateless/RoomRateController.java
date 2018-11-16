@@ -17,6 +17,7 @@ import javax.ejb.Local;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceException;
 import javax.persistence.Query;
@@ -137,15 +138,15 @@ public class RoomRateController implements RoomRateControllerLocal, RoomRateCont
 
         return (RoomRate) query.getSingleResult();
     }
-    
+
     @Override
-    public RoomRate retrieveComplexRoomRate(Long roomTypeId) {
+    public RoomRate retrieveComplexRoomRate(Long roomTypeId) throws RoomRateNotFoundException {
         Boolean hasNormal = false;
         Boolean hasPromo = false;
         Boolean hasPeak = false;
         RoomRate finalRate = null;
 
-        Query query = em.createQuery("SELECT nrr FROM NormalRoomRate nrr WHERE nrr.roomType.roomTypeId = :inRoomTypeId SORT BY nrr.ratePerNight ASC");
+        Query query = em.createQuery("SELECT nrr FROM NormalRoomRate nrr WHERE nrr.roomType.roomTypeId = :inRoomTypeId ORDER BY nrr.ratePerNight ASC");
         query.setParameter("inRoomTypeId", roomTypeId);
         query.setFirstResult(0);
         query.setMaxResults(1);
@@ -153,13 +154,13 @@ public class RoomRateController implements RoomRateControllerLocal, RoomRateCont
             hasNormal = true;
         }
 
-        Query query2 = em.createQuery("SELECT prr FROM PromoRoomRate prr WHERE prr.roomType.roomTypeId = :inRoomTypeId SORT BY prr.ratePerNight ASC");
+        Query query2 = em.createQuery("SELECT prr FROM PromoRoomRate prr WHERE prr.roomType.roomTypeId = :inRoomTypeId ORDER BY prr.ratePerNight ASC");
         query2.setParameter("inRoomTypeId", roomTypeId);
         if (!query2.getResultList().isEmpty()) {
             hasPromo = true;
         }
 
-        Query query3 = em.createQuery("SELECT perr FROM PeakRoomRate perr WHERE perr.roomType.roomTypeId = :inRoomTypeId SORT BY perr.ratePerNight ASC");
+        Query query3 = em.createQuery("SELECT perr FROM PeakRoomRate perr WHERE perr.roomType.roomTypeId = :inRoomTypeId ORDER BY perr.ratePerNight ASC");
         query3.setParameter("inRoomTypeId", roomTypeId);
         if (!query3.getResultList().isEmpty()) {
             hasPeak = true;
@@ -224,8 +225,11 @@ public class RoomRateController implements RoomRateControllerLocal, RoomRateCont
             }
             return finalRate;
         }
-        
-        return (RoomRate) query.getSingleResult();
+        try {
+            return (RoomRate) query.getSingleResult();
+        } catch (NoResultException ex) {
+            throw new RoomRateNotFoundException("Normal Room Rate not found");
+        }
     }
 
 }

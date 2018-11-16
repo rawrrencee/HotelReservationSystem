@@ -26,8 +26,8 @@ public interface GuestControllerRemote {
 
     public RegisteredGuest retrieveRegisteredGuestByUsername(String username) throws RegisteredGuestNotFoundException;
 
-    public Guest createNewRegisteredGuest(RegisteredGuest newRegisteredGuest) throws RegisteredGuestExistException, GeneralException;
+    public RegisteredGuest createNewRegisteredGuest(RegisteredGuest newRegisteredGuest) throws RegisteredGuestExistException, GeneralException;
 
-    public Guest retrieveRegisteredGuestByPassportNumber(String passportNum) throws RegisteredGuestNotFoundException;
+    public RegisteredGuest retrieveRegisteredGuestByPassportNumber(String passportNum) throws RegisteredGuestNotFoundException;
 
 }

@@ -22,12 +22,12 @@ import entity.RoomRate;
 import entity.RoomType;
 import entity.WalkInReservation;
 import java.math.BigDecimal;
+import java.math.MathContext;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoUnit;
-import java.util.Calendar;
 import java.util.List;
 import java.util.Scanner;
 import util.enumeration.EmployeeAccessRightEnum;
@@ -37,6 +37,7 @@ import util.exception.GeneralException;
 import util.exception.GuestExistException;
 import util.exception.GuestNotFoundException;
 import util.exception.InvalidAccessRightException;
+import util.exception.LineCalculationException;
 import util.exception.ReservationNotFoundException;
 import util.exception.RoomAllocationException;
 import util.exception.RoomCheckoutException;
@@ -191,7 +192,7 @@ public class FrontOfficeModule {
 //                        }
 //                    }
                     lowestPublishedRate = (roomRateControllerRemote.retrieveLowestPublishedRoomRate(roomInventory.getRoomType().getRoomTypeId())).getRatePerNight();
-                    System.out.println("Room Type: " + roomInventory.getRoomType().getRoomTypeName() + " | Number of rooms left: " + roomInventory.getNumRoomsLeft() + " | Published Rate: " + lowestPublishedRate);
+                    System.out.println("ID: " +  roomInventory.getRoomType().getRoomTypeId() + "Room Type: " + roomInventory.getRoomType().getRoomTypeName() + " | Number of rooms left: " + roomInventory.getNumRoomsLeft() + " | Published Rate: " + lowestPublishedRate);
                     //lowestPublishedRate = new BigDecimal(Integer.MAX_VALUE);
                 }
             } catch (RoomInventoryNotFoundException ex) {
@@ -208,12 +209,10 @@ public class FrontOfficeModule {
         LocalDate now = LocalDate.now();
         LocalDateTime nowTime = LocalDateTime.now();
         String checkInDateString, checkOutDateString, input, passportNum;
-        BigDecimal lowestPublishedRate = new BigDecimal(Integer.MAX_VALUE);
+        BigDecimal lowestPublishedRate;
         Long reserveRoomTypeId;
         Integer numGuests, numRoomsRequested;
         Boolean haveRoomsLeft;
-        Calendar checkInDateTemp;
-        Calendar checkOutDateTemp;
         Guest newGuest = new Guest();
         Guest currentGuest;
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMyyyy");
@@ -374,6 +373,7 @@ public class FrontOfficeModule {
             walkInReservation.setNumGuests(numGuests);
             walkInReservation.setCreatedDate(LocalDateTime.now());
             walkInReservation.setGuest(currentGuest);
+            walkInReservation.setEmployee(currentEmployee);
             walkInReservation = reservationControllerRemote.createNewWalkInReservation(walkInReservation);
 
             while (true) {
@@ -404,7 +404,7 @@ public class FrontOfficeModule {
                         RoomType roomType = reservationControllerRemote.retrieveRoomTypeByLineId(lineItem.getReservationLineItemId());
                         BigDecimal amount = reservationControllerRemote.calculateReservationLineAmount(lineItem.getReservationLineItemId());
                         System.out.println(reservationLineItems.indexOf(lineItem) + ". Room Type Requested: " + roomType.getRoomTypeName() + " | Number of rooms requested: " + lineItem.getNumRoomsRequested() + " | Total cost: " + amount);
-                        totalAmount.add(amount);
+                        totalAmount = totalAmount.add(amount, new MathContext(11));
                     }
                     reservationControllerRemote.setReservationAmount(currentReservation.getReservationId(), totalAmount);
                     System.out.println("Total Amount: " + totalAmount);
@@ -419,7 +419,7 @@ public class FrontOfficeModule {
 //                            System.out.println("Please enter Y/N.");
 //                        }
 //                    }
-                } catch (ReservationNotFoundException ex) {
+                } catch (ReservationNotFoundException | LineCalculationException ex) {
                     System.out.println("An error has occurred: " + ex.getMessage());
                 }
 
@@ -532,7 +532,7 @@ public class FrontOfficeModule {
                     System.out.println("Room " + allocatedRoom.getRoomNumber() + " has been allocated.");
                 }
             }
-        } catch (ReservationNotFoundException ex) {
+        } catch (ReservationNotFoundException | LineCalculationException ex) {
             System.out.println("An error occurred: " + ex.getMessage());
         } catch (RoomAllocationException e) {
 

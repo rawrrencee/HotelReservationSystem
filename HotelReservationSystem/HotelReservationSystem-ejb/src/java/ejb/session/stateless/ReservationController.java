@@ -5,6 +5,7 @@
  */
 package ejb.session.stateless;
 
+import entity.OnlineReservation;
 import entity.Reservation;
 import entity.ReservationLineItem;
 import entity.Room;
@@ -14,6 +15,7 @@ import entity.RoomRate;
 import entity.RoomType;
 import entity.WalkInReservation;
 import java.math.BigDecimal;
+import java.math.MathContext;
 import java.time.LocalDate;
 import java.util.List;
 import javax.ejb.EJB;
@@ -23,11 +25,14 @@ import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 import util.enumeration.RoomStatus;
+import util.exception.LineCalculationException;
 import util.exception.ReservationNotFoundException;
 import util.exception.RoomAllocationException;
 import util.exception.RoomCheckoutException;
 import util.exception.RoomInventoryNotFoundException;
+import util.exception.RoomRateNotFoundException;
 
 @Local(ReservationControllerLocal.class)
 @Remote(ReservationControllerRemote.class)
@@ -57,6 +62,18 @@ public class ReservationController implements ReservationControllerRemote, Reser
     }
     
     @Override
+    public List<Reservation> retrieveAllReservationsByRegisteredGuest(Long registeredGuestId) throws ReservationNotFoundException {
+        Query query = em.createQuery("SELECT or FROM OnlineReservation or WHERE or.registeredGuest.guestId = :inGuestId");
+        query.setParameter("inGuestId", registeredGuestId);
+        
+        if (!query.getResultList().isEmpty()) {
+            return query.getResultList();
+        } else {
+            throw new ReservationNotFoundException("No results in query list.");
+        }
+    }
+    
+    @Override
     public Reservation retrieveReservationByReservationId(Long reservationId) throws ReservationNotFoundException {
         Reservation reservation = em.find(Reservation.class, reservationId);
         if (reservation != null) {
@@ -83,6 +100,15 @@ public class ReservationController implements ReservationControllerRemote, Reser
     }
     
     @Override
+    public OnlineReservation createNewOnlineReservation(OnlineReservation newOnlineReservation) {
+        em.persist(newOnlineReservation);
+        em.flush();
+        em.refresh(newOnlineReservation);
+        
+        return newOnlineReservation;
+    }
+    
+    @Override
     public ReservationLineItem createNewReservationLineItem(ReservationLineItem newReservationLineItem, Long walkInReservationId, Long roomTypeId) {
         newReservationLineItem.setRoomType(em.find(RoomType.class, roomTypeId));
         em.persist(newReservationLineItem);
@@ -94,6 +120,18 @@ public class ReservationController implements ReservationControllerRemote, Reser
         return newReservationLineItem;
     }
     
+    @Override
+    public ReservationLineItem createNewOnlineReservationLineItem(ReservationLineItem newReservationLineItem, Long onlineReservationId, Long roomTypeId) {
+        newReservationLineItem.setRoomType(em.find(RoomType.class, roomTypeId));
+        em.persist(newReservationLineItem);
+        OnlineReservation onlineReservation = em.find(OnlineReservation.class, onlineReservationId);
+        onlineReservation.getReservationLineItems().add(newReservationLineItem);
+
+        em.flush();
+        em.refresh(newReservationLineItem);
+        return newReservationLineItem;
+    }
+
     @Override
     public RoomNight createNewRoomNight(RoomNight newRoomNight, Long roomTypeId, Long reservationLineItemId) {
         RoomRate lowestPublished = roomRateControllerLocal.retrieveLowestPublishedRoomRate(roomTypeId);
@@ -109,14 +147,21 @@ public class ReservationController implements ReservationControllerRemote, Reser
     }
     
     @Override
-    public BigDecimal calculateReservationLineAmount(Long reservationLineItemId) {
+    public BigDecimal calculateReservationLineAmount(Long reservationLineItemId) throws LineCalculationException {
         ReservationLineItem reservationLineItem = em.find(ReservationLineItem.class, reservationLineItemId);
         List<RoomNight> roomNights = reservationLineItem.getRoomNights();
+        //System.out.println("roomnights size is " + roomNights.size());
         BigDecimal amount = BigDecimal.ZERO;
         
-        for (RoomNight roomNight: roomNights) {
-            amount = (roomNight.getRoomRate().getRatePerNight()).add(amount);
+        try {
+            for (RoomNight roomNight : roomNights) {
+                amount = amount.add((roomRateControllerLocal.retrieveComplexRoomRate(reservationLineItem.getRoomType().getRoomTypeId())).getRatePerNight(), new MathContext(11));
+                //System.out.println("amount is " + amount);
+            }
+        } catch (RoomRateNotFoundException ex) {
+            throw new LineCalculationException("Room rate not found!");
         }
+        //System.out.println("line item num room requested " + reservationLineItem.getNumRoomsRequested());
         amount = amount.multiply(BigDecimal.valueOf(reservationLineItem.getNumRoomsRequested()));
         reservationLineItem.setAmount(amount);
         return amount;
