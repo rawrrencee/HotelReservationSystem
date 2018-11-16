@@ -129,14 +129,14 @@ public class FrontOfficeModule {
         RoomInventory currentRoomInventory;
         Integer numRoomsLeft = 0;
         List<RoomRate> roomRates;
-        BigDecimal lowestPublishedRate = new BigDecimal(Integer.MAX_VALUE);
+        BigDecimal lowestPublishedRate;
         LocalDate checkInDate = LocalDate.now();
         LocalDate checkOutDate = LocalDate.now();
         LocalDate now = LocalDate.now();
         String checkInDateString, checkOutDateString;
 
         System.out.println("*** Hotel Reservation System :: Front Office :: Walk-in Search Room ***\n");
-        
+
         while (true) {
             System.out.print("Enter Check-in date in the format ddMMyyyy> ");
             checkInDateString = sc.nextLine().trim();
@@ -184,14 +184,15 @@ public class FrontOfficeModule {
             try {
                 roomInventories = roomInventoryControllerRemote.retrieveAllRoomInventoriesOnDate(date);
                 for (RoomInventory roomInventory : roomInventories) {
-                    roomRates = roomInventoryControllerRemote.retrieveRoomRatesByTypeOfRoomInventory(roomInventory.getRoomInventoryId());
-                    for (RoomRate roomRate : roomRates) {
-                        if (lowestPublishedRate.compareTo(roomRate.getRatePerNight()) == 1) {
-                            lowestPublishedRate = roomRate.getRatePerNight();
-                        }
-                    }
+//                    roomRates = roomInventoryControllerRemote.retrieveRoomRatesByTypeOfRoomInventory(roomInventory.getRoomInventoryId());
+//                    for (RoomRate roomRate : roomRates) {
+//                        if (lowestPublishedRate.compareTo(roomRate.getRatePerNight()) == 1) {
+//                            lowestPublishedRate = roomRate.getRatePerNight();
+//                        }
+//                    }
+                    lowestPublishedRate = (roomRateControllerRemote.retrieveLowestPublishedRoomRate(roomInventory.getRoomType().getRoomTypeId())).getRatePerNight();
                     System.out.println("Room Type: " + roomInventory.getRoomType().getRoomTypeName() + " | Number of rooms left: " + roomInventory.getNumRoomsLeft() + " | Published Rate: " + lowestPublishedRate);
-                    lowestPublishedRate = new BigDecimal(Integer.MAX_VALUE);
+                    //lowestPublishedRate = new BigDecimal(Integer.MAX_VALUE);
                 }
             } catch (RoomInventoryNotFoundException ex) {
                 System.out.println("No inventories exist for requested date.");
@@ -258,14 +259,15 @@ public class FrontOfficeModule {
             try {
                 roomInventories = roomInventoryControllerRemote.retrieveAllRoomInventoriesOnDate(date);
                 for (RoomInventory roomInventory : roomInventories) {
-                    roomRates = roomInventoryControllerRemote.retrieveRoomRatesByTypeOfRoomInventory(roomInventory.getRoomInventoryId());
-                    for (RoomRate roomRate : roomRates) {
-                        if (lowestPublishedRate.compareTo(roomRate.getRatePerNight()) == 1) {
-                            lowestPublishedRate = roomRate.getRatePerNight();
-                        }
-                    }
+//                    roomRates = roomInventoryControllerRemote.retrieveRoomRatesByTypeOfRoomInventory(roomInventory.getRoomInventoryId());
+//                    for (RoomRate roomRate : roomRates) {
+//                        if (lowestPublishedRate.compareTo(roomRate.getRatePerNight()) == 1) {
+//                            lowestPublishedRate = roomRate.getRatePerNight();
+//                        }
+//                    }
+                    lowestPublishedRate = (roomRateControllerRemote.retrieveLowestPublishedRoomRate(roomInventory.getRoomType().getRoomTypeId())).getRatePerNight();
                     System.out.println("Room Type ID: " + roomInventory.getRoomType().getRoomTypeId() + "| Room Type: " + roomInventory.getRoomType().getRoomTypeName() + " | Number of rooms left: " + roomInventory.getNumRoomsLeft() + " | Published Rate: " + lowestPublishedRate);
-                    lowestPublishedRate = new BigDecimal(Integer.MAX_VALUE);
+                    //lowestPublishedRate = new BigDecimal(Integer.MAX_VALUE);
                 }
             } catch (RoomInventoryNotFoundException ex) {
                 System.out.println("No inventories exist for requested date.");
@@ -533,7 +535,7 @@ public class FrontOfficeModule {
         } catch (ReservationNotFoundException ex) {
             System.out.println("An error occurred: " + ex.getMessage());
         } catch (RoomAllocationException e) {
-            
+
         }
 
     }
@@ -544,7 +546,7 @@ public class FrontOfficeModule {
         Long reservationId;
         Reservation currentReservation;
         System.out.println("*** Hotel Reservation System :: Front Office :: Check-out Guest ***\n");
-        
+
         System.out.print("Enter Reservation ID> ");
         while (true) {
             input = sc.nextLine().trim();
@@ -563,12 +565,12 @@ public class FrontOfficeModule {
             System.out.println(now + " | and checkin date is: " + date);
             List<ReservationLineItem> reservationLineItems = currentReservation.getReservationLineItems();
             for (ReservationLineItem lineItem : reservationLineItems) {
-            reservationControllerRemote.processCheckout(lineItem.getReservationLineItemId(), currentReservation.getReservationId());
+                reservationControllerRemote.processCheckout(lineItem.getReservationLineItemId(), currentReservation.getReservationId());
             }
         } catch (ReservationNotFoundException | RoomCheckoutException ex) {
             System.out.println("An error occurred: " + ex.getMessage());
         }
-        
+
         System.out.println("Checkout completed!");
     }
 }

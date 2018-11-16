@@ -25,4 +25,6 @@ public interface RoomRateControllerLocal {
     public Boolean deleteRoomRate(Long roomRateId) throws RoomRateNotFoundException;
     
     public RoomRate retrieveLowestPublishedRoomRate(Long roomTypeId);
+    
+    public RoomRate retrieveComplexRoomRate(Long roomTypeId);
 }

@@ -6,17 +6,22 @@
 package ejb.session.stateless;
 
 import entity.Guest;
+import entity.RegisteredGuest;
 import javax.ejb.Local;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
+import javax.persistence.NonUniqueResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceException;
 import javax.persistence.Query;
 import util.exception.GeneralException;
 import util.exception.GuestExistException;
 import util.exception.GuestNotFoundException;
+import util.exception.InvalidLoginCredentialException;
+import util.exception.RegisteredGuestExistException;
+import util.exception.RegisteredGuestNotFoundException;
 
 /**
  *
@@ -77,6 +82,63 @@ public class GuestController implements GuestControllerRemote, GuestControllerLo
             }
         }
         return newGuest;
+    }
+
+    @Override
+    public Guest createNewRegisteredGuest(RegisteredGuest newRegisteredGuest) throws RegisteredGuestExistException, GeneralException {
+            try {
+                em.persist(newRegisteredGuest);
+                em.flush();
+                em.refresh(newRegisteredGuest);
+            } catch (PersistenceException ex) {
+                if (ex.getCause() != null && ex.getCause().getCause() != null && ex.getCause().getCause().getClass().getSimpleName().equals("SQLIntegrityConstraintViolationException")) {
+                    throw new RegisteredGuestExistException("A registered guest with the same passport number exists!");
+                } else {
+                    throw new GeneralException("An unexpected error has occurred: " + ex.getMessage());
+                }
+            }
+        return newRegisteredGuest;
+    }
+    
+    @Override
+    public RegisteredGuest retrieveRegisteredGuestByUsername(String username) throws RegisteredGuestNotFoundException {
+        Query query = em.createQuery("SELECT rg FROM RegisteredGuest rg WHERE rg.username = :inUsername");
+        query.setParameter("inUsername", username);
+        
+        try {
+            return (RegisteredGuest)query.getSingleResult();
+        } catch (NoResultException | NonUniqueResultException ex) {
+            throw new RegisteredGuestNotFoundException("Employee username " + username + " does not exist!");
+        }
+    }
+    
+        
+    @Override
+    public Guest retrieveRegisteredGuestByPassportNumber(String passportNum) throws RegisteredGuestNotFoundException {
+        Query query = em.createQuery("SELECT rg FROM RegisteredGuest rg WHERE rg.passportNum = :inPassportNum");
+        query.setParameter("inPassportNum", passportNum);
+        
+        try {
+            return (RegisteredGuest)query.getSingleResult();
+        } catch (NoResultException ex) {
+            throw new RegisteredGuestNotFoundException("Registered Guest with Passport Number " + passportNum + " does not exist!");
+        }
+    }
+    
+    @Override
+    public RegisteredGuest registeredGuestLogin(String username, String password) throws InvalidLoginCredentialException {
+        try {
+            RegisteredGuest registeredGuest = retrieveRegisteredGuestByUsername(username);
+
+            if (registeredGuest.getPassword().equals(password)) {
+
+                return registeredGuest;
+            } else {
+                throw new InvalidLoginCredentialException("Username does not exist or invalid password!");
+            }
+        } catch (RegisteredGuestNotFoundException ex) {
+            throw new InvalidLoginCredentialException("Username does not exist or invalid password!");
+        }
     }
     
 }

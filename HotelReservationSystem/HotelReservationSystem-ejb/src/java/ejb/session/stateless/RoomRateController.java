@@ -5,8 +5,12 @@
  */
 package ejb.session.stateless;
 
+import entity.NormalRoomRate;
+import entity.PeakRoomRate;
+import entity.PromoRoomRate;
 import entity.RoomRate;
 import entity.RoomType;
+import java.time.LocalDateTime;
 import java.util.List;
 import javax.ejb.EJB;
 import javax.ejb.Local;
@@ -38,30 +42,30 @@ public class RoomRateController implements RoomRateControllerLocal, RoomRateCont
 
     public RoomRateController() {
     }
-    
+
     @Override
     public List<RoomRate> retrieveAllRoomRates() {
         Query query = em.createQuery("SELECT rr FROM RoomRate rr");
-        
+
         return query.getResultList();
     }
-    
-    public RoomRate createNewRoomRate(RoomRate newRoomRate, Long roomTypeId) throws RoomRateExistException, RoomTypeNotFoundException, GeneralException{
+
+    public RoomRate createNewRoomRate(RoomRate newRoomRate, Long roomTypeId) throws RoomRateExistException, RoomTypeNotFoundException, GeneralException {
         try {
             RoomType roomType = roomTypeControllerLocal.retrieveRoomTypeByRoomTypeId(roomTypeId);
             em.persist(newRoomRate);
-            
+
             newRoomRate.setRoomType(roomType);
             roomType.getRoomRates().add(newRoomRate);
-            
+
             em.flush();
             em.refresh(newRoomRate);
-            
+
             return newRoomRate;
         } catch (RoomTypeNotFoundException ex) {
-            
+
             throw new RoomTypeNotFoundException("Unable to create new Room Rate as the Room Type record does not exist!");
-        
+
         } catch (PersistenceException ex) {
             if (ex.getCause() != null && ex.getCause().getCause() != null && ex.getCause().getCause().getClass().getSimpleName().equals("SQLIntegrityConstraintViolationException")) {
                 throw new RoomRateExistException("A room rate with the provided information already exists!");
@@ -70,23 +74,23 @@ public class RoomRateController implements RoomRateControllerLocal, RoomRateCont
             }
         }
     }
-    
+
     @Override
     public RoomRate retrieveRoomRateByRoomRateId(Long roomRateId) throws RoomRateNotFoundException {
         RoomRate roomRate = em.find(RoomRate.class, roomRateId);
-        
+
         if (roomRate != null) {
-        return roomRate;
+            return roomRate;
         } else {
             throw new RoomRateNotFoundException("Room Rate ID " + roomRateId + " does not exist!");
         }
     }
-    
+
     @Override
     public void updateRoomRate(RoomRate roomRate, Long newRoomTypeId) throws RoomTypeNotFoundException {
         Long currentRoomTypeId = roomRate.getRoomType().getRoomTypeId();
         RoomType currentRoomType = roomTypeControllerLocal.retrieveRoomTypeByRoomTypeId(currentRoomTypeId);
-        
+
         try {
             if (!currentRoomTypeId.equals(newRoomTypeId)) {
                 RoomType newRoomType = roomTypeControllerLocal.retrieveRoomTypeByRoomTypeId(newRoomTypeId);
@@ -97,14 +101,14 @@ public class RoomRateController implements RoomRateControllerLocal, RoomRateCont
         } catch (RoomTypeNotFoundException ex) {
             System.out.println("Room rate does not exist!");
         }
-        em.merge(roomRate);     
+        em.merge(roomRate);
     }
-    
+
     @Override
     public Boolean deleteRoomRate(Long roomRateId) throws RoomRateNotFoundException {
         RoomRate roomRateToRemove = retrieveRoomRateByRoomRateId(roomRateId);
         RoomType roomType = roomRateToRemove.getRoomType();
-        
+
 //        try {
 //            roomRateToRemove.getRoomNights();
 //            roomRateToRemove.setIsEnabled(Boolean.FALSE);
@@ -114,8 +118,7 @@ public class RoomRateController implements RoomRateControllerLocal, RoomRateCont
 //            em.remove(roomRateToRemove);
 //            return true;
 //        }
-        
-        if (roomRateToRemove.getRoomNights().isEmpty() || roomRateToRemove.getRoomNights() == null){
+        if (roomRateToRemove.getRoomNights().isEmpty() || roomRateToRemove.getRoomNights() == null) {
             roomType.getRoomRates().remove(roomRateToRemove);
             em.remove(roomRateToRemove);
             return true;
@@ -124,15 +127,105 @@ public class RoomRateController implements RoomRateControllerLocal, RoomRateCont
             return false;
         }
     }
-    
+
     @Override
     public RoomRate retrieveLowestPublishedRoomRate(Long roomTypeId) {
         Query query = em.createQuery("SELECT p FROM PublishedRoomRate p WHERE p.roomType.roomTypeId = :inRoomTypeId ORDER BY p.ratePerNight ASC");
         query.setParameter("inRoomTypeId", roomTypeId);
         query.setFirstResult(0);
         query.setMaxResults(1);
-        
+
         return (RoomRate) query.getSingleResult();
     }
     
+    @Override
+    public RoomRate retrieveComplexRoomRate(Long roomTypeId) {
+        Boolean hasNormal = false;
+        Boolean hasPromo = false;
+        Boolean hasPeak = false;
+        RoomRate finalRate = null;
+
+        Query query = em.createQuery("SELECT nrr FROM NormalRoomRate nrr WHERE nrr.roomType.roomTypeId = :inRoomTypeId SORT BY nrr.ratePerNight ASC");
+        query.setParameter("inRoomTypeId", roomTypeId);
+        query.setFirstResult(0);
+        query.setMaxResults(1);
+        if (!query.getResultList().isEmpty()) {
+            hasNormal = true;
+        }
+
+        Query query2 = em.createQuery("SELECT prr FROM PromoRoomRate prr WHERE prr.roomType.roomTypeId = :inRoomTypeId SORT BY prr.ratePerNight ASC");
+        query2.setParameter("inRoomTypeId", roomTypeId);
+        if (!query2.getResultList().isEmpty()) {
+            hasPromo = true;
+        }
+
+        Query query3 = em.createQuery("SELECT perr FROM PeakRoomRate perr WHERE perr.roomType.roomTypeId = :inRoomTypeId SORT BY perr.ratePerNight ASC");
+        query3.setParameter("inRoomTypeId", roomTypeId);
+        if (!query3.getResultList().isEmpty()) {
+            hasPeak = true;
+        }
+
+        if (hasNormal && !hasPromo && !hasPeak) {
+            finalRate = (NormalRoomRate) query.getSingleResult();
+            return finalRate;
+        }
+        if (hasNormal && hasPromo && !hasPeak) {
+            List<PromoRoomRate> promoRoomRates = (List<PromoRoomRate>) query2.getResultList();
+            for (PromoRoomRate promoRoomRate : promoRoomRates) {
+                if (promoRoomRate.getStartDate().isBefore(LocalDateTime.now()) && promoRoomRate.getEndDate().isAfter(LocalDateTime.now())) {
+                    finalRate = (RoomRate) promoRoomRate;
+                    break;
+                }
+            }
+            if (finalRate == null) {
+                finalRate = (NormalRoomRate) query.getSingleResult();
+            }
+            return finalRate;
+        }
+        if (hasNormal && !hasPromo && hasPeak) {
+            List<PeakRoomRate> peakRoomRates = (List<PeakRoomRate>) query3.getResultList();
+            for (PeakRoomRate peakRoomRate : peakRoomRates) {
+                if (peakRoomRate.getStartDate().isBefore(LocalDateTime.now()) && peakRoomRate.getEndDate().isAfter(LocalDateTime.now())) {
+                    finalRate = (RoomRate) peakRoomRate;
+                    break;
+                }
+            }
+            if (finalRate == null) {
+                finalRate = (NormalRoomRate) query.getSingleResult();
+            }
+            return finalRate;
+        }
+
+        if (!hasNormal && hasPromo && hasPeak) {
+            List<PeakRoomRate> peakRoomRates = (List<PeakRoomRate>) query3.getResultList();
+            finalRate = (PeakRoomRate) query3.getResultList().get(0);
+            for (PeakRoomRate peakRoomRate : peakRoomRates) {
+                // ongoing promo room rate
+                if (peakRoomRate.getStartDate().isBefore(LocalDateTime.now()) && peakRoomRate.getEndDate().isAfter(LocalDateTime.now())) {
+                    finalRate = (RoomRate) peakRoomRate;
+                    break;
+                }
+            }
+            if (finalRate == null) {
+                finalRate = (NormalRoomRate) query.getSingleResult();
+            }
+            return finalRate;
+        }
+        if (hasNormal && hasPromo && hasPeak) {
+            List<PromoRoomRate> promoRoomRates = (List<PromoRoomRate>) query2.getResultList();
+            for (PromoRoomRate promoRoomRate : promoRoomRates) {
+                if (promoRoomRate.getStartDate().isBefore(LocalDateTime.now()) && promoRoomRate.getEndDate().isAfter(LocalDateTime.now())) {
+                    finalRate = (RoomRate) promoRoomRate;
+                    break;
+                }
+            }
+            if (finalRate == null) {
+                finalRate = (NormalRoomRate) query.getSingleResult();
+            }
+            return finalRate;
+        }
+        
+        return (RoomRate) query.getSingleResult();
+    }
+
 }
