@@ -273,10 +273,10 @@ public class HotelOperationModule {
                         System.out.println("Please enter numeric values.");
                     }
                 }
-
-                System.out.print("Please set the status of the room (1: AVAILABLE, 2: CLEANING, 3: ALLOCATED, 4: DISABLED)> ");
-                input = sc.nextLine().trim();
+                
                 while (true) {
+                    System.out.print("Please set the status of the room (1: AVAILABLE, 2: CLEANING, 3: ALLOCATED, 4: DISABLED)> ");
+                    input = sc.nextLine().trim();
                     if (input.equals("1")) {
                         newRoom.setRoomStatus(RoomStatus.AVAILABLE);
                         break;
@@ -314,6 +314,8 @@ public class HotelOperationModule {
 
     private void viewRoomTypeDetails() {
         Scanner sc = new Scanner(System.in);
+        String input;
+        Integer response;
         Boolean conditionChecker = true;
         List<RoomType> roomTypes = roomTypeControllerRemote.retrieveAllRoomTypes();
 
@@ -321,7 +323,13 @@ public class HotelOperationModule {
 
         while (conditionChecker) {
             System.out.print("Enter Room Type ID to query> ");
-            int response = sc.nextInt();
+            try {
+                input = sc.nextLine().trim();
+                response = Integer.parseInt(input);
+            } catch (NumberFormatException ex) {
+                System.out.println("Please enter a numerical value.");
+                continue;
+            }
             if (response >= 1 && response <= roomTypes.size()) {
                 try {
                     RoomType roomType = roomTypeControllerRemote.retrieveRoomTypeByRoomTypeId(Long.valueOf(response));
@@ -343,10 +351,11 @@ public class HotelOperationModule {
                     conditionChecker = false;
                 } catch (RoomTypeNotFoundException ex) {
                     System.out.println("Invalid option!\n");
-                    continue;
                 } catch (Exception ex) {
                     System.out.println("An unexpected error occurred: " + ex.getMessage());
                 }
+            } else {
+                System.out.println("Invalid option!! Please retry.");
             }
         }
     }
@@ -532,9 +541,9 @@ public class HotelOperationModule {
                 }
             }
 
-            System.out.print("Please set the status of the room (1: AVAILABLE, 2: CLEANING, 3: ALLOCATED, 4: DISABLED)> ");
-            input = sc.nextLine().trim();
             while (true) {
+                System.out.print("Please set the status of the room (1: AVAILABLE, 2: CLEANING, 3: ALLOCATED, 4: DISABLED)> ");
+                input = sc.nextLine().trim();
                 if (input.equals("1")) {
                     newRoom.setRoomStatus(RoomStatus.AVAILABLE);
                     break;
@@ -823,7 +832,8 @@ public class HotelOperationModule {
                             createNewPromoRoomRate(sc, newPromoRoomRate, roomTypes);
                             break;
                         default:
-                            break;
+                            System.out.println("Please make a selection between the provided values.");
+                            continue;
                     }
                 } else {
                     System.out.println("Please make a selection between the provided values.");
@@ -1092,7 +1102,19 @@ public class HotelOperationModule {
     private void viewRoomRateDetails() {
         Scanner sc = new Scanner(System.in);
         RoomRate roomRate;
-        Long roomRateId = sc.nextLong();
+        String input;
+        Long roomRateId;
+
+        while (true) {
+            System.out.print("Please enter Room Rate ID of the Room Rate to query> ");
+            input = sc.nextLine().trim();
+            try {
+                roomRateId = Long.parseLong(input);
+                break;
+            } catch (NumberFormatException ex) {
+                System.out.println("Please enter a numerical value.");
+            }
+        }
 
         try {
             roomRate = roomRateControllerRemote.retrieveRoomRateByRoomRateId(roomRateId);
@@ -1210,7 +1232,7 @@ public class HotelOperationModule {
                 }
             }
         }
-        
+
         while (true) {
             System.out.print("Enable Room Rate? Y/N> ");
             input = sc.nextLine().trim();
