@@ -578,7 +578,7 @@ public class MainApp {
             List<Reservation> reservations = reservationControllerRemote.retrieveAllReservationsByRegisteredGuest(currentRegisteredGuest.getGuestId());
 
             for (Reservation reservation : reservations) {
-                System.out.println(reservation.getReservationId() + " | " + " Check In Date: " + reservation.getCheckInDate() + " Check Out Date: " + reservation.getCheckOutDate() + " Total amount spent ");
+                System.out.println("ID: " + reservation.getReservationId() + " | " + " Check In Date: " + reservation.getCheckInDate() + " Check Out Date: " + reservation.getCheckOutDate() + " Total amount spent: " + reservation.getReservationAmt());
             }
         } catch (ReservationNotFoundException ex) {
             System.out.println(ex.getMessage());

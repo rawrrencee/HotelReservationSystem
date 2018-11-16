@@ -63,7 +63,7 @@ public class ReservationController implements ReservationControllerRemote, Reser
     
     @Override
     public List<Reservation> retrieveAllReservationsByRegisteredGuest(Long registeredGuestId) throws ReservationNotFoundException {
-        Query query = em.createQuery("SELECT or FROM OnlineReservation or WHERE or.registeredGuest.guestId = :inGuestId");
+        Query query = em.createQuery("SELECT r FROM OnlineReservation r WHERE r.registeredGuest.guestId = :inGuestId");
         query.setParameter("inGuestId", registeredGuestId);
         
         if (!query.getResultList().isEmpty()) {
