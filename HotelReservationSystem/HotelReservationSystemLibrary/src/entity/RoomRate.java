@@ -31,9 +31,11 @@ public abstract class RoomRate implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     protected Long roomRateId;
     
+    @Column(nullable = false, length = 255)
     protected String roomRateName;
     @Column(nullable = false, precision = 11, scale = 2)
     protected BigDecimal ratePerNight;
+    @Column(nullable = false)
     protected Boolean isEnabled;
     
     @ManyToOne

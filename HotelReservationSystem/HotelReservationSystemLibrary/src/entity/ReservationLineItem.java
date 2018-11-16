@@ -9,6 +9,7 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -28,8 +29,9 @@ public class ReservationLineItem implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long reservationLineItemId;
-    
+    @Column (nullable = false, precision = 11, scale = 2)
     private BigDecimal amount;
+    @Column (nullable = false, length = 10)
     private Integer numRoomsRequested;
     
     @ManyToOne

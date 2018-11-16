@@ -7,6 +7,7 @@ package entity;
 
 import java.io.Serializable;
 import java.util.List;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -28,10 +29,15 @@ public class Guest implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     protected Long guestId;
     
+    @Column(nullable = false, length = 255)
     protected String firstName;
+    @Column(nullable = false, length = 255)
     protected String lastName;
+    @Column(nullable = false, length = 255)
     protected String emailAdd;
+    @Column(nullable = false, length = 9)
     protected Integer phoneNum;
+    @Column(nullable = false, length = 255)
     protected String passportNum;
     
     @OneToMany(mappedBy="guest")

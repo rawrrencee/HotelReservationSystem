@@ -7,6 +7,7 @@ package entity;
 
 import java.io.Serializable;
 import java.util.List;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.OneToMany;
 
@@ -17,7 +18,9 @@ import javax.persistence.OneToMany;
 @Entity
 public class RegisteredGuest extends Guest implements Serializable {
     
+    @Column (nullable = false)
     private String username;
+    @Column (nullable = false)
     private String password;
     
     @OneToMany(mappedBy="registeredGuest")

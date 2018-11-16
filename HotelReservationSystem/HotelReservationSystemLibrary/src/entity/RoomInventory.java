@@ -9,6 +9,7 @@ import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Date;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -28,6 +29,7 @@ public class RoomInventory implements Serializable {
     private Long roomInventoryId;
     
     private Date date;
+    @Column(nullable = false, length = 10)
     private Integer numRoomsLeft;
     
     @ManyToOne

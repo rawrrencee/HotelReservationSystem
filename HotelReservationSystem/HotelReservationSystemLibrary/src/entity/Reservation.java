@@ -37,8 +37,9 @@ public abstract class Reservation implements Serializable {
     
     protected Date checkInDate;
     protected Date checkOutDate;
-    @Column(precision = 11, scale = 2)
+    @Column (nullable = false, precision = 11, scale = 2)
     protected BigDecimal reservationAmt;
+    @Column (nullable = false, length = 10)
     protected Integer numGuests;
     protected Date createdDate;
     
