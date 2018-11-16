@@ -11,6 +11,8 @@ import entity.ReservationLineItem;
 import entity.Room;
 import entity.RoomInventory;
 import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.Date;
 import java.util.List;
 import javax.ejb.EJB;
 import javax.ejb.Schedule;
@@ -39,11 +41,15 @@ public class EjbTimerSessionBean implements EjbTimerSessionBeanRemote, EjbTimerS
     @PersistenceContext(unitName = "HotelReservationSystem-ejbPU")
     private EntityManager em;
     
-    @Schedule(hour = "2", info = "roomAllocationTimer")
+    @Schedule(hour = "11", minute ="50", info = "roomAllocationTimer")
     public void allocateRoom() {
-        Query query = em.createQuery("SELECT r FROM Reservation r WHERE r.checkInDate = :inCheckInDate");
-        query.setParameter("inCheckInDate", LocalDate.now());
+        Query query = em.createQuery("SELECT r FROM Reservation r WHERE r.checkInDate = :inCheckInDate AND r.reservationLineItems.rooms IS NULL");
+        query.setParameter("inCheckInDate", Date.from(LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toInstant()));
         List<Reservation> reservations = (List<Reservation>) query.getResultList();
+        
+        if (reservations.isEmpty()) {
+            return;
+        }
         
         for (Reservation reservation : reservations) {
             List<ReservationLineItem> reservationLineItems = reservation.getReservationLineItems();

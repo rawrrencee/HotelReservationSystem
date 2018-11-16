@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Scanner;
 import util.exception.CheckRoomInventoryAvailabilityException;
 import util.exception.CheckRoomInventoryException;
+import util.exception.CreateRoomNightException;
 import util.exception.GeneralException;
 import util.exception.GuestNotFoundException;
 import util.exception.InvalidLoginCredentialException;
@@ -466,12 +467,16 @@ public class MainApp {
             LocalDate localCheckInDate = LocalDate.parse(checkInDateString, formatter);
             LocalDate localCheckOutDate = LocalDate.parse(checkOutDateString, formatter);
             long numNights = ChronoUnit.DAYS.between(localCheckInDate, localCheckOutDate);
-
-            for (long l = 0l; l < numNights; l++) {
-                RoomNight roomNight = new RoomNight();
-                roomNight.setDate(checkInDate);
-                reservationControllerRemote.createNewRoomNight(roomNight, reserveRoomTypeId, reservationLineItem.getReservationLineItemId());
-                checkInDate.plusDays(1);
+            
+            try {
+                for (long l = 0l; l < numNights; l++) {
+                    RoomNight roomNight = new RoomNight();
+                    roomNight.setDate(checkInDate);
+                    reservationControllerRemote.createOnlineNewRoomNight(roomNight, reserveRoomTypeId, reservationLineItem.getReservationLineItemId());
+                    checkInDate.plusDays(1);
+                }
+            } catch (CreateRoomNightException ex) {
+                System.out.println("An error occurred: " + ex.getMessage());
             }
 
             //calculate total amount in reservation and ask for confirmation

@@ -27,6 +27,7 @@ import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import util.enumeration.RoomStatus;
+import util.exception.CreateRoomNightException;
 import util.exception.LineCalculationException;
 import util.exception.ReservationNotFoundException;
 import util.exception.RoomAllocationException;
@@ -144,6 +145,24 @@ public class ReservationController implements ReservationControllerRemote, Reser
         em.flush();
         em.refresh(newRoomNight);
         return newRoomNight;
+    }
+    
+    @Override
+    public RoomNight createOnlineNewRoomNight(RoomNight newRoomNight, Long roomTypeId, Long reservationLineItemId) throws CreateRoomNightException {
+        try {
+            RoomRate finalRate = roomRateControllerLocal.retrieveComplexRoomRate(roomTypeId);
+            ReservationLineItem reservationLineItem = em.find(ReservationLineItem.class, reservationLineItemId);
+            reservationLineItem.getRoomNights().add(newRoomNight);
+            newRoomNight.setReservationLineItem(reservationLineItem);
+            newRoomNight.setRoomRate(finalRate);
+            em.persist(newRoomNight);
+
+            em.flush();
+            em.refresh(newRoomNight);
+            return newRoomNight;
+        } catch (RoomRateNotFoundException ex) {
+            throw new CreateRoomNightException("Room rate not found!");
+        }
     }
     
     @Override
