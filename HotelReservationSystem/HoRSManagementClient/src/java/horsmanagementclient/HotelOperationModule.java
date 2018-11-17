@@ -1255,34 +1255,51 @@ public class HotelOperationModule {
         if (currentRoomRate.getClass().getName().equals("entity.PeakRoomRate") || currentRoomRate.getClass().getName().equals("entity.PromoRoomRate")) {
             containsDate = true;
         }
-
+        
         if (containsDate) {
+            while(true){
             System.out.print("Enter starting date and time in the format (ddMMyyyy HHmm) (blank if no change)> ");
             dateTime = sc.nextLine().trim();
-            startDateTime = LocalDateTime.parse(dateTime, formatter);
-
-            if (!dateTime.isEmpty()) {
+            if(!dateTime.isEmpty()){
+               try{
+               startDateTime = LocalDateTime.parse(dateTime, formatter);
                 if (response == 3) {
                     ((PeakRoomRate) currentRoomRate).setStartDate(startDateTime);
                 }
                 if (response == 4) {
                     ((PromoRoomRate) currentRoomRate).setStartDate(startDateTime);
                 }
+                break;
+            }catch(DateTimeParseException ex){
+                System.out.println("Please enter in the right format ddMMyyyy HHmm");
             }
-
+           }
+            else{
+                break;
+            }
+         }
+            
+            while(true){
             System.out.print("Enter ending date and time in the format (yyyymmddhhmm) (blank if no change)> ");
             dateTime = sc.nextLine().trim();
+            if(!dateTime.isEmpty()){
+            try{
             endDateTime = LocalDateTime.parse(dateTime, formatter);
-
-            if (!dateTime.isEmpty()) {
                 if (response == 3) {
                     ((PeakRoomRate) currentRoomRate).setEndDate(endDateTime);
                 }
                 if (response == 4) {
                     ((PromoRoomRate) currentRoomRate).setEndDate(endDateTime);
                 }
+                break;
+            }catch(DateTimeParseException ex){
+                System.out.println("Please enter in the right format ddMMyyyy HHmm");    
+          }
+        }else{
+                break;
             }
-        }
+    }
+ }
 
         while (true) {
             System.out.print("Enable Room Rate? Y/N> ");

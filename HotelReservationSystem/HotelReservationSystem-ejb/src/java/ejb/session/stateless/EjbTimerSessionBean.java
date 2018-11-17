@@ -1,4 +1,4 @@
-/*
+    /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
@@ -41,7 +41,7 @@ public class EjbTimerSessionBean implements EjbTimerSessionBeanRemote, EjbTimerS
     @PersistenceContext(unitName = "HotelReservationSystem-ejbPU")
     private EntityManager em;
     
-    @Schedule(hour = "11", minute ="50", info = "roomAllocationTimer")
+    @Schedule(hour = "02", minute ="00", info = "roomAllocationTimer")
     public void allocateRoom() {
         Query query = em.createQuery("SELECT r FROM Reservation r WHERE r.checkInDate = :inCheckInDate AND r.reservationLineItems.rooms IS NULL");
         query.setParameter("inCheckInDate", Date.from(LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toInstant()));

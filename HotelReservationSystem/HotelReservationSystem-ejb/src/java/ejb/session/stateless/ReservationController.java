@@ -241,7 +241,7 @@ public class ReservationController implements ReservationControllerRemote, Reser
                     if (roomInventory.getNumRoomsLeft() == 0) {
                         throw new RoomAllocationException("Room allocation failed as no rooms are available.");
                     }
-                    roomInventory.setNumRoomsLeft(roomInventory.getNumRoomsLeft() - 1);
+                  
                 } catch (RoomInventoryNotFoundException ex) {
                     throw new RoomAllocationException(ex.getMessage());
                 }
