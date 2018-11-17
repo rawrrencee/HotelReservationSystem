@@ -130,6 +130,7 @@ public class RoomInventoryController implements RoomInventoryControllerLocal, Ro
     @Override
     public Boolean checkRoomInventoryOnDate(LocalDate checkInDate, LocalDate checkOutDate) throws CheckRoomInventoryException {
         Integer numRoomsLeft = 0;
+        Boolean hasZeroRooms = false;
         RoomInventory currentRoomInventory;
         List<RoomType> roomTypes = roomTypeControllerLocal.retrieveAllRoomTypes();
         
@@ -151,10 +152,14 @@ public class RoomInventoryController implements RoomInventoryControllerLocal, Ro
                 }
             }
             if (numRoomsLeft <= 0) {
-                return false;
+                hasZeroRooms = true;
             }
         }
-        return true;
+        if (!hasZeroRooms) {
+            return true;
+        } else {
+            return false;
+        }
     }
     
     @Override

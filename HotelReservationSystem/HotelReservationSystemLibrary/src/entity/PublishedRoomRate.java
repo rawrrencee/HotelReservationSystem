@@ -23,6 +23,7 @@ public class PublishedRoomRate extends RoomRate implements Serializable {
     }
 
     public PublishedRoomRate(String roomRateName, BigDecimal ratePerNight, Boolean isDisabled) {
+        this();
         this.roomRateName = roomRateName;
         this.ratePerNight = ratePerNight;
         this.isEnabled = isDisabled;

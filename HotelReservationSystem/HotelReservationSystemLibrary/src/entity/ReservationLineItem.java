@@ -29,9 +29,9 @@ public class ReservationLineItem implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long reservationLineItemId;
-    @Column (nullable = false, precision = 11, scale = 2)
+    @Column (precision = 11, scale = 2)
     private BigDecimal amount;
-    @Column (nullable = false, length = 10)
+    @Column (length = 10)
     private Integer numRoomsRequested;
     
     @ManyToOne

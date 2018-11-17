@@ -5,11 +5,10 @@
  */
 package ejb.session.stateless;
 
-import entity.Reservation;
 import entity.RoomRate;
+import java.time.LocalDate;
 import java.util.List;
 import util.exception.GeneralException;
-import util.exception.ReservationNotFoundException;
 import util.exception.RoomRateExistException;
 import util.exception.RoomRateNotFoundException;
 import util.exception.RoomTypeNotFoundException;
@@ -28,6 +27,6 @@ public interface RoomRateControllerLocal {
     
     public RoomRate retrieveLowestPublishedRoomRate(Long roomTypeId);
     
-    public RoomRate retrieveComplexRoomRate(Long roomTypeId) throws RoomRateNotFoundException;
+    public RoomRate retrieveComplexRoomRate(Long roomTypeId, LocalDate date) throws RoomRateNotFoundException;
     
 }

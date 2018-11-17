@@ -16,6 +16,7 @@ import java.math.BigDecimal;
 import java.util.List;
 import util.exception.CreateRoomNightException;
 import util.exception.LineCalculationException;
+import util.exception.LineCreationException;
 import util.exception.ReservationNotFoundException;
 import util.exception.RoomAllocationException;
 import util.exception.RoomCheckoutException;
@@ -24,7 +25,7 @@ public interface ReservationControllerLocal {
     
     public WalkInReservation createNewWalkInReservation(WalkInReservation newWalkInReservation);
     
-    public ReservationLineItem createNewReservationLineItem(ReservationLineItem newReservationLineItem, Long walkInReservationId, Long roomTypeId);
+    public ReservationLineItem createNewReservationLineItem(ReservationLineItem newReservationLineItem, Long walkInReservationId, Long roomTypeId) throws LineCreationException;
     
     public RoomNight createNewRoomNight(RoomNight newRoomNight, Long roomTypeId, Long reservationLineItemId);
     
@@ -42,7 +43,7 @@ public interface ReservationControllerLocal {
     
     public OnlineReservation createNewOnlineReservation(OnlineReservation newOnlineReservation);
 
-    public ReservationLineItem createNewOnlineReservationLineItem(ReservationLineItem newReservationLineItem, Long onlineReservationId, Long roomTypeId);
+    public ReservationLineItem createNewOnlineReservationLineItem(ReservationLineItem newReservationLineItem, Long onlineReservationId, Long roomTypeId) throws LineCreationException;
     
     public List<Reservation> retrieveAllReservationsByRegisteredGuest(Long registeredGuestId) throws ReservationNotFoundException;
     

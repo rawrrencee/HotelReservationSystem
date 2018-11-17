@@ -15,6 +15,7 @@ import ejb.session.stateless.RoomRateControllerRemote;
 import ejb.session.stateless.RoomTypeControllerRemote;
 import entity.Employee;
 import java.util.Scanner;
+import util.enumeration.EmployeeAccessRightEnum;
 import util.exception.InvalidAccessRightException;
 import util.exception.InvalidLoginCredentialException;
 
@@ -147,10 +148,18 @@ public class MainApp {
                         }
                         break;
                     case 2:
-                        try {
-                            hotelOperationModule.menuMain();
-                        } catch (InvalidAccessRightException ex) {
-                            System.out.println("You lack the proper access rights to use this function. (" + ex.getMessage() + ")\n");
+                        if (currentEmployee.getAccessRight() == EmployeeAccessRightEnum.OPMANAGER) {
+                            try {
+                                hotelOperationModule.menuOP();
+                            } catch (InvalidAccessRightException ex) {
+                                System.out.println("You lack the proper access rights to use this function. (" + ex.getMessage() + ")\n");
+                            }
+                        } else if (currentEmployee.getAccessRight() == EmployeeAccessRightEnum.SAMANAGER) {
+                            try {
+                                hotelOperationModule.menuSA();
+                            } catch (InvalidAccessRightException ex) {
+                                System.out.println("You lack the proper access rights to use this function. (" + ex.getMessage() + ")\n");
+                            }
                         }
                         break;
                     case 3:

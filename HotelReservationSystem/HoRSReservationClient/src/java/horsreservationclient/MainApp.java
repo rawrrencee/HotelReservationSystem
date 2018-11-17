@@ -36,6 +36,7 @@ import util.exception.GeneralException;
 import util.exception.GuestNotFoundException;
 import util.exception.InvalidLoginCredentialException;
 import util.exception.LineCalculationException;
+import util.exception.LineCreationException;
 import util.exception.RegisteredGuestExistException;
 import util.exception.RegisteredGuestNotFoundException;
 import util.exception.ReservationNotFoundException;
@@ -327,7 +328,7 @@ public class MainApp {
                 roomInventories = roomInventoryControllerRemote.retrieveAllRoomInventoriesOnDate(date);
                 for (RoomInventory roomInventory : roomInventories) {
                     RoomType roomType = roomTypeControllerRemote.retrieveRoomTypeByRoomTypeId(roomInventory.getRoomType().getRoomTypeId());
-                    rate = (roomRateControllerRemote.retrieveComplexRoomRate(roomType.getRoomTypeId())).getRatePerNight();
+                    rate = (roomRateControllerRemote.retrieveComplexRoomRate(roomType.getRoomTypeId(), date)).getRatePerNight();
                     System.out.println("Room Type: " + roomInventory.getRoomType().getRoomTypeName() + " | Number of rooms left: " + roomInventory.getNumRoomsLeft() + " | Rate: " + rate);
                 }
             } catch (RoomInventoryNotFoundException ex) {
@@ -397,7 +398,7 @@ public class MainApp {
                 roomInventories = roomInventoryControllerRemote.retrieveAllRoomInventoriesOnDate(date);
                 for (RoomInventory roomInventory : roomInventories) {
                     RoomType roomType = roomTypeControllerRemote.retrieveRoomTypeByRoomTypeId(roomInventory.getRoomType().getRoomTypeId());
-                    rate = (roomRateControllerRemote.retrieveComplexRoomRate(roomType.getRoomTypeId())).getRatePerNight();
+                    rate = (roomRateControllerRemote.retrieveComplexRoomRate(roomType.getRoomTypeId(), date)).getRatePerNight();
                     System.out.println("ID: " + roomInventory.getRoomType().getRoomTypeId() + " | Room Type: " + roomInventory.getRoomType().getRoomTypeName() + " | Number of rooms left: " + roomInventory.getNumRoomsLeft() + " | Rate: " + rate);
                 }
             } catch (RoomInventoryNotFoundException ex) {
@@ -461,19 +462,18 @@ public class MainApp {
             //create new reservation line item
             ReservationLineItem reservationLineItem = new ReservationLineItem();
             reservationLineItem.setNumRoomsRequested(numRoomsRequested);
-            reservationLineItem = reservationControllerRemote.createNewOnlineReservationLineItem(reservationLineItem, onlineReservation.getReservationId(), reserveRoomTypeId);
-
-            //create new room nights
-            LocalDate localCheckInDate = LocalDate.parse(checkInDateString, formatter);
-            LocalDate localCheckOutDate = LocalDate.parse(checkOutDateString, formatter);
-            long numNights = ChronoUnit.DAYS.between(localCheckInDate, localCheckOutDate);
-            
             try {
-                for (long l = 0l; l < numNights; l++) {
+            reservationLineItem = reservationControllerRemote.createNewOnlineReservationLineItem(reservationLineItem, onlineReservation.getReservationId(), reserveRoomTypeId);
+            } catch (LineCreationException ex) {
+                System.out.println("An error has occurred: " + ex.getMessage());
+                return;
+            }
+            //create new room nights
+            try {
+                for (LocalDate date = checkInDate; date.isBefore(checkOutDate); date = date.plusDays(1)) {
                     RoomNight roomNight = new RoomNight();
-                    roomNight.setDate(checkInDate);
+                    roomNight.setDate(date);
                     reservationControllerRemote.createOnlineNewRoomNight(roomNight, reserveRoomTypeId, reservationLineItem.getReservationLineItemId());
-                    checkInDate.plusDays(1);
                 }
             } catch (CreateRoomNightException ex) {
                 System.out.println("An error occurred: " + ex.getMessage());

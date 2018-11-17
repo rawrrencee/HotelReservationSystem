@@ -20,6 +20,7 @@ import entity.RoomType;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Scanner;
@@ -62,7 +63,7 @@ public class HotelOperationModule {
         this.roomRateControllerRemote = roomRateControllerRemote;
     }
 
-    public void menuMain() throws InvalidAccessRightException {
+    public void menuOP() throws InvalidAccessRightException {
         if (currentEmployee.getAccessRight() != EmployeeAccessRightEnum.OPMANAGER) {
             throw new InvalidAccessRightException("You don't have OPERATION MANAGER rights to access the Hotel Operation Module.");
         }
@@ -83,12 +84,7 @@ public class HotelOperationModule {
             System.out.println("8: Delete Room");
             System.out.println("9: View All Rooms");
             System.out.println("10: View Room Allocation Exception Report");
-            System.out.println("11: Create New Room Rate");
-            System.out.println("12: View Room Rate Details");
-            System.out.println("13: Update Room Rate");
-            System.out.println("14: Delete Room Rate");
-            System.out.println("15: View All Room Rates");
-            System.out.println("16: Back\n");
+            System.out.println("11: Back\n");
             response = 0;
 
             while (response < 1 || response > 20) {
@@ -133,21 +129,60 @@ public class HotelOperationModule {
                         viewRoomAllocationExceptionReport();
                         break;
                     case 11:
+                        return;
+                    default:
+                        break;
+                }
+            }
+        }
+    }
+
+    public void menuSA() throws InvalidAccessRightException {
+        if (currentEmployee.getAccessRight() != EmployeeAccessRightEnum.SAMANAGER) {
+            throw new InvalidAccessRightException("You don't have SALES MANAGER rights to access the Hotel Operation Module.");
+        }
+
+        Scanner sc = new Scanner(System.in);
+        Integer response = 0;
+        String input;
+
+        while (true) {
+            System.out.println("*** Hotel Reservation System :: Hotel Operations ***\n");
+            System.out.println("1: Create New Room Rate");
+            System.out.println("2: View Room Rate Details");
+            System.out.println("3: Update Room Rate");
+            System.out.println("4: Delete Room Rate");
+            System.out.println("5: View All Room Rates");
+            System.out.println("6: Back\n");
+            response = 0;
+
+            while (response < 1 || response > 20) {
+                System.out.print("> ");
+                input = sc.nextLine().trim();
+                try {
+                    response = Integer.parseInt(input);
+                } catch (NumberFormatException ex) {
+                    System.out.println("Please enter a numerical value.");
+                    continue;
+                }
+
+                switch (response) {
+                    case 1:
                         createNewRoomRate();
                         break;
-                    case 12:
+                    case 2:
                         viewRoomRateDetails();
                         break;
-                    case 13:
+                    case 3:
                         updateRoomRate();
                         break;
-                    case 14:
+                    case 4:
                         deleteRoomRate();
                         break;
-                    case 15:
+                    case 5:
                         viewAllRoomRates();
                         break;
-                    case 16:
+                    case 6:
                         return;
                     default:
                         break;
@@ -273,7 +308,7 @@ public class HotelOperationModule {
                         System.out.println("Please enter numeric values.");
                     }
                 }
-                
+
                 while (true) {
                     System.out.print("Please set the status of the room (1: AVAILABLE, 2: CLEANING, 3: ALLOCATED, 4: DISABLED)> ");
                     input = sc.nextLine().trim();
@@ -982,15 +1017,31 @@ public class HotelOperationModule {
             }
         }
 
-        System.out.print("Enter starting date and time in the format (ddMMyyyy HHmm)> ");
-        sDateTime = sc.nextLine().trim();
-        startDateTime = LocalDateTime.parse(sDateTime, formatter);
-        newRoomRate.setStartDate(startDateTime);
-
+        while (true) {
+            System.out.print("Enter starting date and time in the format (ddMMyyyy HHmm)> ");
+            sDateTime = sc.nextLine().trim();
+            try {
+                startDateTime = LocalDateTime.parse(sDateTime, formatter);
+            } catch (DateTimeParseException ex) {
+                System.out.println("Please enter the date in the right format!");
+                continue;
+            }
+            newRoomRate.setStartDate(startDateTime);
+            break;
+        }
+        
+        while(true) {
         System.out.print("Enter end date and time in the format (ddMMyyyy HHmm)> ");
         eDateTime = sc.nextLine().trim();
+        try {
         endDateTime = LocalDateTime.parse(eDateTime, formatter);
+        } catch (DateTimeParseException ex) {
+            System.out.println("Please enter the date in the right format!");
+            continue;
+        }
         newRoomRate.setEndDate(endDateTime);
+        break;
+        }
 
         while (true) {
             System.out.print("Enable Room Rate? Y/N> ");

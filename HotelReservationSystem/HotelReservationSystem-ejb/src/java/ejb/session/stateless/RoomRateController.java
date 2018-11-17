@@ -10,6 +10,7 @@ import entity.PeakRoomRate;
 import entity.PromoRoomRate;
 import entity.RoomRate;
 import entity.RoomType;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import javax.ejb.EJB;
@@ -140,7 +141,7 @@ public class RoomRateController implements RoomRateControllerLocal, RoomRateCont
     }
 
     @Override
-    public RoomRate retrieveComplexRoomRate(Long roomTypeId) throws RoomRateNotFoundException {
+    public RoomRate retrieveComplexRoomRate(Long roomTypeId, LocalDate date) throws RoomRateNotFoundException {
         Boolean hasNormal = false;
         Boolean hasPromo = false;
         Boolean hasPeak = false;
@@ -173,9 +174,9 @@ public class RoomRateController implements RoomRateControllerLocal, RoomRateCont
         if (hasNormal && hasPromo && !hasPeak) {
             List<PromoRoomRate> promoRoomRates = (List<PromoRoomRate>) query2.getResultList();
             for (PromoRoomRate promoRoomRate : promoRoomRates) {
-                if (promoRoomRate.getStartDate().isBefore(LocalDateTime.now()) && promoRoomRate.getEndDate().isAfter(LocalDateTime.now())) {
-                    finalRate = (RoomRate) promoRoomRate;
-                    break;
+                if (promoRoomRate.getStartDate().isBefore(date.atTime(0, 0)) || promoRoomRate.getStartDate().isEqual(date.atTime(0, 0))) {
+                        finalRate = (RoomRate) promoRoomRate;
+                        break;
                 }
             }
             if (finalRate == null) {
@@ -186,9 +187,9 @@ public class RoomRateController implements RoomRateControllerLocal, RoomRateCont
         if (hasNormal && !hasPromo && hasPeak) {
             List<PeakRoomRate> peakRoomRates = (List<PeakRoomRate>) query3.getResultList();
             for (PeakRoomRate peakRoomRate : peakRoomRates) {
-                if (peakRoomRate.getStartDate().isBefore(LocalDateTime.now()) && peakRoomRate.getEndDate().isAfter(LocalDateTime.now())) {
-                    finalRate = (RoomRate) peakRoomRate;
-                    break;
+                if (peakRoomRate.getStartDate().isBefore(date.atTime(0, 0)) || peakRoomRate.getStartDate().isEqual(date.atTime(0, 0))) {
+                        finalRate = (RoomRate) peakRoomRate;
+                        break;
                 }
             }
             if (finalRate == null) {
@@ -202,9 +203,9 @@ public class RoomRateController implements RoomRateControllerLocal, RoomRateCont
             finalRate = (PeakRoomRate) query3.getResultList().get(0);
             for (PeakRoomRate peakRoomRate : peakRoomRates) {
                 // ongoing promo room rate
-                if (peakRoomRate.getStartDate().isBefore(LocalDateTime.now()) && peakRoomRate.getEndDate().isAfter(LocalDateTime.now())) {
-                    finalRate = (RoomRate) peakRoomRate;
-                    break;
+                if (peakRoomRate.getStartDate().isBefore(date.atTime(0, 0)) || peakRoomRate.getStartDate().isEqual(date.atTime(0, 0))) {
+                        finalRate = (RoomRate) peakRoomRate;
+                        break;
                 }
             }
             if (finalRate == null) {
@@ -215,9 +216,9 @@ public class RoomRateController implements RoomRateControllerLocal, RoomRateCont
         if (hasNormal && hasPromo && hasPeak) {
             List<PromoRoomRate> promoRoomRates = (List<PromoRoomRate>) query2.getResultList();
             for (PromoRoomRate promoRoomRate : promoRoomRates) {
-                if (promoRoomRate.getStartDate().isBefore(LocalDateTime.now()) && promoRoomRate.getEndDate().isAfter(LocalDateTime.now())) {
-                    finalRate = (RoomRate) promoRoomRate;
-                    break;
+                if (promoRoomRate.getStartDate().isBefore(date.atTime(0, 0)) || promoRoomRate.getStartDate().isEqual(date.atTime(0, 0))) {
+                        finalRate = (RoomRate) promoRoomRate;
+                        break;
                 }
             }
             if (finalRate == null) {

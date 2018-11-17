@@ -38,6 +38,7 @@ import util.exception.GuestExistException;
 import util.exception.GuestNotFoundException;
 import util.exception.InvalidAccessRightException;
 import util.exception.LineCalculationException;
+import util.exception.LineCreationException;
 import util.exception.ReservationNotFoundException;
 import util.exception.RoomAllocationException;
 import util.exception.RoomCheckoutException;
@@ -74,7 +75,7 @@ public class FrontOfficeModule {
 
     public void menuMain() throws InvalidAccessRightException {
         if (currentEmployee.getAccessRight() != EmployeeAccessRightEnum.GUESTRELOFF) {
-            throw new InvalidAccessRightException("You don't have GUEST RELATION OFFICER rights to access the Front Office4 Module!!");
+            throw new InvalidAccessRightException("You don't have GUEST RELATION OFFICER rights to access the Front Office Module!!");
         }
 
         Scanner sc = new Scanner(System.in);
@@ -192,7 +193,7 @@ public class FrontOfficeModule {
 //                        }
 //                    }
                     lowestPublishedRate = (roomRateControllerRemote.retrieveLowestPublishedRoomRate(roomInventory.getRoomType().getRoomTypeId())).getRatePerNight();
-                    System.out.println("ID: " +  roomInventory.getRoomType().getRoomTypeId() + "Room Type: " + roomInventory.getRoomType().getRoomTypeName() + " | Number of rooms left: " + roomInventory.getNumRoomsLeft() + " | Published Rate: " + lowestPublishedRate);
+                    System.out.println("ID: " +  roomInventory.getRoomType().getRoomTypeId() + " Room Type: " + roomInventory.getRoomType().getRoomTypeName() + " | Number of rooms left: " + roomInventory.getNumRoomsLeft() + " | Published Rate: " + lowestPublishedRate);
                     //lowestPublishedRate = new BigDecimal(Integer.MAX_VALUE);
                 }
             } catch (RoomInventoryNotFoundException ex) {
@@ -380,18 +381,17 @@ public class FrontOfficeModule {
                 //create new reservation line item
                 ReservationLineItem reservationLineItem = new ReservationLineItem();
                 reservationLineItem.setNumRoomsRequested(numRoomsRequested);
+                try {
                 reservationLineItem = reservationControllerRemote.createNewReservationLineItem(reservationLineItem, walkInReservation.getReservationId(), reserveRoomTypeId);
-
+                } catch (LineCreationException ex) {
+                    System.out.println("An error has occurred: " + ex.getMessage());
+                    return;
+                }
                 //create new room nights
-                LocalDate localCheckInDate = LocalDate.parse(checkInDateString, formatter);
-                LocalDate localCheckOutDate = LocalDate.parse(checkOutDateString, formatter);
-                long numNights = ChronoUnit.DAYS.between(localCheckInDate, localCheckOutDate);
-
-                for (long l = 0l; l < numNights; l++) {
+                for (LocalDate date = checkInDate; date.isBefore(checkOutDate); date = date.plusDays(1)) {
                     RoomNight roomNight = new RoomNight();
-                    roomNight.setDate(checkInDate);
+                    roomNight.setDate(date);
                     reservationControllerRemote.createNewRoomNight(roomNight, reserveRoomTypeId, reservationLineItem.getReservationLineItemId());
-                    checkInDate.plusDays(1);
                 }
 
                 //calculate total amount in reservation and ask for confirmation

@@ -57,6 +57,7 @@ public class RoomTypeController implements RoomTypeControllerLocal, RoomTypeCont
         try {
             em.persist(roomType);
             em.flush();
+            em.refresh(roomType);
             
             return roomType;
         } catch (PersistenceException ex) {
