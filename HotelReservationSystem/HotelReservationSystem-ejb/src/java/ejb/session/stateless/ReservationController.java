@@ -6,6 +6,7 @@
 package ejb.session.stateless;
 
 import entity.OnlineReservation;
+import entity.PartnerReservation;
 import entity.Reservation;
 import entity.ReservationLineItem;
 import entity.Room;
@@ -74,6 +75,18 @@ public class ReservationController implements ReservationControllerRemote, Reser
             throw new ReservationNotFoundException("No results in query list.");
         }
     }
+    
+    @Override
+    public List<Reservation> retrieveAllReservationsByPartner(Long partnerId) throws ReservationNotFoundException{
+        Query query = em.createQuery("SELECT p FROM PartnerReservation p WHERE p.partner.partnerId = :inPartnerId");
+        query.setParameter("inPartnerId",partnerId);
+        
+        if(!query.getResultList().isEmpty()){
+            return query.getResultList();
+        }else{
+            throw new ReservationNotFoundException("No results in query List.");
+        }
+    }
 
     @Override
     public Reservation retrieveReservationByReservationId(Long reservationId) throws ReservationNotFoundException {
@@ -108,6 +121,15 @@ public class ReservationController implements ReservationControllerRemote, Reser
         em.refresh(newOnlineReservation);
 
         return newOnlineReservation;
+    }
+    
+    @Override
+    public PartnerReservation createNewPartnerReservation(PartnerReservation newPartnerReservation){
+        em.persist(newPartnerReservation);
+        em.flush();
+        em.refresh(newPartnerReservation);
+        
+        return newPartnerReservation;
     }
 
     @Override
@@ -157,6 +179,30 @@ public class ReservationController implements ReservationControllerRemote, Reser
         em.refresh(newReservationLineItem);
         return newReservationLineItem;
     }
+    
+    @Override
+    public ReservationLineItem createNewPartnerReservationLineItem(ReservationLineItem newReservationLineItem, Long partnerReservationId, Long roomTypeId) throws LineCreationException {
+        newReservationLineItem.setRoomType(em.find(RoomType.class, roomTypeId));
+        em.persist(newReservationLineItem);
+        PartnerReservation partnerReservation = em.find(PartnerReservation.class, partnerReservationId);
+        partnerReservation.getReservationLineItems().add(newReservationLineItem);
+        LocalDate checkInDate = partnerReservation.getCheckInDate();
+        LocalDate checkOutDate = partnerReservation.getCheckOutDate();
+        Integer numRoomsRequested = newReservationLineItem.getNumRoomsRequested();
+
+        try {
+            for (LocalDate date = checkInDate; date.isBefore(checkOutDate); date = date.plusDays(1)) {
+                RoomInventory roomInventory = roomInventoryControllerLocal.retrieveRoomInventoryByDate(date, roomTypeId);
+                roomInventory.setNumRoomsLeft(roomInventory.getNumRoomsLeft() - numRoomsRequested);
+            }
+        } catch (RoomInventoryNotFoundException ex) {
+            throw new LineCreationException(ex.getMessage());
+        }
+
+        em.flush();
+        em.refresh(newReservationLineItem);
+        return newReservationLineItem;
+    }
 
     @Override
     public RoomNight createNewRoomNight(RoomNight newRoomNight, Long roomTypeId, Long reservationLineItemId) {
@@ -188,6 +234,24 @@ public class ReservationController implements ReservationControllerRemote, Reser
         } catch (RoomRateNotFoundException ex) {
             throw new CreateRoomNightException("Room rate not found!");
         }
+    }
+    
+    @Override
+    public RoomNight createNewPartnerRoomNight(RoomNight newRoomNight, Long roomTypeId, Long reservationLineItemId) throws CreateRoomNightException{
+        try {
+            RoomRate finalRate = roomRateControllerLocal.retrieveComplexRoomRate(roomTypeId, newRoomNight.getDate());
+            ReservationLineItem reservationLineItem = em.find(ReservationLineItem.class, reservationLineItemId);
+            reservationLineItem.getRoomNights().add(newRoomNight);
+            newRoomNight.setReservationLineItem(reservationLineItem);
+            newRoomNight.setRoomRate(finalRate);
+            em.persist(newRoomNight);
+
+            em.flush();
+            em.refresh(newRoomNight);
+            return newRoomNight;
+        } catch (RoomRateNotFoundException ex) {
+            throw new CreateRoomNightException("Room rate not found!");
+        }        
     }
 
     @Override

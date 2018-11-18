@@ -6,6 +6,7 @@
 package ejb.session.stateless;
 
 import entity.OnlineReservation;
+import entity.PartnerReservation;
 import entity.Reservation;
 import entity.ReservationLineItem;
 import entity.Room;
@@ -48,6 +49,14 @@ public interface ReservationControllerRemote {
     public List<Reservation> retrieveAllReservationsByRegisteredGuest(Long registeredGuestId) throws ReservationNotFoundException;
 
     public RoomNight createOnlineNewRoomNight(RoomNight newRoomNight, Long roomTypeId, Long reservationLineItemId) throws CreateRoomNightException;
+
+    public List<Reservation> retrieveAllReservationsByPartner(Long partnerId) throws ReservationNotFoundException;
+
+    public PartnerReservation createNewPartnerReservation(PartnerReservation newPartnerReservation);
+
+    public ReservationLineItem createNewPartnerReservationLineItem(ReservationLineItem newReservationLineItem, Long partnerReservationId, Long roomTypeId) throws LineCreationException;
+
+    public RoomNight createNewPartnerRoomNight(RoomNight newRoomNight, Long roomTypeId, Long reservationLineItemId) throws CreateRoomNightException;
 
     
        

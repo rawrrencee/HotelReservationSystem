@@ -5,17 +5,44 @@
  */
 package holidayreservationsystem;
 
+import ejb.session.stateless.PartnerControllerRemote;
+import ejb.session.stateless.ReservationControllerRemote;
+import ejb.session.stateless.RoomControllerRemote;
+import ejb.session.stateless.RoomInventoryControllerRemote;
+import ejb.session.stateless.RoomRateControllerRemote;
+import ejb.session.stateless.RoomTypeControllerRemote;
+import javax.ejb.EJB;
+
 /**
  *
  * @author Lawrence
  */
 public class Main {
 
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String[] args) {
-        // TODO code application logic here
-    }
+    @EJB
+    private static PartnerControllerRemote partnerControllerRemote;
+
+    @EJB
+    private static RoomTypeControllerRemote roomTypeControllerRemote;
+
+    @EJB
+    private static RoomControllerRemote roomControllerRemote;
+
+    @EJB
+    private static RoomRateControllerRemote roomRateControllerRemote;
+
+    @EJB
+    private static RoomInventoryControllerRemote roomInventoryControllerRemote;
+
+    @EJB
+    private static ReservationControllerRemote reservationControllerRemote;
     
+    
+    
+    
+    public static void main(String[] args) {
+       
+        MainApp mainApp = new MainApp(roomControllerRemote, roomRateControllerRemote, roomInventoryControllerRemote, partnerControllerRemote, reservationControllerRemote, roomTypeControllerRemote);
+        mainApp.runApp();
+    }
 }

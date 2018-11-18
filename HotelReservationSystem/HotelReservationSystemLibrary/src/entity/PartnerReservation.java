@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
 import javax.persistence.Entity;
+import javax.persistence.ManyToOne;
 import util.exception.IncorrectDateException;
 
 /**
@@ -22,6 +23,8 @@ import util.exception.IncorrectDateException;
 public class PartnerReservation extends Reservation implements Serializable {
 
     private static final long serialVersionUID = 1L;
+    @ManyToOne
+    private Partner partner;
     
     public PartnerReservation() {
     }
@@ -72,6 +75,20 @@ public class PartnerReservation extends Reservation implements Serializable {
     @Override
     public String toString() {
         return "entity.PartnerReservation[ reservationId=" + reservationId + " ]";
+    }
+
+    /**
+     * @return the partner
+     */
+    public Partner getPartner() {
+        return partner;
+    }
+
+    /**
+     * @param partner the partner to set
+     */
+    public void setPartner(Partner partner) {
+        this.partner = partner;
     }
     
 }
