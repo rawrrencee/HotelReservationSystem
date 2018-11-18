@@ -535,7 +535,7 @@ public class FrontOfficeModule {
         } catch (ReservationNotFoundException | LineCalculationException ex) {
             System.out.println("An error occurred: " + ex.getMessage());
         } catch (RoomAllocationException e) {
-
+            System.out.println("An error has occurred: " + e.getMessage() + " TODO: Make Room Allocation Exception Report!");
         }
 
     }

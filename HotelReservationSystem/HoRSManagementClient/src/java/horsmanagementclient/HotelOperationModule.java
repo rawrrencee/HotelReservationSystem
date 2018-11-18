@@ -1104,15 +1104,31 @@ public class HotelOperationModule {
             }
         }
 
-        System.out.print("Enter starting date and time in the format (ddMMyyyy HHmm)> ");
-        sDateTime = sc.nextLine().trim();
-        startDateTime = LocalDateTime.parse(sDateTime, formatter);
-        newRoomRate.setStartDate(startDateTime);
+        while (true) {
+            System.out.print("Enter starting date and time in the format (ddMMyyyy HHmm)> ");
+            sDateTime = sc.nextLine().trim();
+            try {
+                startDateTime = LocalDateTime.parse(sDateTime, formatter);
+            } catch (DateTimeParseException ex) {
+                System.out.println("Please enter the date in the right format!");
+                continue;
+            }
+            newRoomRate.setStartDate(startDateTime);
+            break;
+        }
 
-        System.out.print("Enter end date and time in the format (ddMMyyyy HHmm)> ");
-        eDateTime = sc.nextLine().trim();
-        endDateTime = LocalDateTime.parse(eDateTime, formatter);
-        newRoomRate.setEndDate(endDateTime);
+        while (true) {
+            System.out.print("Enter end date and time in the format (ddMMyyyy HHmm)> ");
+            eDateTime = sc.nextLine().trim();
+            try {
+                endDateTime = LocalDateTime.parse(eDateTime, formatter);
+            } catch (DateTimeParseException ex) {
+                System.out.println("Please enter the date in the right format!");
+                continue;
+            }
+            newRoomRate.setEndDate(endDateTime);
+            break;
+        }
 
         while (true) {
             System.out.print("Enable Room Rate? Y/N> ");

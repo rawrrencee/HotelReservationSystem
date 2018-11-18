@@ -174,9 +174,11 @@ public class RoomRateController implements RoomRateControllerLocal, RoomRateCont
         if (hasNormal && hasPromo && !hasPeak) {
             List<PromoRoomRate> promoRoomRates = (List<PromoRoomRate>) query2.getResultList();
             for (PromoRoomRate promoRoomRate : promoRoomRates) {
-                if (promoRoomRate.getStartDate().isBefore(date.atTime(0, 0)) || promoRoomRate.getStartDate().isEqual(date.atTime(0, 0))) {
+                if (promoRoomRate.getEndDate().isAfter(date.atTime(0, 0)) || promoRoomRate.getEndDate().isEqual(date.atTime(0, 0))) {
+                    if (promoRoomRate.getStartDate().isBefore(date.atTime(0, 0)) || promoRoomRate.getStartDate().isEqual(date.atTime(0, 0))) {
                         finalRate = (RoomRate) promoRoomRate;
                         break;
+                    }
                 }
             }
             if (finalRate == null) {
@@ -187,9 +189,11 @@ public class RoomRateController implements RoomRateControllerLocal, RoomRateCont
         if (hasNormal && !hasPromo && hasPeak) {
             List<PeakRoomRate> peakRoomRates = (List<PeakRoomRate>) query3.getResultList();
             for (PeakRoomRate peakRoomRate : peakRoomRates) {
-                if (peakRoomRate.getStartDate().isBefore(date.atTime(0, 0)) || peakRoomRate.getStartDate().isEqual(date.atTime(0, 0))) {
+                if (peakRoomRate.getEndDate().isAfter(date.atTime(0, 0)) || peakRoomRate.getEndDate().isEqual(date.atTime(0, 0))) {
+                    if (peakRoomRate.getStartDate().isBefore(date.atTime(0, 0)) || peakRoomRate.getStartDate().isEqual(date.atTime(0, 0))) {
                         finalRate = (RoomRate) peakRoomRate;
                         break;
+                    }
                 }
             }
             if (finalRate == null) {
@@ -203,9 +207,11 @@ public class RoomRateController implements RoomRateControllerLocal, RoomRateCont
             finalRate = (PeakRoomRate) query3.getResultList().get(0);
             for (PeakRoomRate peakRoomRate : peakRoomRates) {
                 // ongoing promo room rate
-                if (peakRoomRate.getStartDate().isBefore(date.atTime(0, 0)) || peakRoomRate.getStartDate().isEqual(date.atTime(0, 0))) {
+                if (peakRoomRate.getEndDate().isAfter(date.atTime(0, 0)) || peakRoomRate.getEndDate().isEqual(date.atTime(0, 0))) {
+                    if (peakRoomRate.getStartDate().isBefore(date.atTime(0, 0)) || peakRoomRate.getStartDate().isEqual(date.atTime(0, 0))) {
                         finalRate = (RoomRate) peakRoomRate;
                         break;
+                    }
                 }
             }
             if (finalRate == null) {
@@ -216,9 +222,11 @@ public class RoomRateController implements RoomRateControllerLocal, RoomRateCont
         if (hasNormal && hasPromo && hasPeak) {
             List<PromoRoomRate> promoRoomRates = (List<PromoRoomRate>) query2.getResultList();
             for (PromoRoomRate promoRoomRate : promoRoomRates) {
-                if (promoRoomRate.getStartDate().isBefore(date.atTime(0, 0)) || promoRoomRate.getStartDate().isEqual(date.atTime(0, 0))) {
+                if (promoRoomRate.getEndDate().isAfter(date.atTime(0, 0)) || promoRoomRate.getEndDate().isEqual(date.atTime(0, 0))) {
+                    if (promoRoomRate.getStartDate().isBefore(date.atTime(0, 0)) || promoRoomRate.getStartDate().isEqual(date.atTime(0, 0))) {
                         finalRate = (RoomRate) promoRoomRate;
                         break;
+                    }
                 }
             }
             if (finalRate == null) {

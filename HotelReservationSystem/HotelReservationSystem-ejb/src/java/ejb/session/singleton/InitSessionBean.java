@@ -124,9 +124,9 @@ public class InitSessionBean {
             NormalRoomRate juniorNormal = new NormalRoomRate("Junior Suite Normal Room Rate", new BigDecimal(400.99), true);
             roomRateControllerLocal.createNewRoomRate(juniorNormal, juniorRoomTypeId);
 
-            PublishedRoomRate grandPub = new PublishedRoomRate("Grand Suite Published Room Rate", new BigDecimal(400.10), true);
+            PublishedRoomRate grandPub = new PublishedRoomRate("Grand Suite Published Room Rate", new BigDecimal(500.10), true);
             roomRateControllerLocal.createNewRoomRate(grandPub, grandRoomTypeId);
-            NormalRoomRate grandNormal = new NormalRoomRate("Grand Suite Normal Room Rate", new BigDecimal(400.99), true);
+            NormalRoomRate grandNormal = new NormalRoomRate("Grand Suite Normal Room Rate", new BigDecimal(500.99), true);
             roomRateControllerLocal.createNewRoomRate(grandNormal, grandRoomTypeId);
 
         } catch (Exception ex) {

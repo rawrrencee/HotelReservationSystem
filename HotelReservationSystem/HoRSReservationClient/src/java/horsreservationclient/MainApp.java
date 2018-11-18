@@ -145,10 +145,11 @@ public class MainApp {
         while (true) {
             System.out.println("*** HoRS Reservation Client :: Main Menu ***\n");
             System.out.println("You have logged in as " + currentRegisteredGuest.getFirstName() + " " + currentRegisteredGuest.getLastName() + ".\n");
-            System.out.println("1: Reserve Hotel Room");
-            System.out.println("2: View My Reservation Details");
-            System.out.println("3: View All My Reservations");
-            System.out.println("4: Logout\n");
+            System.out.println("1: Search Hotel Room");
+            System.out.println("2: Reserve Hotel Room");
+            System.out.println("3: View My Reservation Details");
+            System.out.println("4: View All My Reservations");
+            System.out.println("5: Logout\n");
             response = 0;
 
             while (response < 1 || response > 4) {
@@ -162,15 +163,18 @@ public class MainApp {
                 }
                 switch (response) {
                     case 1:
-                        reserveHotelRoom();
+                        searchHotelRoom();
                         break;
                     case 2:
-                        viewMyReservationDetails();
+                        reserveHotelRoom();
                         break;
                     case 3:
-                        viewAllMyReservations();
+                        viewMyReservationDetails();
                         break;
                     case 4:
+                        viewAllMyReservations();
+                        break;
+                    case 5:
                         return;
                     default:
                         break;
@@ -359,7 +363,7 @@ public class MainApp {
         List<RoomInventory> roomInventories;
         List<RoomRate> roomRates;
 
-        System.out.println("*** Hotel Reservation System :: Front Office :: Walk-in Reserve Room ***\n");
+        System.out.println("*** HoRS Reservation Client :: Reserve Hotel Room ***\n");
 
         while (true) {
             System.out.print("Enter Check-in date in the format ddMMyyyy> ");

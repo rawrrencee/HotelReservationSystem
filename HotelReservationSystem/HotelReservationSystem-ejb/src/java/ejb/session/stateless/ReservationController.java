@@ -282,34 +282,18 @@ public class ReservationController implements ReservationControllerRemote, Reser
     }
 
     @Override
-    public Room allocateRoom(Long roomTypeId, Long reservationLineItemId, Long walkInReservationId) throws RoomAllocationException {
+    public Room allocateRoom(Long roomTypeId, Long reservationLineItemId, Long reservationId) throws RoomAllocationException {
         ReservationLineItem reservationLineItem = em.find(ReservationLineItem.class, reservationLineItemId);
-        WalkInReservation walkInReservation = em.find(WalkInReservation.class, walkInReservationId);
-
-        LocalDate checkInDate = walkInReservation.getCheckInDate();
-        System.out.println("walkin reservation checkindate: " + checkInDate);
-        LocalDate checkOutDate = walkInReservation.getCheckOutDate();
-        System.out.println("walkin reservation checkkOutdate: " + checkOutDate);
+        Reservation reservation = em.find(Reservation.class, reservationId);
+        
+        if (reservation.getCheckedOut()) {
+            throw new RoomAllocationException("Reservation has already been checked-in before. Please make a new reservation.");
+        }
 
         try {
             Room room = roomControllerLocal.retrieveFirstAvailableRoomOfRoomType(roomTypeId);
             room.setRoomStatus(RoomStatus.ALLOCATED);
             reservationLineItem.getRooms().add(room);
-
-            for (LocalDate date = checkInDate; date.isBefore(checkOutDate); date = date.plusDays(1)) {
-                System.out.println("Current date for allocation: " + date);
-                try {
-                    System.out.println("Current date for allocation: " + date);
-                    RoomInventory roomInventory = roomInventoryControllerLocal.retrieveRoomInventoryByDate(date, roomTypeId);
-                    System.out.println("room Inventory id is " + roomInventory.getRoomInventoryId());
-                    if (roomInventory.getNumRoomsLeft() == 0) {
-                        throw new RoomAllocationException("Room allocation failed as no rooms are available.");
-                    }
-                  
-                } catch (RoomInventoryNotFoundException ex) {
-                    throw new RoomAllocationException(ex.getMessage());
-                }
-            }
             return room;
         } catch (NoResultException ex) {
             throw new RoomAllocationException("No available rooms of room type!");
@@ -317,27 +301,33 @@ public class ReservationController implements ReservationControllerRemote, Reser
     }
 
     @Override
-    public void processCheckout(Long reservationLineItemId, Long walkInReservationId) throws RoomCheckoutException {
+    public void processCheckout(Long reservationLineItemId, Long reservationId) throws RoomCheckoutException {
         ReservationLineItem reservationLineItem = em.find(ReservationLineItem.class, reservationLineItemId);
-        WalkInReservation walkInReservation = em.find(WalkInReservation.class, walkInReservationId);
+        Reservation reservation = em.find(Reservation.class, reservationId);
 
         try {
-            if (walkInReservation.getCheckOutDate().equals(LocalDate.now()) || walkInReservation.getCheckOutDate().isBefore(LocalDate.now())) {
-                List<Room> rooms = reservationLineItem.getRooms();
-                for (Room room : rooms) {
-                    room.setRoomStatus(RoomStatus.AVAILABLE);
-                }
-            } else if (walkInReservation.getCheckOutDate().isAfter(LocalDate.now())) {
+            if (reservation.getCheckOutDate().equals(LocalDate.now()) || reservation.getCheckOutDate().isBefore(LocalDate.now())) {
                 RoomType roomType = reservationLineItem.getRoomType();
-                for (LocalDate date = LocalDate.now(); date.isBefore(walkInReservation.getCheckOutDate()); date = date.plusDays(1)) {
+                RoomInventory roomInventory = roomInventoryControllerLocal.retrieveRoomInventoryByDate(LocalDate.now(), roomType.getRoomTypeId());
+                roomInventory.setNumRoomsLeft(roomInventory.getNumRoomsLeft() + reservationLineItem.getNumRoomsRequested());
+                List<Room> rooms = reservationLineItem.getRooms();
+                for (Room room : rooms) {
+                    room.setRoomStatus(RoomStatus.AVAILABLE);
+                }
+                reservationLineItem.getRooms().clear();
+            } else if (reservation.getCheckOutDate().isAfter(LocalDate.now())) {
+                RoomType roomType = reservationLineItem.getRoomType();
+                for (LocalDate date = LocalDate.now(); date.isBefore(reservation.getCheckOutDate()); date = date.plusDays(1)) {
                     RoomInventory roomInventory = roomInventoryControllerLocal.retrieveRoomInventoryByDate(date, roomType.getRoomTypeId());
-                    roomInventory.setNumRoomsLeft(roomInventory.getNumRoomsLeft() + 1);
+                    roomInventory.setNumRoomsLeft(roomInventory.getNumRoomsLeft() + reservationLineItem.getNumRoomsRequested());
                 }
                 List<Room> rooms = reservationLineItem.getRooms();
                 for (Room room : rooms) {
                     room.setRoomStatus(RoomStatus.AVAILABLE);
                 }
+                reservationLineItem.getRooms().clear();
             }
+            reservation.setCheckedOut(Boolean.TRUE);
         } catch (RoomInventoryNotFoundException ex) {
             throw new RoomCheckoutException(ex.getMessage());
         }

@@ -8,6 +8,7 @@ package ejb.session.stateless;
 import entity.Room;
 import entity.RoomInventory;
 import entity.RoomType;
+import java.time.LocalDate;
 import java.util.List;
 import javax.ejb.EJB;
 import javax.ejb.Local;
@@ -149,21 +150,36 @@ public class RoomController implements RoomControllerLocal, RoomControllerRemote
         Long currentRoomTypeId = room.getRoomType().getRoomTypeId();
         RoomType currentRoomType = roomTypeControllerLocal.retrieveRoomTypeByRoomTypeId(currentRoomTypeId);
         
-        List<RoomInventory> roomInventoriesOfRoomType = roomInventoryControllerLocal.retrieveRoomInventoriesByRoomType(currentRoomType.getRoomTypeId());
+//        List<RoomInventory> roomInventoriesOfRoomType = roomInventoryControllerLocal.retrieveRoomInventoriesByRoomType(currentRoomType.getRoomTypeId());
+//        Integer newNumRoomsLeft;
+//        
+//        if (statusChanged == -1) {
+//            for (RoomInventory roomInventory : roomInventoriesOfRoomType) {
+//                newNumRoomsLeft = roomInventory.getNumRoomsLeft() - 1;
+//                roomInventory.setNumRoomsLeft(newNumRoomsLeft);
+//            }
+//        }
+//        
+//        if (statusChanged == 1) {
+//            for (RoomInventory roomInventory : roomInventoriesOfRoomType) {
+//                newNumRoomsLeft = roomInventory.getNumRoomsLeft() + 1;
+//                roomInventory.setNumRoomsLeft(newNumRoomsLeft);
+//            }
+//        }
+
+        RoomInventory roomInventory = roomInventoryControllerLocal.retrieveRoomInventoryByDate(LocalDate.now(), newRoomTypeId);
         Integer newNumRoomsLeft;
         
+        //if set to allocated or disabled, then lower all inventory of today by 1
         if (statusChanged == -1) {
-            for (RoomInventory roomInventory : roomInventoriesOfRoomType) {
-                newNumRoomsLeft = roomInventory.getNumRoomsLeft() - 1;
-                roomInventory.setNumRoomsLeft(newNumRoomsLeft);
-            }
+            newNumRoomsLeft = roomInventory.getNumRoomsLeft() - 1;
+            roomInventory.setNumRoomsLeft(newNumRoomsLeft);
         }
         
+        //if set to available or cleaning, then increase all inventory of today by 1
         if (statusChanged == 1) {
-            for (RoomInventory roomInventory : roomInventoriesOfRoomType) {
-                newNumRoomsLeft = roomInventory.getNumRoomsLeft() + 1;
-                roomInventory.setNumRoomsLeft(newNumRoomsLeft);
-            }
+            newNumRoomsLeft = roomInventory.getNumRoomsLeft() + 1;
+            roomInventory.setNumRoomsLeft(newNumRoomsLeft);
         }
         
         try {

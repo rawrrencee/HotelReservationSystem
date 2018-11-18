@@ -43,6 +43,8 @@ public abstract class Reservation implements Serializable {
     protected Integer numGuests;
     protected Date createdDate;
     
+    private Boolean checkedOut;
+    
     @ManyToOne
     private Guest guest;
     
@@ -51,6 +53,7 @@ public abstract class Reservation implements Serializable {
 
     public Reservation() {
         reservationLineItems = new ArrayList<>();
+        checkedOut = false;
     }
 
     public Reservation(LocalDate checkInDate, LocalDate checkOutDate, BigDecimal reservationAmt, Integer numGuests, LocalDateTime createdDate) {
@@ -190,6 +193,20 @@ public abstract class Reservation implements Serializable {
      */
     public void setReservationLineItems(List<ReservationLineItem> reservationLineItems) {
         this.reservationLineItems = reservationLineItems;
+    }
+
+    /**
+     * @return the checkedOut
+     */
+    public Boolean getCheckedOut() {
+        return checkedOut;
+    }
+
+    /**
+     * @param checkedOut the checkedOut to set
+     */
+    public void setCheckedOut(Boolean checkedOut) {
+        this.checkedOut = checkedOut;
     }
     
 }
